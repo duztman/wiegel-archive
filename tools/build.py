@@ -480,11 +480,7 @@ NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html
 
 def page(title, body, depth=0, sprite="", cls="", cur=""):
     up = "../" * depth
-    tags = []
-    for k, label, href in NAV:
-        tags.append(f'<a class="tag{" on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>')
-        if k == "index":
-            tags.append('<div id="subnav" class="subnav"></div>')
+    links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>' for k, label, href in NAV)
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
@@ -493,13 +489,12 @@ def page(title, body, depth=0, sprite="", cls="", cur=""):
 <script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};try{{var t=localStorage.getItem("wa-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body class="p-{cls}" style="--navbg:{NAVPAL.get(cls, NAVPAL['home'])[0]};--navfg:{NAVPAL.get(cls, NAVPAL['home'])[1]}">
 {sprite}
-<nav class="side" aria-label="Site">
-<a class="tag home" href="{up}index.html">Wiegel Archive</a>
-{"".join(tags)}
-<button class="tag theme" type="button" aria-label="Switch light or dark">Light / Dark</button>
-</nav>
+<header class="top" id="top">
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<button class="theme" type="button" aria-label="Switch light or dark">Light / Dark</button></nav>
+<nav class="nav2" id="subnav" aria-label="This font"></nav>
+</header>
 <main>{body}
-<footer class="foot"><p>A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
+<footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
 </main>
 <script src="{up}assets/catalog.js"></script><script src="{up}assets/app.js"></script>
 </body></html>"""
@@ -599,8 +594,8 @@ def catalogue_html(cat, sprite):
         rows.append(
             f'<tr><td class="num" data-v="{f["no"]}">{nofmt(f["no"])}</td><td class="n"><a href="{flink(f["slug"])}">{ESC(f["name"])}</a></td>'
             f'<td>{ESC(f["family"])}</td>'
-            f'<td class="num" data-v="{f.get("oy") or 9999}">{f.get("oy") or "—"}</td>'
-            f'<td class="num" data-v="{f.get("dy") or 9999}">{f.get("dy") or "—"}</td>'
+            f'<td class="num" data-v="{f.get("oy") or 9999}">{f.get("oy") or ""}</td>'
+            f'<td class="num" data-v="{f.get("dy") or 9999}">{f.get("dy") or ""}</td>'
             f'<td class="sub">{ESC(f.get("place") or f.get("origin") or "")}</td>'
             f'<td class="num" data-v="{len(f.get("faces", []))}">{len(f.get("faces", []))}</td>'
             f'<td class="num" data-v="{f.get("glyphs", 0)}">{f.get("glyphs", 0):,}</td>'
@@ -712,10 +707,10 @@ def font_html(f, by, sprite, up="../", fragment=False):
     tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
     secs = [("specimen", "Specimen"), ("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
-    subnav = (f'<span class="tag sub1">{ESC(f["family"])}</span><span class="tag sub2 on">{ESC(f["name"])}</span>'
-              + "".join(f'<a class="tag sub3" href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
-              + (f'<a class="tag sub3" href="{plink(prev_)}">← Previous</a>' if prev_ else "")
-              + (f'<a class="tag sub3" href="{plink(next_)}">Next →</a>' if next_ else ""))
+    subnav = (f'<span class="crumb">{ESC(f["family"])}</span><span class="sep">/</span><span class="cur">{ESC(f["name"])}</span>'
+              + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
+              + (f'<a class="push" href="{plink(prev_)}">← {ESC(prev_["name"])}</a>' if prev_ else "")
+              + (f'<a{"" if prev_ else " class=push"} href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else ""))
     years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}" style="--bg:{bg};--fg:{fg}">
@@ -724,20 +719,24 @@ def font_html(f, by, sprite, up="../", fragment=False):
 <script type="application/json" id="glyphs">{glyphs}</script>
 <div class="sheet" id="specimen">
   <header class="fhead">
-    <p class="kicker tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
+    <p class="kicker info tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
     <ul class="icons-row">{icons}</ul>
   </header>
-  <div class="tools" role="toolbar" aria-label="Specimen controls">
-    {f'<label>Style <select id="style">{styles}</select></label>' if len(faces) > 1 else ''}
-    <label>Size <input type="range" id="sz" min="8" max="400" value="128"><output id="szo" class="tnum">128</output></label>
-    <label>Leading <input type="range" id="lh" min="0.7" max="2" step="0.01" value="1.1"><output id="lho" class="tnum">1.10</output></label>
-    <label>Tracking <input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"><output id="tro" class="tnum">0</output></label>
-    {f'<span class="feats">{feats}</span>' if feats else ''}
-    <span class="sws" role="group" aria-label="Colours from Wiegel's site">{sw}</span>
-    <button type="button" id="invert" class="t">Invert</button>
-    <button type="button" id="reset" class="t">Reset</button>
-  </div>
   <div class="blocks{' text' if f['text'] else ' display'}" id="blocks">{specimen_blocks(f, faces)}</div>
+  <div class="tools" role="toolbar" aria-label="Specimen controls">
+    <div class="sliders">
+      <label class="sl"><span class="k">Size</span><output id="szo" class="tnum">128</output><input type="range" id="sz" min="8" max="400" value="128"></label>
+      <label class="sl"><span class="k">Leading</span><output id="lho" class="tnum">1.10</output><input type="range" id="lh" min="0.7" max="2" step="0.01" value="1.1"></label>
+      <label class="sl"><span class="k">Tracking</span><output id="tro" class="tnum">0</output><input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"></label>
+    </div>
+    <div class="opts">
+      {f'<label>Style <select id="style">{styles}</select></label>' if len(faces) > 1 else ''}
+      {f'<span class="feats">{feats}</span>' if feats else ''}
+      <span class="sws" role="group" aria-label="Colours from Wiegel's site">{sw}</span>
+      <button type="button" id="invert" class="t">Invert</button>
+      <button type="button" id="reset" class="t">Reset</button>
+    </div>
+  </div>
 </div>
 {sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
 {sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{ESC(f["translate"])}">Read Wiegel’s original in English ↗</a> <a class="t" href="{ESC(f["url"])}">Original German page ↗</a></p>', "account")}

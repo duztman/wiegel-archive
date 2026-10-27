@@ -10,6 +10,10 @@
   const pad = (n) => String(n).padStart(3, "0");
   const flink = (s) => (window.HOSTED ? `${R}font.html#${s}` : `${R}font/${s}.html`);
 
+  /* header height → sticky offsets */
+  function setNavH() { const t = document.getElementById("top"); if (t) document.documentElement.style.setProperty("--navh", t.offsetHeight + "px"); }
+  setNavH(); addEventListener("resize", setNavH); document.fonts?.ready?.then(setNavH);
+
   /* theme */
   $(".theme")?.addEventListener("click", () => {
     const dark = matchMedia("(prefers-color-scheme: dark)").matches;
@@ -110,14 +114,15 @@
     const cards = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "card"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<canvas aria-label="${esc(f.n)} specimen"></canvas><span class="ico">${f.ic.slice(0, 6).map(ico).join("")}</span>`
-        + `<span class="cap tnum"><span class="no">${pad(f.no)}</span><span class="n">${esc(f.n)}</span><span class="y">${f.y || ""}</span></span>`;
+      a.innerHTML = `<span class="meta info tnum"><span>${pad(f.no)} ${esc(f.fa)}</span><span>${[f.y, f.dy].filter(Boolean).join(" → ")}</span></span>`
+        + `<canvas aria-label="${esc(f.n)} specimen"></canvas><span class="ico">${f.ic.slice(0, 6).map(ico).join("")}</span><span class="n">${esc(f.n)}</span>`;
       return a;
     });
     const rows = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="no">${pad(f.no)}</span><span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span><span class="fa">${esc(f.fa)}</span><span class="y">${f.y || "—"}</span><span class="y dy">${f.dy || "—"}</span>`;
+      a.innerHTML = `<span class="meta info tnum"><span class="no">${pad(f.no)}</span><span class="fa">${esc(f.fa)}</span><span>${f.y ? "Original " + f.y : ""}</span><span>${f.dy ? "Digitised " + f.dy : ""}</span></span>`
+        + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span>`;
       return a;
     });
 
@@ -149,7 +154,7 @@
     function renderChosen() {
       const out = [];
       CATS.forEach(([k, label]) => (state.sel[k] || new Set()).forEach((v) => {
-        const b = document.createElement("button"); b.type = "button"; b.className = "tag on"; b.textContent = `${label}: ${v}`;
+        const b = document.createElement("button"); b.type = "button"; b.className = "t"; b.textContent = `${label}: ${v} `;
         b.onclick = () => { state.sel[k].delete(v); if (!state.sel[k].size) delete state.sel[k]; renderVals(); apply(); };
         out.push(b);
       }));
@@ -213,7 +218,7 @@
     const art = $("article.font"), blocks = $("#blocks");
     if (!art || !blocks) return;
     const sub = $("#subnav"), tpl = $("#subnavtpl");
-    if (sub && tpl) sub.innerHTML = tpl.innerHTML;
+    if (sub && tpl) { sub.innerHTML = tpl.innerHTML; setNavH(); }
     $$("[href^='#']", sub || document).forEach((a) => a.addEventListener("click", (e) => { const t = document.getElementById(a.getAttribute("href").slice(1)); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth" }); } }));
 
     const F = JSON.parse($("#faces").textContent || "[]");
