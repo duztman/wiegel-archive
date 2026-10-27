@@ -302,12 +302,15 @@
       ranges.forEach(([a, b, name]) => {
         const cps = G.filter((c) => c >= a && c < b && !done.has(c)); if (!cps.length) return;
         cps.forEach((c) => done.add(c));
-        const h = document.createElement("div"); h.className = "gl-head"; h.textContent = `${name} ${cps.length}`; gl.appendChild(h);
+        const blk = document.createElement("div"); blk.className = "gblock";
+        const h = document.createElement("h3"); h.className = "vlab"; h.textContent = `${name} ${cps.length}`;
+        const cells = document.createElement("div"); cells.className = "gcells";
+        blk.append(h, cells); gl.appendChild(blk);
         cps.forEach((c) => {
           const d = document.createElement("div"); d.className = "g"; d._cp = c;
           const hex = c.toString(16).toUpperCase().padStart(4, "0");
           d.innerHTML = `<canvas></canvas><span>${hex}</span>`; d.title = `U+${hex}`;
-          gl.appendChild(d); gio.observe(d);
+          cells.appendChild(d); gio.observe(d);
         });
       });
     }

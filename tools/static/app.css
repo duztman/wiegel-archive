@@ -326,13 +326,15 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .wf .px { font: var(--info)/1 var(--uiface); color: var(--ink-3); text-align: right; }
 .wf .tx { overflow: hidden; font-family: var(--ff); }
 
-.gl { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); border-left: var(--line) solid var(--rule); border-top: var(--line) solid var(--rule); }
+.gl { display: grid; gap: 24px; }
+.gblock { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; align-items: start; }
+.gblock .vlab { justify-self: start; padding-top: 0; position: sticky; top: calc(var(--navh) + 48px); }
+.gcells { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); border-left: var(--line) solid var(--rule); border-top: var(--line) solid var(--rule); }
 .gl .g { position: relative; border-right: var(--line) solid var(--rule); border-bottom: var(--line) solid var(--rule); aspect-ratio: 1; }
 .gl .g canvas { display: block; width: 100%; height: 100%; }
 .gl .g span { position: absolute; left: 4px; bottom: 3px; font: 11px/1 var(--mono); color: var(--ink-3); opacity: 0; }
 .gl .g:hover span { opacity: 1; }
 .gl .g:hover { background: var(--wash); }
-.gl-head { grid-column: 1 / -1; padding: 16px 8px 8px; border-right: var(--line) solid var(--rule); border-bottom: var(--line) solid var(--rule); font: var(--info)/1.2 var(--uiface); color: var(--ink-3); }
 
 .pn { display: flex; justify-content: space-between; gap: 32px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid var(--rule); }
 .pn a.off { visibility: hidden; }
