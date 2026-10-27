@@ -101,7 +101,7 @@
     const rows = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span class="no">${pad(f.no)}</span><span class="fa">${esc(f.fa)}</span><span>${f.y ? "Original " + f.y : ""}</span><span>${f.dy ? "Digitised " + f.dy : ""}</span><span class="ics">${f.ic.slice(0, 8).map(ico).join("")}</span></span>`
+      a.innerHTML = `<span class="meta info tnum"><span class="oy"></span><span class="dy"></span><span class="fa">${esc(f.fa)}</span><span class="ics">${f.ic.slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
         + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span>`;
       return a;
     });
@@ -111,7 +111,7 @@
       b.innerHTML = `${esc(label)}${n != null ? ` <span class="n tnum">${n}</span>` : ""}`; b.setAttribute("aria-pressed", !!on); b.onclick = fn; return b; };
     function renderSide() {
       const box = $("#fside"); box.replaceChildren();
-      const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "info"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(h, w); box.appendChild(g); };
+      const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(h, w); box.appendChild(g); };
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
       CATS.forEach(([k, label]) => {
         const sel = state.sel[k] || new Set();
@@ -128,6 +128,11 @@
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
+      list.forEach((r, i) => {   // spelled out on the first row, abbreviated after
+        const f = r._font;
+        r.querySelector(".oy").textContent = f.y ? (i ? "O. " : "Original ") + f.y : "";
+        r.querySelector(".dy").textContent = f.dy ? (i ? "D. " : "Digitised ") + f.dy : "";
+      });
       grid.replaceChildren(...list);
       const any = Object.keys(state.sel).length || state.q;
       $("#count").textContent = `${list.length} of ${C.fonts.length}`;
