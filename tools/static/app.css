@@ -114,13 +114,13 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 .frow { display: flex; flex-wrap: wrap; gap: 8px 12px; padding: var(--pt) 0 var(--pb); }
 .frow + .frow { border-top: var(--line) solid var(--rule); }
 .frow .n { opacity: .6; }
-#fvals .t, .chosen .t { padding: 2px 14px 1px; border-radius: 999px; box-shadow: inset 0 0 0 var(--line) var(--rule); color: var(--ink); }
-#fvals .t:hover { box-shadow: inset 0 0 0 var(--line) var(--ink); }
-#fvals .t[aria-pressed="true"], .chosen .t { background: var(--hot); color: var(--paper); box-shadow: none; }
-.chosen { display: flex; flex-wrap: wrap; gap: 8px; padding: var(--pt) 0 var(--pb); }
-.chosen:empty { display: none; }
-
-.chosen .t::after { content: "×"; }
+/* side column head: the write box and the selected filters stay at the top while the pills scroll under them */
+.sidehead { position: sticky; top: 0; z-index: 2; background: var(--paper); padding-top: 40px; }
+.picked { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding-top: 16px; }
+.picked .pill::after { content: " ×"; }
+.sidehead::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }   /* same fade as under the top bar */
+.side.scrolled .sidehead::after { opacity: 1; }
 
 /* ── home: previews first, filter pills in a side column ─────────────── */
 /* two independent scrollers under the bar: neither moves when the other scrolls */
@@ -132,11 +132,12 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
   height: calc(100dvh - var(--navh)); }
 .homelist, .homegrid .side { position: relative; height: 100%; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   scrollbar-width: none; padding-top: 40px; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+.homegrid .side { padding-top: 0; }   /* its sticky head carries the 40px */
 .homelist::-webkit-scrollbar, .homegrid .side::-webkit-scrollbar { display: none; }
 .homelist .foot { display: block; padding-bottom: 0; }
 .fsum { display: none; list-style: none; cursor: pointer; }
 .fsum::-webkit-details-marker { display: none; }
-.fin.settext { display: block; resize: none; overflow: hidden; border-radius: 17px; padding: 10px; line-height: calc(var(--ui) * 1.25 - 5px); color: var(--ink-3); margin-bottom: 64px; }
+.fin.settext { display: block; resize: none; overflow: hidden; border-radius: 17px; padding: 10px; line-height: calc(var(--ui) * 1.25 - 5px); color: var(--ink-3); }
 .fin.settext:focus { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--ink); }
 .fcount { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); }
 .pill.zero { opacity: .35; cursor: default; pointer-events: none; } /* nothing left to show next to the active filters */
@@ -180,6 +181,8 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
   .fsum::after { content: " +"; }
   details[open] > .fsum::after { content: " −"; }
   .fin.settext { margin-bottom: 24px; }
+  .sidehead { position: static; padding-top: 0; }
+  .picked:empty { display: none; }
   .homelist .lrow .ln { font-size: 44px; }
   .homelist .lrow .meta .ics { display: none; }
   .homelist .lrow .meta .ics + .no { margin-left: auto; }

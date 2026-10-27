@@ -540,7 +540,8 @@ def index_html(cat, sprite):
   <section class="homelist" aria-label="Typefaces"><div id="grid" class="grid list" aria-live="polite"></div>
   <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
-    <textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
+    <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
+    <div class="picked" id="picked" aria-label="Selected filters"></div></div>
     <details id="fdet" open><summary class="fsum">Filters</summary>
     <div class="frow2"><input class="fin" id="q" type="search" autocomplete="off" placeholder="Search" aria-label="Search names, places, tags"><label for="q" class="sic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10" cy="10" r="6.5"/><path d="M15 15l5.5 5.5"/></svg></label></div>
     <p class="fcount"><span class="info" id="count"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p>

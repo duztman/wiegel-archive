@@ -122,10 +122,12 @@
     function renderSide() {
       const box = $("#fside"); box.replaceChildren();
       const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "vlab"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(w, h); box.appendChild(g); };
+      const pk = $("#picked"), toggle = (k, v) => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); };
+      pk.replaceChildren(...CATS.flatMap(([k]) => [...(state.sel[k] || [])].map((v) => pill(v, null, true, () => toggle(k, v)))));
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
       CATS.forEach(([k, label, fn]) => {
         const sel = state.sel[k] || new Set(), live = liveCounts(k, fn);
-        group(label, sortVals(k, vals[k]).map(([v]) => [v, live.get(v) || 0]).map(([v, n]) => pill(v, n, sel.has(v), () => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); })));
+        group(label, sortVals(k, vals[k]).map(([v]) => [v, live.get(v) || 0]).map(([v, n]) => pill(v, n, sel.has(v), () => toggle(k, v))));
       });
     }
     /* a font passes every selected group (OR inside a group, AND across groups) and the search; `skip` leaves one group out */
@@ -175,14 +177,16 @@
     /* the rule above Search sits on the rule above the second font in the list */
     function alignSide() {
       const r2 = grid.children[1];
-      if (!r2 || innerWidth < 900) { rt.style.marginBottom = ""; return; }
-      const tgt = r2.offsetTop - grid.offsetTop;
-      rt.style.marginBottom = Math.max(16, tgt - rt.offsetHeight) + "px";
+      const pk = $("#picked");
+      if (!r2 || innerWidth < 900) { pk.style.minHeight = ""; return; }
+      // the selected-filter box fills the space between the write box and the search rule
+      pk.style.minHeight = Math.max(16, r2.offsetTop - grid.offsetTop - rt.offsetHeight) + "px";
     }
     const ro = new ResizeObserver(alignSide);
     const watch = () => { ro.disconnect(); [grid.children[0], rt].forEach((el) => el && ro.observe(el)); alignSide(); };
     new MutationObserver(watch).observe(grid, { childList: true });
     watch(); addEventListener("resize", alignSide);
+    const side = $(".homegrid .side"); side?.addEventListener("scroll", () => side.classList.toggle("scrolled", side.scrollTop > 0), { passive: true });
   }
 
   /* ── timeline: names in their own face, a font's entries light up together ── */
