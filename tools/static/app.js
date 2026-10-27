@@ -128,10 +128,10 @@
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
-      list.forEach((r, i) => {   // spelled out on the first row, abbreviated after
+      list.forEach((r, i) => {   // OG / DG named on the first row only; columns stay aligned
         const f = r._font;
-        r.querySelector(".oy").textContent = f.y ? (i ? "O. " : "Original ") + f.y : "";
-        r.querySelector(".dy").textContent = f.dy ? (i ? "D. " : "Digitised ") + f.dy : "";
+        r.querySelector(".oy").textContent = f.y ? (i ? "" : "OG ") + f.y : "";
+        r.querySelector(".dy").textContent = f.dy ? (i ? "" : "DG ") + f.dy : "";
       });
       grid.replaceChildren(...list);
       const any = Object.keys(state.sel).length || state.q;
