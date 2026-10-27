@@ -143,6 +143,7 @@
     const F = JSON.parse($("#faces").textContent || "[]");
     const G = JSON.parse($("#glyphs").textContent || "[]");
     let cur = 0;
+    if (innerWidth < 700) { const sz = $("#sz"); if (sz) sz.value = 64; }
     const feats = () => $$(".feat input").map((i) => `"${i.value}" ${i.checked ? 1 : 0}`).join(", ") || "normal";
     function applyLive() {
       const f = F[cur]; if (!f) return;
