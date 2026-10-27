@@ -107,7 +107,8 @@ select, .q { height: 28px; border: 1px solid var(--rule); border-radius: 14px; b
 
 /* ── catalogue ──────────────────────────────────────────────────────── */
 .pagehead { padding: var(--s9) 0 var(--s6); display: grid; gap: var(--s5); }
-.tablewrap { overflow-x: auto; }
+.tablewrap { }
+@media (max-width: 900px) { .tablewrap { overflow-x: auto; } .cat th { position: static; } }
 table.cat { width: 100%; border-collapse: collapse; font: var(--fs0)/1.35 var(--ui); }
 .cat th { position: sticky; top: 49px; background: var(--paper); text-align: left; font-weight: 500; color: var(--ink-2);
   letter-spacing: .04em; text-transform: uppercase; font-size: 11px; padding: var(--s3) var(--s3) var(--s2); border-bottom: 1px solid var(--ink); cursor: pointer; white-space: nowrap; }

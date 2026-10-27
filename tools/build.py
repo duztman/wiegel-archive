@@ -380,7 +380,7 @@ def page(title, body, depth=0, sprite="", cls=""):
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
 <script>window.ROOT="{up}"</script>
-</head><body class="{cls}">
+</head><body class="p-{cls}">
 {sprite}
 <header class="top"><a class="mark" href="{up}index.html"><span class="w">Wiegel</span><span class="a">Archive</span></a>
 <nav><a href="{up}index.html">Specimens</a><a href="{up}catalogue.html">Catalogue</a><a href="{up}legend.html">Legend</a><a href="{up}about.html">About</a>
