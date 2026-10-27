@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA, RAW, FONTS, SITE = (os.path.join(ROOT, p) for p in ("data", "raw/archives", "fonts", "site"))
 STATIC = os.path.join(ROOT, "tools", "static")
 
-UI_TEXT = "catlinz"          # Wiegel's CAT Linz: 4 true styles, ~1,860 glyphs
+UI_TEXT = "proletarsk"       # Wiegel's Proletarsk: large x-height, Latin + Cyrillic, ~860 glyphs
 UI_DISPLAY = "altedin1451"   # DIN 1451 alte Mittelschrift for masthead / numerals
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
@@ -774,7 +774,7 @@ def about_html(cat, sprite):
 <h2>Method</h2>
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
-<p>Interface in Wiegel’s DIN 1451 alte Mittelschrift at a single size; reading text in his CAT Linz. Built {datetime.date.today().isoformat()}.</p>
+<p>Interface in Wiegel’s DIN 1451 alte Mittelschrift at a single size; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
 </section>"""
     return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
 
