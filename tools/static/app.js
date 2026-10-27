@@ -223,6 +223,18 @@
       const ed = $(".ed", b);
       ed.style.fontSize = b._px + "px"; ed.style.setProperty("--blh", b._lh); ed.style.setProperty("--btr", b._tr + "em");
       $(".vl b", b).textContent = Math.round(b._px);
+      capAlign(b);
+    }
+    /* the vertical label starts at the cap height of the first line */
+    function capAlign(b) {
+      const f = F[cur]; if (!f) return;
+      meas.font = `${b._px}px "${f.id}"`;
+      const m = meas.measureText("H");
+      const fA = m.fontBoundingBoxAscent, fD = m.fontBoundingBoxDescent, cA = m.actualBoundingBoxAscent;
+      if (!fA || !cA) return;
+      const lh = (b.classList.contains("cols") ? 1.4 : b._lh) * b._px;
+      const off = (lh - (fA + fD)) / 2 + fA - cA;
+      $(".vl", b).style.marginTop = Math.max(0, Math.round(off)) + "px";
     }
     function sync() {
       $("#sz").value = active._px; $("#szo").textContent = Math.round(active._px);

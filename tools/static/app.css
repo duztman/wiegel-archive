@@ -58,7 +58,7 @@ em { font-style: normal; color: var(--hot); }
 .top::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--navbg); }
 .nav1, .nav2 { display: flex; align-items: center; gap: 8px 8px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
 .nav1 { padding: 12px 0 14px; flex-wrap: wrap; overflow: visible; }
-.nav2 { padding: 10px 0 14px; border-top: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }
+.nav2 { padding: 12px 0 14px; border-top: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); border-bottom: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }
 .nav2:empty { display: none; }
 .top a, .top button, .top .crumb, .top .cur { display: inline-block; padding: 2px 14px 1px; border-radius: 999px; border: 0; cursor: pointer;
   background: var(--navfg); color: var(--navbg); transition: background .2s, color .2s; }
