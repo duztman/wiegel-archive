@@ -536,8 +536,9 @@ def index_html(cat, sprite):
     oys = [e["y"] for f in fonts for e in f["events"] if e["lane"] == "type"]
     dys = [f["dy"] for f in fonts if f.get("dy")]
     body = f"""
-<div class="home">
-  <section class="homelist" aria-label="Typefaces"><div id="grid" class="grid list" aria-live="polite"></div></section>
+<div class="homegrid">
+  <section class="homelist" aria-label="Typefaces"><div id="grid" class="grid list" aria-live="polite"></div>
+  <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
     <textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
     <details id="fdet" open><summary class="fsum">Filters</summary>

@@ -123,10 +123,15 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 .chosen .t::after { content: "×"; }
 
 /* ── home: previews first, filter pills in a side column ─────────────── */
-.home { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: start; padding-top: 40px; }
-.homelist { min-width: 0; }
-.home .side { position: sticky; z-index: 29; top: calc(var(--navh) + 40px); max-height: calc(100vh - var(--navh) - 48px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; min-width: 0; padding-bottom: 48px;
-  padding-top: 0; }
+/* two independent scrollers under the bar: neither moves when the other scrolls */
+.p-home main { padding-bottom: 0; }
+.p-home .foot { display: none; }
+.homegrid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: stretch;
+  height: calc(100dvh - var(--navh)); }
+.homelist, .homegrid .side { position: relative; height: 100%; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+  scrollbar-width: none; padding-top: 40px; padding-bottom: 64px; }
+.homelist::-webkit-scrollbar, .homegrid .side::-webkit-scrollbar { display: none; }
+.homelist .foot { display: block; padding-bottom: 0; }
 .fsum { display: none; list-style: none; cursor: pointer; }
 .fsum::-webkit-details-marker { display: none; }
 .fin.settext { display: block; resize: none; overflow: hidden; border-radius: 17px; padding: 10px; line-height: calc(var(--ui) * 1.25 - 5px); color: var(--ink-3); margin-bottom: 64px; }
@@ -164,8 +169,10 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 @media (max-width: 1100px) { .homelist .lrow .meta { gap: 4px 16px; } }
 .homelist .lrow .ln { font-size: 72px; }
 @media (max-width: 900px) {
-  .home { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 16px; }
-  .home .side { position: static; max-height: none; order: -1; margin-bottom: 16px; border-left: 0; padding-left: 0; }
+  .homegrid { grid-template-columns: minmax(0, 1fr); gap: 0; height: auto; }
+  .homelist, .homegrid .side { height: auto; overflow: visible; padding-top: 16px; padding-bottom: 0; }
+  .homegrid .side { order: -1; margin-bottom: 16px; }
+  .p-home main { padding-bottom: 0; }
   .fsum { display: block; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); }
   .fsum::after { content: " +"; }
   details[open] > .fsum::after { content: " −"; }
