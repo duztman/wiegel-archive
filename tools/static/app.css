@@ -116,7 +116,7 @@ table.cat { width: 100%; border-collapse: collapse; font: var(--fs0)/1.35 var(--
 .cat td { padding: var(--s2) var(--s3); border-bottom: 1px solid var(--rule); vertical-align: baseline; }
 .cat td.n { font-size: var(--fs1); font-family: var(--text); white-space: nowrap; }
 .cat td.n a { text-decoration: none; }
-.cat .num { text-align: right; }
+.cat .num { text-align: right; white-space: nowrap; }
 .cat .icons { white-space: nowrap; }
 .cat .icons .ic { margin-right: 2px; }
 .cat tr:hover td { background: var(--wash); }

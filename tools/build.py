@@ -406,7 +406,7 @@ def write_catalog_js(cat):
         faces = [fonts_css_entry(f, i, x, "") for i, x in enumerate(f.get("faces", []))]
         rows.append({
             "s": f["slug"], "n": f["name"], "fa": f["family"], "g": f["genre"], "e": f.get("decade"),
-            "y": [y["y"] for y in f["years"]], "sec": f["section"], "p": f["pos"], "of": f["of"],
+            "y": [f["year"]] if f.get("year") else [], "sec": f["section"], "p": f["pos"], "of": f["of"],
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
             "tg": f.get("tags", []),
@@ -447,8 +447,8 @@ def index_html(cat, sprite):
 def catalogue_html(cat, sprite):
     rows = []
     for f in cat["fonts"]:
-        yrs = [y["y"] for y in f["years"]]
-        yr = (f"{min(yrs)}–{max(yrs)}" if len(set(yrs)) > 1 else str(yrs[0])) if yrs else "—"
+        yrs = [f["year"]] if f.get("year") else []
+        yr = str(f["year"]) if f.get("year") else "—"
         rows.append(
             f'<tr data-fam="{ESC(f["family"])}"><td class="n"><a href="font/{f["slug"]}.html">{ESC(f["name"])}</a></td>'
             f'<td>{ESC(f["family"])}</td><td class="sub">{ESC(f["genre"])}</td>'
