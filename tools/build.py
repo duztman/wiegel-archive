@@ -286,6 +286,7 @@ def place_photos(cat):
                 pool[_pkey(n)] = (zf, n)
     try:
         from PIL import Image
+        Image.MAX_IMAGE_PIXELS = None   # trusted Commons originals; some museum scans exceed 300 MP
     except ImportError:
         Image = None
     out_dir = os.path.join(SITE, "assets", "photos")
