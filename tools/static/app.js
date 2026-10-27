@@ -67,18 +67,9 @@
     return { ctx, W, H };
   }
 
-  /* ── home: index with grid / list, step filter ─────────────────────── */
+  /* ── home: the list of names set in their own faces, with a side column of filter pills ── */
   const grid = $("#grid");
-  let retype = "";
-  const visible = new Set();
-  function drawCard(card) {
-    const f = card._font, face = f.f[0], cv = card.querySelector("canvas");
-    if (!cv) return;
-    const note = (t) => { const { ctx, H } = prep(cv); ctx.fillStyle = css("--ink-3"); ctx.font = `18px "WA UI", sans-serif`; ctx.fillText(t, 16, H / 2); };
-    if (!face) return note("No web-usable font file");
-    load(face).then(() => { const { ctx, W, H } = prep(cv); fit(ctx, W, H, face.id, retype || f.sm || f.n); }).catch(() => note("Font failed to load"));
-  }
-  function redrawAll() { visible.forEach(drawCard); window._redrawFont?.(); }
+  function redrawAll() { window._redrawFont?.(); }
 
   if (grid) {
     const SCRIPTS = { latin1: "Latin-1", ext: "Extended Latin", greek: "Greek", cyr: "Cyrillic", longs: "Long s", capsz: "Capital ẞ", euro: "Euro sign" };
@@ -91,74 +82,41 @@
       ["ic", "Features", (f) => f.ic.map((k) => (C.icons || {})[k]).filter(Boolean)],
       ["pl", "Place", (f) => [f.ph ? "Photographed" : null, f.pl ? "Has a place" : "No place"].filter(Boolean)],
     ];
-    const ORDERS = [["index", "Wiegel’s order"], ["name", "A–Z"], ["oy", "Original date"], ["dy", "Digitised"], ["glyphs", "Most glyphs"]];
+    const ORDERS = [["index", "Wiegel’s order"], ["name", "A to Z"], ["oy", "Original date"], ["dy", "Digitised"], ["glyphs", "Most glyphs"]];
     const vals = {};
     CATS.forEach(([k, , fn]) => { const m = new Map(); C.fonts.forEach((f) => fn(f).forEach((v) => m.set(v, (m.get(v) || 0) + 1))); vals[k] = m; });
+    const num = (v) => parseInt(v) || (v === "Before 1800" ? 0 : 9999);
     const sortVals = (k, m) => {
       const e = [...m.entries()];
       if (k === "fa") return e.sort((a, b) => C.families.indexOf(a[0]) - C.families.indexOf(b[0]));
-      if (k === "oy" || k === "dy") return e.sort((a, b) => (parseInt(a[0]) || (a[0] === "Before 1800" ? 0 : 9999)) - (parseInt(b[0]) || (b[0] === "Before 1800" ? 0 : 9999)));
+      if (k === "oy" || k === "dy") return e.sort((a, b) => num(a[0]) - num(b[0]));
       return e.sort((a, b) => b[1] - a[1]);
     };
-
-    const state = { sel: {}, q: "", view: "grid", order: "index", open: null };
-    try { const s = JSON.parse(store.get("wa-index") || "{}"); Object.assign(state, s); } catch {}
+    const state = { sel: {}, q: "", order: "index" };
+    try { const s = JSON.parse(store.get("wa-index2") || "{}"); Object.assign(state, s); } catch {}
     Object.keys(state.sel).forEach((k) => (state.sel[k] = new Set(state.sel[k])));
-    const save = () => store.set("wa-index", JSON.stringify({ ...state, sel: Object.fromEntries(Object.entries(state.sel).map(([k, v]) => [k, [...v]])) }));
-
-    const io = new IntersectionObserver((es) => es.forEach((e) => {
-      if (e.isIntersecting) { visible.add(e.target); drawCard(e.target); } else visible.delete(e.target);
-    }), { rootMargin: "400px 0px" });
-    const ico = (c) => `<svg class="ic" width="24" height="24"><use href="#i-${c}"/></svg>`;
+    const save = () => store.set("wa-index2", JSON.stringify({ ...state, sel: Object.fromEntries(Object.entries(state.sel).map(([k, v]) => [k, [...v]])) }));
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const cards = C.fonts.map((f) => {
-      const a = document.createElement("a");
-      a.className = "card"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span>${pad(f.no)} ${esc(f.fa)}</span><span>${[f.y, f.dy].filter(Boolean).join(" → ")}</span></span>`
-        + `<canvas aria-label="${esc(f.n)} specimen"></canvas><span class="ico">${f.ic.slice(0, 6).map(ico).join("")}</span><span class="n">${esc(f.n)}</span>`;
-      return a;
-    });
+    const ico = (c) => `<svg class="ic" width="18" height="18"><use href="#i-${c}"/></svg>`;
     const rows = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span class="no">${pad(f.no)}</span><span class="fa">${esc(f.fa)}</span><span>${f.y ? "Original " + f.y : ""}</span><span>${f.dy ? "Digitised " + f.dy : ""}</span></span>`
+      a.innerHTML = `<span class="meta info tnum"><span class="no">${pad(f.no)}</span><span class="fa">${esc(f.fa)}</span><span>${f.y ? "Original " + f.y : ""}</span><span>${f.dy ? "Digitised " + f.dy : ""}</span><span class="ics">${f.ic.slice(0, 8).map(ico).join("")}</span></span>`
         + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span>`;
       return a;
     });
+    rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
 
-    function renderCats() {
-      $("#fcats").replaceChildren(...CATS.map(([k, label]) => {
-        const b = document.createElement("button"); b.type = "button"; b.className = "t"; b.textContent = label;
-        b.setAttribute("aria-pressed", state.open === k);
-        b.onclick = () => { state.open = state.open === k ? null : k; renderCats(); renderVals(); save(); };
-        return b;
-      }).concat((() => { const b = document.createElement("button"); b.type = "button"; b.className = "t"; b.textContent = "Order"; b.setAttribute("aria-pressed", state.open === "order");
-        b.onclick = () => { state.open = state.open === "order" ? null : "order"; renderCats(); renderVals(); save(); }; return b; })()));
-    }
-    function renderVals() {
-      const box = $("#fvals"); box.hidden = !state.open;
-      if (!state.open) { box.replaceChildren(); return; }
-      if (state.open === "order") {
-        box.replaceChildren(...ORDERS.map(([k, l]) => { const b = document.createElement("button"); b.type = "button"; b.className = "t"; b.textContent = l;
-          b.setAttribute("aria-pressed", state.order === k); b.onclick = () => { state.order = k; renderVals(); apply(); }; return b; }));
-        return;
-      }
-      const k = state.open, sel = state.sel[k] || new Set();
-      box.replaceChildren(...sortVals(k, vals[k]).map(([v, n]) => {
-        const b = document.createElement("button"); b.type = "button"; b.className = "t";
-        b.innerHTML = `${esc(v)} <span class="n tnum">${n}</span>`; b.setAttribute("aria-pressed", sel.has(v));
-        b.onclick = () => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; renderVals(); apply(); };
-        return b;
-      }));
-    }
-    function renderChosen() {
-      const out = [];
-      CATS.forEach(([k, label]) => (state.sel[k] || new Set()).forEach((v) => {
-        const b = document.createElement("button"); b.type = "button"; b.className = "t"; b.textContent = `${label}: ${v} `;
-        b.onclick = () => { state.sel[k].delete(v); if (!state.sel[k].size) delete state.sel[k]; renderVals(); apply(); };
-        out.push(b);
-      }));
-      $("#chosen").replaceChildren(...out);
+    const pill = (label, n, on, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "pill" + (on ? " on" : "");
+      b.innerHTML = `${esc(label)}${n != null ? ` <span class="n tnum">${n}</span>` : ""}`; b.setAttribute("aria-pressed", !!on); b.onclick = fn; return b; };
+    function renderSide() {
+      const box = $("#fside"); box.replaceChildren();
+      const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "info"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(h, w); box.appendChild(g); };
+      group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
+      CATS.forEach(([k, label]) => {
+        const sel = state.sel[k] || new Set();
+        group(label, sortVals(k, vals[k]).map(([v, n]) => pill(v, n, sel.has(v), () => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); })));
+      });
     }
     function apply() {
       const q = state.q.toLowerCase();
@@ -168,24 +126,19 @@
         return true;
       };
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
-      const pool = state.view === "list" ? rows : cards;
-      let list = pool.filter((c) => pass(c._font));
+      let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
-      grid.classList.toggle("list", state.view === "list");
       grid.replaceChildren(...list);
+      const any = Object.keys(state.sel).length || state.q;
       $("#count").textContent = `${list.length} of ${C.fonts.length}`;
-      $$("[data-view]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
-      renderChosen(); save();
+      $("#fclear").hidden = !any;
+      renderSide(); save();
     }
-    cards.forEach((c) => io.observe(c));
-    rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
-    $("#fopen").onclick = () => { const f = $("#filters"); f.hidden = !f.hidden; $("#fopen").setAttribute("aria-expanded", !f.hidden); };
-    if (state.open || Object.keys(state.sel).length) { $("#filters").hidden = false; $("#fopen").setAttribute("aria-expanded", "true"); }
-    $$("[data-view]").forEach((b) => (b.onclick = () => { state.view = b.dataset.view; apply(); }));
+    $("#fclear").onclick = () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); };
     $("#q").value = state.q; $("#q").oninput = (e) => { state.q = e.target.value; apply(); };
-    let tm; $("#retype").oninput = (e) => { clearTimeout(tm); tm = setTimeout(() => { retype = e.target.value; visible.forEach(drawCard); }, 150); };
-    renderCats(); renderVals(); apply();
-    let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => visible.forEach(drawCard), 120); });
+    let tm; $("#retype").oninput = (e) => { clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
+    if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
+    apply();
   }
 
   /* ── timeline: names in their own face, a font's entries light up together ── */

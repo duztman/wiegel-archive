@@ -29,6 +29,7 @@ def main():
     B.HOSTED = True
     cat = B.prepare()
     for f in cat["fonts"]:
+        f["n_styles"] = len(f.get("faces", []))
         f["faces"] = f.get("faces", [])[:1]
     by = {f["slug"]: f for f in cat["fonts"]}
     os.makedirs(OUT, exist_ok=True)

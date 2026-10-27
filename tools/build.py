@@ -522,24 +522,22 @@ def write_catalog_js(cat):
 
 def index_html(cat, sprite):
     fonts = cat["fonts"]
-    n_faces = sum(len(f.get("faces", [])) for f in fonts)
+    n_faces = sum(f.get("n_styles", len(f.get("faces", []))) for f in fonts)
     oys = [e["y"] for f in fonts for e in f["events"] if e["lane"] == "type"]
     dys = [f["dy"] for f in fonts if f.get("dy")]
     body = f"""
-<section class="intro">
-  <p class="lead">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)}–{max(dys)} from type, signs and handwriting dated {min(oys)}–{max(oys)}. Blackletter and Kurrent, school scripts, DIN and railway lettering, letters copied off walls, manhole covers and kitchen drawers.</p>
-  <input id="retype" class="retype" type="text" placeholder="Type here to set every specimen" autocomplete="off" spellcheck="false" aria-label="Specimen text">
-</section>
-<section class="bar" aria-label="View and filter">
-  <div class="bar-l"><button class="t" id="fopen" type="button" aria-expanded="false">Filter</button><label class="t search"><span>Search</span><input id="q" type="search" autocomplete="off"></label></div>
-  <div class="bar-r"><button class="t" type="button" data-view="grid">Grid</button><button class="t" type="button" data-view="list">List</button><a class="t" href="timeline.html">Timeline</a><span class="count tnum" id="count"></span></div>
-</section>
-<section class="filters" id="filters" hidden>
-  <div class="frow" id="fcats"></div>
-  <div class="frow" id="fvals"></div>
-</section>
-<div class="chosen" id="chosen"></div>
-<section id="grid" class="grid" aria-live="polite"></section>
+<div class="home">
+  <section class="homelist" aria-label="Typefaces"><div id="grid" class="grid list" aria-live="polite"></div></section>
+  <aside class="side" aria-label="Filter">
+    <details id="fdet" open><summary class="info">Filter and set</summary>
+    <label class="field"><span class="info">Search</span><input id="q" type="search" autocomplete="off" placeholder="Names, places, tags"></label>
+    <label class="field"><span class="info">Set every name</span><input id="retype" type="text" autocomplete="off" spellcheck="false" placeholder="Type here"></label>
+    <p class="countline"><span class="count tnum" id="count"></span><button type="button" class="pill" id="fclear" hidden>Clear</button></p>
+    <div id="fside"></div>
+    </details>
+    <p class="info about-l">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)} to {max(dys)} from type, signs and handwriting dated {min(oys)} to {max(oys)}.</p>
+  </aside>
+</div>
 """
     return page("Wiegel Archive", body, 0, sprite, "home", "index")
 
