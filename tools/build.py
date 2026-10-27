@@ -244,7 +244,9 @@ def inventory(cat):
         # web-usable first, then OTF over TTF, then newest revision, upright regular first
         def rank(x):
             ext = x["path"].lower().rsplit(".", 1)[-1]
-            return (x["italic"], abs(x["weight"] - 400), {"otf": 0, "ttf": 1, "woff2": 2, "woff": 3}.get(ext, 9), -x["rev"])
+            label = (os.path.basename(x["path"]) + " " + x.get("style", "") + " " + x.get("full", "")).lower()
+            variant = bool(re.search(r"(schatten|shadow|outline|kontur|contour|3d|inline|hohl|licht|webfont|_b\b|_bi\b|beach|negativ)", label))
+            return (variant, x["italic"], abs(x["weight"] - 400), {"otf": 0, "ttf": 1, "woff2": 2, "woff": 3}.get(ext, 9), -x["rev"])
         good.sort(key=rank)
         # collapse identical family+style (TTF vs OTF vs webfont-kit copies)
         uniq, seenfs = [], set()
