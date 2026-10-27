@@ -27,9 +27,7 @@ def strip_document(html):
 
 def main():
     B.HOSTED = True
-    cat = json.load(open(os.path.join(B.DATA, "catalog.json"), encoding="utf-8"))
-    B.extract(cat)
-    B.inventory(cat)
+    cat = B.prepare()
     for f in cat["fonts"]:
         f["faces"] = f.get("faces", [])[:1]
     by = {f["slug"]: f for f in cat["fonts"]}
@@ -64,7 +62,7 @@ def main():
     # UI font list for the pages (as build.ui_font_css would collect)
     B.UIFONTS.clear()
     real_by = {f["slug"]: f for f in cat["fonts"]}
-    for slug, fam in ((B.UI_TEXT, "WA Text"), (B.UI_DISPLAY, "WA Display")):
+    for slug, fam in ((B.UI_TEXT, "WA Text"), (B.UI_DISPLAY, "WA UI")):
         for name in sorted(os.listdir(os.path.join(OUT, "assets/fonts", slug))):
             B.UIFONTS.append({"family": fam, "src": f"assets/fonts/{slug}/{name}",
                               "weight": 700 if re.search(r"(bold|fett|_g\b|-b\b)", name, re.I) else 400,
@@ -84,9 +82,10 @@ def main():
     W("index.html", home)
     W("main.html", strip_document(home))
     W("catalogue.html", B.catalogue_html(cat, sprite))
+    W("timeline.html", B.timeline_html(cat, sprite))
     W("legend.html", B.legend_html(sprite))
     W("about.html", B.about_html(cat, sprite))
-    W("font.html", B.page("Wiegel Archive — Font", '<div id="fontshell"><p class="lede" style="padding:64px 0">Loading…</p></div><script>window.PACK=%d</script>' % PACK, 0, sprite, "fontpage"))
+    W("font.html", B.page("Wiegel Archive — Font", '<div id="fontshell"><p class="lead">Loading…</p></div><script>window.PACK=%d</script>' % PACK, 0, sprite, "fontpage", "index"))
     packs = {}
     for i, f in enumerate(cat["fonts"]):
         packs.setdefault(i // PACK, {})[f["slug"]] = B.font_html(f, by, "", up="", fragment=True)

@@ -174,9 +174,18 @@ def analyse(path):
         "glyphs": len(f.getGlyphOrder()), "chars": len(cps - set(PUA)), "pua": len(cps & set(PUA)),
         "feats": sorted(set(feats)), "weight": weight, "italic": italic or "italic" in style.lower() or "kursiv" in style.lower(),
         "rev": float(getattr(f["head"], "fontRevision", 0) or 0),
+        "created": created_year(f),
         "cmap": sorted(c for c in cps if c >= 0x20 and c not in PUA and not 0x7F <= c < 0xA0),
         "coverage": [k for k, _, t in COVERAGE if t(cps)],
     }
+
+
+def created_year(f):
+    try:
+        from fontTools.misc.timeTools import timestampToString
+        return int(timestampToString(f["head"].created)[-4:])
+    except Exception:
+        return None
 
 
 def sample_for(cmap):
@@ -371,34 +380,126 @@ def icon_svgs(cat):
     return '<svg xmlns="http://www.w3.org/2000/svg" style="display:none">' + "".join(out.values()) + "</svg>"
 
 
+# ── data derived for v3 ───────────────────────────────────────────────────────────
+# Wiegel's own colours, sampled from peter-wiegel.de (CSS + button/banner images)
+PALETTE = collections.OrderedDict([
+    ("sky",     ("#00A3EA", "#000080", "Banner sky / link navy")),
+    ("sun",     ("#FDFA00", "#D40051", "Starburst yellow / crimson")),
+    ("olive",   ("#687F12", "#FFFF80", "Active button olive / pale yellow")),
+    ("violet",  ("#7C00AD", "#FFFF80", "Button violet / pale yellow")),
+    ("magenta", ("#E20084", "#FFFFFF", "Focus magenta / white")),
+    ("green",   ("#05872C", "#FFFFFF", "Download green / white")),
+    ("indigo",  ("#3B2A98", "#FFFF80", "UNZ indigo / pale yellow")),
+    ("tan",     ("#D3BFA4", "#800025", "Specimen paper / oxblood")),
+    ("navy",    ("#000080", "#FFFF80", "Navy / pale yellow")),
+    ("oxblood", ("#800025", "#D3BFA4", "Oxblood / paper")),
+    ("crimson", ("#D40051", "#FFFF80", "Crimson / pale yellow")),
+    ("pale",    ("#FFFF80", "#000080", "Pale yellow / navy")),
+])
+FAM_PAL = {
+    "Blackletter": ["tan", "oxblood", "navy", "pale"],
+    "Handwriting": ["pale", "sky", "indigo", "olive"],
+    "Norm & Sans": ["sun", "sky", "green", "navy"],
+    "Serif":       ["oxblood", "tan", "pale"],
+    "Display":     ["magenta", "violet", "sun", "crimson", "sky", "green"],
+    "Technical":   ["sun", "navy", "green", "olive"],
+    "Symbols":     ["violet", "magenta", "sky"],
+    "Other":       ["indigo", "crimson", "olive"],
+}
+TEXT_FAMS = {"Blackletter", "Handwriting", "Norm & Sans", "Serif", "Technical"}
+LANES = [("type", "Type"), ("digital", "Digitised"), ("world", "Elsewhere")]
+
+
+def pal_for(f):
+    opts = FAM_PAL.get(f["family"], FAM_PAL["Other"])
+    return opts[int(hashlib.md5(f["slug"].encode()).hexdigest(), 16) % len(opts)]
+
+
+def digitised(f):
+    """(year, who) of the digital font, from the font file: copyright line first, then head.created."""
+    for x in f.get("faces", []):
+        cp = x.get("copyright", "")
+        m = re.search(r"(?:copyright|\(c\)|©)\D{0,8}((?:19|20)\d\d)", cp, re.I)
+        if m and 1990 <= int(m.group(1)) <= 2023:
+            return int(m.group(1)), ("Steffmann" if "steffmann" in cp.lower() else "Wiegel")
+    for x in f.get("faces", []):
+        if x.get("created") and 1995 <= x["created"] <= 2023:
+            return x["created"], "Wiegel"
+    return None, None
+
+
+def is_text(f):
+    if not f.get("faces"):
+        return False
+    c = set(f["faces"][0]["cmap"])
+    full = all(x in c for x in range(0x41, 0x5B)) and all(x in c for x in range(0x61, 0x7B))
+    odd = set(f["icons"]) & {"versalien", "gemeine", "dingbat", "ziffern", "kapitaelchen", "spezial", "color"}
+    return f["family"] in TEXT_FAMS and full and not odd
+
+
+def lane_of(what):
+    if re.search(r"\b(wiegel|digiti[sz]|request|revis|forum|opentype|lockdown|expanded|built at|recreate)", what, re.I):
+        return "digital"
+    if re.search(r"(issu|releas|\bcut|design|foundry|typeface|\btypes?\b|\bfont|script|standard|specimen|\bDIN\b|\bTGL\b|\bcast|publish|lettering|alphabet|schrift|fraktur|catalogue|engraver|typo)", what, re.I):
+        return "type"
+    return "world"
+
+
+def enrich(cat):
+    for i, f in enumerate(cat["fonts"]):
+        f["no"] = i + 1
+        f["pal"] = pal_for(f)
+        f["dy"], f["dwho"] = digitised(f)
+        f["text"] = is_text(f)
+        evs = [{"y": y["y"], "what": y["what"], "lane": lane_of(y["what"])} for y in f.get("years", [])]
+        if f["dy"] and not any(e["lane"] == "digital" and e["y"] == f["dy"] for e in evs):
+            evs.append({"y": f["dy"], "what": "Digitised by Dieter Steffmann; re-encoded by Wiegel later" if f["dwho"] == "Steffmann" else "Digitised by Peter Wiegel", "lane": "digital", "auto": True})
+        f["events"] = sorted(evs, key=lambda e: e["y"])
+        ky = f.get("year")
+        orig = [e["y"] for e in f["events"] if e["lane"] == "type"]
+        f["oy"] = ky if ky in orig else min(orig) if orig else (ky if ky and not any(e["y"] == ky and e["lane"] == "digital" for e in f["events"]) and (not f["dy"] or ky < f["dy"]) else None)
+
+
+def nofmt(n):
+    return f"{n:03d}"
+
+
 # ── HTML ─────────────────────────────────────────────────────────────────────────
-def icon(code, size=20):
+def icon(code, size=24):
     if code not in ICONS:
         return ""
     return f'<svg class="ic" width="{size}" height="{size}" aria-label="{ESC(ICONS[code][1])}" role="img"><title>{ESC(ICONS[code][1])}</title><use href="#i-{code}"/></svg>'
 
 
-def page(title, body, depth=0, sprite="", cls=""):
+NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html"), ("catalogue", "Catalogue", "catalogue.html"),
+       ("legend", "Legend", "legend.html"), ("about", "About", "about.html")]
+
+
+def page(title, body, depth=0, sprite="", cls="", cur=""):
     up = "../" * depth
+    tags = []
+    for k, label, href in NAV:
+        tags.append(f'<a class="tag{" on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>')
+        if k == "index":
+            tags.append('<div id="subnav" class="subnav"></div>')
     return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
-<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)}</script>
+<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};try{{var t=localStorage.getItem("wa-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body class="p-{cls}">
 {sprite}
-<header class="top"><a class="mark" href="{up}index.html"><span class="w">Wiegel</span><span class="a">Archive</span></a>
-<nav><a href="{up}index.html">Specimens</a><a href="{up}catalogue.html">Catalogue</a><a href="{up}legend.html">Legend</a><a href="{up}about.html">About</a>
-<button class="theme" type="button" aria-label="Toggle dark mode">◐</button></nav></header>
-<main>{body}</main>
-<footer class="foot"><span>A private, unpublished archive of the free fonts of Peter Wiegel / CAT Fonts.</span><span>Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; originals at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</span></footer>
+<nav class="side" aria-label="Site">
+<a class="tag home" href="{up}index.html">Wiegel Archive</a>
+{"".join(tags)}
+<button class="tag theme" type="button" aria-label="Switch light or dark">Light / Dark</button>
+</nav>
+<main>{body}
+<footer class="foot"><p>A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
+</main>
 <script src="{up}assets/catalog.js"></script><script src="{up}assets/app.js"></script>
 </body></html>"""
-
-
-def era(f):
-    return f"{f['decade']}s" if f.get("decade") else "Undated"
 
 
 def fonts_css_entry(f, i, x, up):
@@ -411,82 +512,176 @@ def write_catalog_js(cat):
     for f in cat["fonts"]:
         faces = [fonts_css_entry(f, i, x, "") for i, x in enumerate(f.get("faces", []))]
         rows.append({
-            "s": f["slug"], "n": f["name"], "fa": f["family"], "g": f["genre"], "e": f.get("decade"),
-            "y": [f["year"]] if f.get("year") else [], "sec": f["section"], "p": f["pos"], "of": f["of"],
+            "s": f["slug"], "n": f["name"], "no": f["no"], "fa": f["family"], "g": f["genre"], "e": f.get("decade"),
+            "y": f.get("oy"), "dy": f.get("dy"), "sec": f["section"], "p": f["pos"], "of": f["of"],
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
-            "tg": f.get("tags", []),
+            "tg": f.get("tags", []), "pal": f["pal"],
         })
-    js = "window.CATALOG=" + json.dumps({"families": cat["families"], "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
+    js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in PALETTE.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
 
 
 def index_html(cat, sprite):
     fonts = cat["fonts"]
     n_faces = sum(len(f.get("faces", [])) for f in fonts)
-    n_glyphs = sum(x["chars"] for f in fonts for x in f.get("faces", []))
-    fam = collections.Counter(f["family"] for f in fonts)
-    chips = "".join(f'<button class="chip" data-fam="{ESC(k)}">{ESC(k)}<sup>{fam[k]}</sup></button>' for k in cat["families"] if fam[k])
-    eras = sorted({f["decade"] for f in fonts if f.get("decade")})
-    era_opts = "".join(f'<option value="{e}">{e}s</option>' for e in eras)
-    cov = "".join(f'<button class="chip" data-cov="{k}">{ESC(lbl)}</button>' for k, lbl, _ in COVERAGE)
+    oys = [e["y"] for f in fonts for e in f["events"] if e["lane"] == "type"]
+    dys = [f["dy"] for f in fonts if f.get("dy")]
     body = f"""
-<section class="hero">
-  <h1 class="display">Peter Wiegel<br><span>CAT Fonts, 1976–2022</span></h1>
-  <dl class="stats tnum"><div><dt>Typefaces</dt><dd>{len(fonts)}</dd></div><div><dt>Styles</dt><dd>{n_faces}</dd></div><div><dt>Characters drawn</dt><dd>{n_glyphs:,}</dd></div></dl>
-  <p class="lede">A working archive of every free typeface published on peter-wiegel.de — blackletter and Kurrent, school scripts, DIN and railway lettering, signs copied off walls, manhole covers and kitchen drawers. Type below to set every specimen at once.</p>
+<section class="intro">
+  <p class="lead">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)}–{max(dys)} from type, signs and handwriting dated {min(oys)}–{max(oys)}. Blackletter and Kurrent, school scripts, DIN and railway lettering, letters copied off walls, manhole covers and kitchen drawers.</p>
+  <input id="retype" class="retype" type="text" placeholder="Type here to set every specimen" autocomplete="off" spellcheck="false" aria-label="Specimen text">
 </section>
-<section class="controls" aria-label="Filters">
-  <input id="retype" class="retype" type="text" placeholder="Type to set every specimen…" autocomplete="off" spellcheck="false">
-  <div class="row"><span class="lbl">Family</span>{chips}</div>
-  <div class="row"><span class="lbl">Coverage</span>{cov}
-    <span class="lbl">Era</span><select id="era"><option value="">Any</option>{era_opts}<option value="none">Undated</option></select>
-    <span class="lbl">Order</span><select id="sort"><option value="wiegel">Wiegel's index</option><option value="name">A–Z</option><option value="year">Year</option><option value="glyphs">Glyphs</option></select>
-    <input id="q" class="q" type="search" placeholder="Search names, places, tags">
-    <span class="count tnum" id="count"></span></div>
+<section class="bar" aria-label="View and filter">
+  <div class="bar-l"><button class="t" id="fopen" type="button" aria-expanded="false">Filter</button><label class="t search"><span>Search</span><input id="q" type="search" autocomplete="off"></label></div>
+  <div class="bar-r"><button class="t" type="button" data-view="grid">Grid</button><button class="t" type="button" data-view="list">List</button><a class="t" href="timeline.html">Timeline</a><span class="count tnum" id="count"></span></div>
 </section>
+<section class="filters" id="filters" hidden>
+  <div class="frow" id="fcats"></div>
+  <div class="frow" id="fvals"></div>
+</section>
+<div class="chosen" id="chosen"></div>
 <section id="grid" class="grid" aria-live="polite"></section>
 """
-    return page("Wiegel Archive — Specimens", body, 0, sprite, "home")
+    return page("Wiegel Archive", body, 0, sprite, "home", "index")
+
+
+def timeline_html(cat, sprite):
+    ev = collections.defaultdict(lambda: collections.defaultdict(list))
+    for f in cat["fonts"]:
+        for e in f["events"]:
+            ev[e["y"]][e["lane"]].append((f, e))
+    years = sorted(ev)
+    # decade overview
+    dec = collections.Counter()
+    for y in years:
+        d = y // 10 * 10 if y >= 1800 else (y // 100 * 100)
+        dec[d] += sum(len(v) for v in ev[y].values())
+    mx = max(dec.values())
+    first_y = {}
+    for y in years:
+        d = y // 10 * 10 if y >= 1800 else (y // 100 * 100)
+        first_y.setdefault(d, y)
+    scale = "".join(f'<a href="#y{first_y[d]}" class="dec" style="--h:{max(6, round(100 * n / mx))}%"><i></i><span class="tnum">{d}{"s" if d < 1800 else ""}</span></a>' for d, n in sorted(dec.items()))
+    rows = []
+    for y in years:
+        cells = []
+        for k, _ in LANES:
+            items = []
+            for f, e in ev[y][k]:
+                face = f["faces"][0] if f.get("faces") else None
+                src = ("assets/fonts/" + f["slug"] + "/" + os.path.basename(face["path"])) if face else ""
+                if e.get("auto"):
+                    items.append(f'<a class="ev auto" href="{flink(f["slug"])}" data-s="{f["slug"]}"><span class="fn" data-src="{src}">{ESC(f["name"])}</span></a>')
+                else:
+                    items.append(f'<a class="ev" href="{flink(f["slug"])}" data-s="{f["slug"]}"><span class="fn" data-src="{src}">{ESC(f["name"])}</span><span class="w">{ESC(e["what"])}</span></a>')
+            cells.append(f'<div class="lane l-{k}" data-lane="{dict(LANES)[k]}">{"".join(items)}</div>')
+        rows.append(f'<div class="tl-row" id="y{y}"><div class="tl-y tnum">{y}</div>{"".join(cells)}</div>')
+    n_ev = sum(len(f["events"]) for f in cat["fonts"])
+    body = f"""
+<section class="intro">
+  <p class="lead">{n_ev} dated events across {len(years)} years. <em>Type</em>: when the original letters were cut, cast, drawn or standardised. <em>Digitised</em>: when the font file was made, read from the file itself. <em>Elsewhere</em>: the buildings, signs and lives around them. Point at a name to see where else it appears.</p>
+  <nav class="scale" aria-label="Jump to decade">{scale}</nav>
+</section>
+<section class="tl" id="tl">
+  <div class="tl-head"><span></span>{"".join(f'<span>{l}</span>' for _, l in LANES)}</div>
+  {"".join(rows)}
+</section>"""
+    return page("Timeline — Wiegel Archive", body, 0, sprite, "timeline", "timeline")
 
 
 def catalogue_html(cat, sprite):
     rows = []
     for f in cat["fonts"]:
-        yrs = [f["year"]] if f.get("year") else []
-        yr = str(f["year"]) if f.get("year") else "—"
         rows.append(
-            f'<tr data-fam="{ESC(f["family"])}"><td class="n"><a href="{flink(f["slug"])}">{ESC(f["name"])}</a></td>'
-            f'<td>{ESC(f["family"])}</td><td class="sub">{ESC(f["genre"])}</td>'
-            f'<td class="num" data-v="{min(yrs) if yrs else 9999}">{yr}</td>'
-            f'<td class="sub">{ESC(f.get("origin") or "")}</td><td class="sub">{ESC(f.get("place") or "")}</td>'
+            f'<tr><td class="num" data-v="{f["no"]}">{nofmt(f["no"])}</td><td class="n"><a href="{flink(f["slug"])}">{ESC(f["name"])}</a></td>'
+            f'<td>{ESC(f["family"])}</td>'
+            f'<td class="num" data-v="{f.get("oy") or 9999}">{f.get("oy") or "—"}</td>'
+            f'<td class="num" data-v="{f.get("dy") or 9999}">{f.get("dy") or "—"}</td>'
+            f'<td class="sub">{ESC(f.get("place") or f.get("origin") or "")}</td>'
             f'<td class="num" data-v="{len(f.get("faces", []))}">{len(f.get("faces", []))}</td>'
             f'<td class="num" data-v="{f.get("glyphs", 0)}">{f.get("glyphs", 0):,}</td>'
-            f'<td class="icons">{"".join(icon(c, 16) for c in f["icons"] if c in ICONS)}</td>'
-            f'<td class="num sub" data-v="{["A–K","L–Z","Fonts 2","Unlisted"].index(f["section"]) * 1000 + f["pos"]}">{ESC(f["section"])} · {f["pos"]}</td></tr>')
+            f'<td class="icons">{"".join(icon(c, 24) for c in f["icons"] if c in ICONS)}</td>'
+            f'<td class="num" data-v="{["A–K","L–Z","Fonts 2","Unlisted"].index(f["section"]) * 1000 + f["pos"]}">{ESC(f["section"])} {f["pos"]}</td></tr>')
     body = f"""
-<section class="pagehead"><h1 class="display">Catalogue</h1>
-<p class="lede">{len(cat['fonts'])} typefaces. Click a column to sort; the last column is the font's position in Wiegel's own index.</p>
-<input id="tq" class="q" type="search" placeholder="Filter rows"></section>
+<section class="intro"><p class="lead">All {len(cat['fonts'])} typefaces as a table. Click a heading to sort. <em>Original</em> is the key date of the source; <em>Digitised</em> is read from the font file; <em>Index</em> is the font's place on Wiegel's own pages.</p>
+<label class="t search"><span>Filter rows</span><input id="tq" type="search" autocomplete="off"></label></section>
 <div class="tablewrap"><table class="cat tnum" id="cat"><thead><tr>
-<th data-k="0">Name</th><th data-k="1">Family</th><th data-k="2">Genre</th><th data-k="3" class="num">Years</th>
-<th data-k="4">Source</th><th data-k="5">Place / object</th><th data-k="6" class="num">Styles</th><th data-k="7" class="num">Glyphs</th>
+<th data-k="0" class="num">No.</th><th data-k="1">Name</th><th data-k="2">Family</th><th data-k="3" class="num">Original</th><th data-k="4" class="num">Digitised</th>
+<th data-k="5">Source / place</th><th data-k="6" class="num">Styles</th><th data-k="7" class="num">Glyphs</th>
 <th>Features</th><th data-k="9" class="num">Index</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"""
-    return page("Wiegel Archive — Catalogue", body, 0, sprite, "catalogue")
+    return page("Catalogue — Wiegel Archive", body, 0, sprite, "catalogue", "catalogue")
+
+
+PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich"
+
+
+def specimen_blocks(f, faces):
+    """Apple-style text styles for text faces; big editable previews for display and odd faces."""
+    c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
+    has = lambda s: all(ord(ch) in c for ch in s if not ch.isspace())
+    a = f.get("account") or {}
+    if f["text"]:
+        body_txt = " ".join(x for x in (a.get("what"), a.get("history")) if x) or f.get("summary", "")
+        title = PANGRAM_DE if has(PANGRAM_DE) else "Zwölf Boxkämpfer jagen Victor quer über den Sylter Deich"
+        if not has(title):
+            title = f.get("sample") or f["name"]
+        headline = f.get("summary") or f["name"]
+        caption = " · ".join(x for x in (f.get("place"), f.get("origin")) if x) or f["name"]
+        caption += " — 0123456789 & ? ! (€) ‚§‘"
+        blocks = [("Large Title", 128, f["name"], "fit"), ("Title", 80, title, ""), ("Headline", 44, headline, ""),
+                  ("Body", 24, body_txt, "cols"), ("Caption", 15, caption, "")]
+    else:
+        up_ = "".join(chr(x) for x in range(0x41, 0x5B) if x in c)
+        lo_ = "".join(chr(x) for x in range(0x61, 0x7B) if x in c)
+        dg_ = "".join(chr(x) for x in range(0x30, 0x3A) if x in c)
+        blocks = [("Name", 200, f["name"], "fit")]
+        if up_: blocks.append(("Capitals", 160, up_, ""))
+        if lo_ and lo_.upper() != up_ or (lo_ and "gemeine" in f["icons"]): blocks.append(("Lowercase", 160, lo_, ""))
+        if dg_: blocks.append(("Figures", 160, dg_ + " " + "".join(ch for ch in "&?!€§" if ord(ch) in c), ""))
+        if f.get("sample") and f["sample"] not in (up_, lo_, f["name"]): blocks.append(("Sample", 160, f["sample"], ""))
+    out = []
+    for i, (role, px, txt, mode) in enumerate(blocks):
+        out.append(f'<div class="blk{" " + mode if mode else ""}{" on" if i == 0 else ""}" data-px="{px}" data-role="{role}" data-def="{ESC(txt)}">'
+                   f'<span class="vl" aria-hidden="true">{role} <b class="tnum">{px}</b></span>'
+                   f'<div class="ed" contenteditable="true" spellcheck="false" style="font-size:{px}px">{ESC(txt)}</div></div>')
+    return "".join(out)
+
+
+def strip_html(f):
+    evs = f["events"]
+    if not evs:
+        return ""
+    lo, hi = min(evs[0]["y"], 1900), max(evs[-1]["y"], 2025)
+    lo = lo // 50 * 50
+    span = max(1, hi - lo)
+    dots = "".join(f'<i class="l-{e["lane"]}" style="--x:{(e["y"] - lo) / span * 100:.2f}%" title="{e["y"]}"></i>' for e in evs)
+    ticks = "".join(f'<span class="tk tnum" style="--x:{(t - lo) / span * 100:.2f}%">{t}</span>' for t in range(lo, hi + 1, 50 if span > 200 else 25))
+    items = "".join(f'<li class="l-{e["lane"]}"><span class="y tnum">{e["y"]}</span><span class="w">{ESC(e["what"])}</span><span class="ln">{dict(LANES)[e["lane"]]}</span></li>' for e in evs)
+    gap = ""
+    oy = f.get("oy")
+    if oy and f.get("dy") and f["dy"] > oy:
+        gap = f'<p class="gap"><span class="tnum">{f["dy"] - oy}</span> years between the original ({oy}) and the digital font ({f["dy"]}).</p>'
+    return f'<div class="axis">{dots}{ticks}</div>{gap}<ol class="evs">{items}</ol>'
+
+
+def sec(label, inner, id_=""):
+    return f'<section class="sec"{f" id={id_}" if id_ else ""}><h2 class="lab">{label}</h2><div class="sb">{inner}</div></section>'
 
 
 def font_html(f, by, sprite, up="../", fragment=False):
     faces = [fonts_css_entry(f, i, x, up) for i, x in enumerate(f.get("faces", []))]
     canon = f["faces"][0] if f.get("faces") else None
     a = f.get("account") or {}
-    years = "".join(f'<li><span class="y tnum">{y["y"]}</span><span>{ESC(y["what"])}</span></li>' for y in sorted(f["years"], key=lambda y: y["y"]))
-    tags = "".join(f'<span class="tag">{ESC(t)}</span>' for t in f.get("tags", []))
+    bg, fg, _ = PALETTE[f["pal"]]
     icons = "".join(f'<li>{icon(c, 24)}<span>{ESC(ICONS[c][1])}</span></li>' for c in f["icons"] if c in ICONS)
     styles = "".join(f'<option value="{i}">{ESC(x["style"])}</option>' for i, x in enumerate(faces))
-    feats = "".join(f'<label class="feat"><input type="checkbox" value="{t}"{" checked" if t in ("liga","calt","kern") else ""}><span>{t}</span></label>'
+    feats = "".join(f'<label class="feat"><input type="checkbox" value="{t}"{" checked" if t in ("liga", "calt", "kern") else ""}><span>{t}</span></label>'
                     for t in f.get("feats", []) if re.match(r"^(liga|dlig|calt|salt|ss\d\d|swsh|smcp|c2sc|onum|lnum|tnum|frac|hist|kern|cv\d\d|zero)$", t))
+    sw = "".join(f'<button type="button" class="sw{" on" if k == f["pal"] else ""}" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in PALETTE.items())
+    sw += '<button type="button" class="sw plain" data-p="plain" title="Paper / ink" aria-label="Paper and ink"></button>'
     dl = "".join(
-        f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
+        f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub tnum">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
         if d["local"] and not HOSTED else f'<li><a href="{ESC(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
         for d in f.get("downloads", []))
     docs = "" if HOSTED else "".join(f'<li><a href="{up}assets/docs/{f["slug"]}/{urllib.parse.quote(os.path.basename(d["path"]))}">{ESC(os.path.basename(d["path"]))}</a></li>' for d in f.get("docs", []))
@@ -495,82 +690,93 @@ def font_html(f, by, sprite, up="../", fragment=False):
     if ph:
         photo = (f'<figure class="photo"><img src="{up}assets/photos/{f["slug"]}.jpg" alt="{ESC(ph.get("caption",""))}" loading="lazy" '
                  f'onerror="this.onerror=null;this.src=\'{ESC(ph["src"])}\'"><figcaption><span>{ESC(ph.get("caption",""))}</span>'
-                 f'<span class="credit">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{ESC(ph.get("page",""))}">source</a></span></figcaption></figure>')
-    found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))} — {ESC(x.get("note",""))}</span></li>' for x in f.get("found", []))
+                 f'<span class="sub">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{ESC(ph.get("page",""))}">source</a></span></figcaption></figure>')
+    found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" — " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
     related = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x["t"])}</a></li>' for x in f.get("related", []))
-    maps = f'<a class="btn" href="{ESC(f["maps"])}">Open in Google Maps ↗</a>' if f.get("maps") else ""
+    maps = f'<p><a class="t" href="{ESC(f["maps"])}">Open in Google Maps ↗</a></p>' if f.get("maps") else ""
     prev_, next_ = by.get(f.get("prev")), by.get(f.get("next"))
-    meta_rows = [("Family", f["family"]), ("Genre", f["genre"]), ("Source", f.get("origin")), ("Place / object", f.get("place")),
+    plink = lambda g: flink(g["slug"], up) if HOSTED else g["slug"] + ".html"
+    meta_rows = [("Number", nofmt(f["no"])), ("Family", f["family"]), ("Genre", f["genre"]), ("Original", str(f["oy"]) if f.get("oy") else None),
+                 ("Digitised", f'{f["dy"]} by {f["dwho"]}' if f.get("dy") else None), ("Source", f.get("origin")), ("Place / object", f.get("place")),
                  ("Designer field", f.get("designer")), ("Styles", str(len(faces))), ("Characters", f'{f.get("glyphs",0):,}'),
                  ("Licence (page)", f.get("license")), ("Licence (font file)", (f.get("font_license") or "")[:240]),
-                 ("Wiegel's index", f'{f["section"]} · {f["pos"]} of {f["of"]}')]
+                 ("Wiegel's index", f'{f["section"]}, {f["pos"]} of {f["of"]}')]
     meta = "".join(f'<div><dt>{ESC(k)}</dt><dd>{ESC(v)}</dd></div>' for k, v in meta_rows if v)
     glyphs = json.dumps(canon["cmap"][:4000] if canon else [])
     acc = "".join(f'<div class="acc"><h3>{h}</h3><p>{ESC(a[k])}</p></div>' for k, h in (("what", "The typeface"), ("history", "History"), ("use", "In use"), ("notes", "Notes")) if a.get(k))
     if not acc:
         acc = f'<div class="acc"><p>{ESC(f.get("summary",""))}</p></div>'
+    tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
+    secs = [("specimen", "Specimen"), ("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
+    has_place = bool(photo or found or related or maps)
+    subnav = (f'<span class="tag sub1">{ESC(f["family"])}</span><span class="tag sub2 on">{ESC(f["name"])}</span>'
+              + "".join(f'<a class="tag sub3" href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
+              + (f'<a class="tag sub3" href="{plink(prev_)}">← Previous</a>' if prev_ else "")
+              + (f'<a class="tag sub3" href="{plink(next_)}">Next →</a>' if next_ else ""))
+    years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
-<article class="font" data-slug="{f['slug']}">
+<article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}" style="--bg:{bg};--fg:{fg}">
+<template id="subnavtpl">{subnav}</template>
 <script type="application/json" id="faces">{json.dumps(faces)}</script>
 <script type="application/json" id="glyphs">{glyphs}</script>
-<header class="fhead">
-  <p class="crumb tnum"><a href="{up}index.html">Specimens</a> / {ESC(f['family'])} / <span>{ESC(f['section'])} · {f['pos']}</span></p>
-  <h1 class="fname">{ESC(f['name'])}</h1>
-  <ul class="icons-row">{icons}</ul>
-</header>
-<section class="tester" aria-label="Type tester">
-  <div class="tools">
-    <label>Size <input type="range" id="sz" min="12" max="320" value="120"><output id="szo" class="tnum">120</output></label>
+<div class="sheet" id="specimen">
+  <header class="fhead">
+    <p class="kicker tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
+    <ul class="icons-row">{icons}</ul>
+  </header>
+  <div class="tools" role="toolbar" aria-label="Specimen controls">
+    {f'<label>Style <select id="style">{styles}</select></label>' if len(faces) > 1 else ''}
+    <label>Size <input type="range" id="sz" min="8" max="400" value="128"><output id="szo" class="tnum">128</output></label>
     <label>Leading <input type="range" id="lh" min="0.7" max="2" step="0.01" value="1.1"><output id="lho" class="tnum">1.10</output></label>
     <label>Tracking <input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"><output id="tro" class="tnum">0</output></label>
-    {f'<label>Style <select id="style">{styles}</select></label>' if len(faces) > 1 else ''}
-    <span class="feats">{feats}</span>
-    <button type="button" id="invert" class="btn">Invert</button>
+    {f'<span class="feats">{feats}</span>' if feats else ''}
+    <span class="sws" role="group" aria-label="Colours from Wiegel's site">{sw}</span>
+    <button type="button" id="invert" class="t">Invert</button>
+    <button type="button" id="reset" class="t">Reset</button>
   </div>
-  <div id="live" class="live" contenteditable="true" spellcheck="false">{ESC(f.get('sample') or f['name'])}</div>
-</section>
-<section class="cols">
-  <div class="text">{acc}
-    <p class="orig"><a class="btn" href="{ESC(f['translate'])}">Read Wiegel's original in English ↗</a> <a class="btn ghost" href="{ESC(f['url'])}">Original German page ↗</a></p>
-  </div>
-  <aside class="meta"><dl>{meta}</dl>{f'<h3>Timeline</h3><ol class="years">{years}</ol>' if years else ''}{f'<div class="tags">{tags}</div>' if tags else ''}</aside>
-</section>
-{f'<section class="place"><h2>Found in the world</h2>{photo}<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div></section>' if (photo or found or related or maps) else ''}
-<section class="waterfall" id="wf" aria-label="Waterfall"></section>
-<section class="glyphs"><h2>Characters <span class="sub tnum" id="gcount"></span></h2><div id="gl" class="gl"></div></section>
-<section class="files"><h2>Downloads</h2><ul class="dl">{dl}</ul>{f'<h3>Bundled documents</h3><ul class="dl">{docs}</ul>' if docs else ''}
-<p class="sub">{ESC(f.get('copyright') or '')}</p></section>
-<nav class="pn"><a href="{(flink(prev_['slug'], up) if HOSTED else prev_['slug'] + '.html') if prev_ else '#'}" class="{'' if prev_ else 'off'}">← {ESC(prev_['name'] if prev_ else '')}</a><a href="{(flink(next_['slug'], up) if HOSTED else next_['slug'] + '.html') if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')} →</a></nav>
+  <div class="blocks{' text' if f['text'] else ' display'}" id="blocks">{specimen_blocks(f, faces)}</div>
+</div>
+{sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
+{sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{ESC(f["translate"])}">Read Wiegel’s original in English ↗</a> <a class="t" href="{ESC(f["url"])}">Original German page ↗</a></p>', "account")}
+{sec("Facts", f'<dl class="facts">{meta}</dl>' + (f'<div class="tags">{tags}</div>' if tags else ''))}
+{sec("Place", photo + f'<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div>', "place") if has_place else ""}
+{sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}
+{sec('Characters <span class="tnum" id="gcount"></span>', '<div id="gl" class="gl"></div>', "characters")}
+{sec("Files", f'<ul class="dl">{dl}</ul>' + (f'<h3>Bundled documents</h3><ul class="dl">{docs}</ul>' if docs else '') + f'<p class="sub">{ESC(f.get("copyright") or "")}</p>', "files")}
+<nav class="pn"><a href="{plink(prev_) if prev_ else '#'}" class="{'' if prev_ else 'off'}">← {ESC(prev_['name'] if prev_ else '')}</a><a href="{plink(next_) if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')} →</a></nav>
 </article>"""
     if fragment:
         return body
-    return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage")
+    return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index")
 
 
 def legend_html(sprite):
-    items = "".join(f'<li>{icon(c, 48)}<div><h3>{ESC(l)}</h3><p>{ESC(d)}</p><code>{ESC(c)}</code></div></li>' for c, (_, l, d) in ICONS.items())
-    body = f"""<section class="pagehead"><h1 class="display">Legend</h1>
-<p class="lede">Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn: 24-pixel chips with the mark cut from the archive's own type, centred on its ink.</p></section>
+    items = "".join(f'<li>{icon(c, 48)}<div><h3>{ESC(l)}</h3><p>{ESC(d)}</p></div></li>' for c, (_, l, d) in ICONS.items())
+    body = f"""<section class="intro"><p class="lead">Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn in his download green: square chips with the mark cut from the archive’s own type and centred on its ink.</p></section>
 <ul class="legend">{items}</ul>"""
-    return page("Wiegel Archive — Legend", body, 0, sprite, "legend")
+    return page("Legend — Wiegel Archive", body, 0, sprite, "legend", "legend")
 
 
 def about_html(cat, sprite):
     n = len(cat["fonts"])
-    body = f"""<section class="pagehead"><h1 class="display">About</h1></section>
+    sw = "".join(f'<li><span class="chip-c" style="--b:{v[0]};--f:{v[1]}">Aa</span><span>{ESC(v[2])}</span><span class="sub tnum">{v[0]} / {v[1]}</span></li>' for v in PALETTE.values())
+    body = f"""<section class="intro"><p class="lead">A working archive of the free typefaces of Peter Wiegel, built for reading, setting and comparing them.</p></section>
 <section class="prose">
 <h2>Peter Wiegel</h2>
 <p>A self-described typographic amateur from Hamburg, later based in Wolgast, Peter Wiegel built CAT Fonts from the late 2000s into the 2020s: several hundred free typefaces, most of them revivals of German foundry type, school and handwriting models, standardised lettering (DIN, TGL, railway drawings) and lettering recorded from real objects. His site says that since 2022 he has been unable to maintain it for health reasons; it stays online as it is.</p>
 <h2>Licences</h2>
-<p>Wiegel's own designs are freeware, commercial use included; modified versions must stay free and take a new name. A large group of blackletter fonts on the second index page are re-encodings of Dieter Steffmann's digitisations — those are free for private use, and commercial use needs Steffmann's licence. Each font page shows the licence note from Wiegel's page and the licence embedded in the font file; the original archives, with their licence files, are kept untouched under Downloads.</p>
+<p>Wiegel’s own designs are freeware, commercial use included; modified versions must stay free and take a new name. A large group of blackletter fonts on the second index page are re-encodings of Dieter Steffmann’s digitisations — free for private use; commercial use needs Steffmann’s licence. Each font page shows the licence note from Wiegel’s page and the licence embedded in the font file; the original archives, with their licence files, are kept untouched under Files.</p>
 <h2>This archive</h2>
-<p>{n} typefaces scraped with Apify from all three of Wiegel's index pages. The texts are new English write-ups of each page — facts regrouped, not translations — with a link to the original and to a machine translation of it. Photos of the buildings, signs and objects are freely licensed (credited); other sightings are linked, not copied. Specimens are set live from the font files; nothing on this site is an image of type.</p>
+<p>{n} typefaces scraped with Apify from all three of Wiegel’s index pages. The texts are new English write-ups of each page — facts regrouped, not translations — with a link to the original and to a machine translation of it. Photos of the buildings, signs and objects are freely licensed and credited; other sightings are linked, not copied. Specimens are set live from the font files; nothing here is an image of type. Digitisation years are read from each font file’s copyright line, or its creation date when that is missing.</p>
+<h2>Colour</h2>
+<p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch.</p>
+<ul class="pal">{sw}</ul>
 <h2>Method</h2>
-<p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; three stateless reviewers (comprehension, hostile critic, implementation readiness) attacked it, and their findings were folded in before any code was written.</p>
+<p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
-<p>Set in Wiegel's CAT Linz (text) and DIN 1451 alte Mittelschrift (display). Built {datetime.date.today().isoformat()}.</p>
+<p>Interface in Wiegel’s DIN 1451 alte Mittelschrift at a single size; reading text in his CAT Linz. Built {datetime.date.today().isoformat()}.</p>
 </section>"""
-    return page("Wiegel Archive — About", body, 0, sprite, "about")
+    return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
 
 
 UIFONTS = []
@@ -578,7 +784,7 @@ UIFONTS = []
 
 def ui_font_css(by):
     css = []
-    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA Display")):
+    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI")):
         f = by.get(slug)
         for x in (f or {}).get("faces", []):
             src = "fonts/" + slug + "/" + os.path.basename(x["path"])
@@ -587,10 +793,29 @@ def ui_font_css(by):
     return "\n".join(css)
 
 
-def main():
+def load_files(cat):
+    """Extract from raw/archives; without them (dev copy) reuse the file lists of the last full build."""
+    if os.path.isdir(RAW) and os.listdir(RAW):
+        extract(cat)
+        return
+    rep = {r["slug"]: r for r in json.load(open(os.path.join(DATA, "build-report.json"), encoding="utf-8"))}
+    for f in cat["fonts"]:
+        r = rep.get(f["slug"], {})
+        f["files"] = [{k: v for k, v in x.items() if k in ("path", "orig", "sha1", "from")} for x in r.get("files", [])]
+        f["docs"], f["downloads"] = r.get("docs", []), r.get("downloads", [])
+    log("extract: skipped (no raw archives), file lists from build-report.json")
+
+
+def prepare():
     cat = json.load(open(os.path.join(DATA, "catalog.json"), encoding="utf-8"))
-    extract(cat)
+    load_files(cat)
     inventory(cat)
+    enrich(cat)
+    return cat
+
+
+def main():
+    cat = prepare()
     by = {f["slug"]: f for f in cat["fonts"]}
     # site tree
     for d in ("assets/fonts", "assets/dl", "assets/docs", "assets/photos", "font"):
@@ -600,7 +825,7 @@ def main():
             d = os.path.join(SITE, "assets/fonts", f["slug"]); os.makedirs(d, exist_ok=True)
             shutil.copy2(os.path.join(ROOT, x["path"]), d)
         for dd in f.get("downloads", []):
-            if dd["local"]:
+            if dd["local"] and os.path.exists(os.path.join(RAW, dd["local"])):
                 shutil.copy2(os.path.join(RAW, dd["local"]), os.path.join(SITE, "assets/dl", dd["local"]))
         for d in f.get("docs", []):
             dd = os.path.join(SITE, "assets/docs", f["slug"]); os.makedirs(dd, exist_ok=True)
@@ -614,6 +839,7 @@ def main():
     W = lambda p, s: open(os.path.join(SITE, p), "w", encoding="utf-8").write(s)
     W("index.html", index_html(cat, sprite))
     W("catalogue.html", catalogue_html(cat, sprite))
+    W("timeline.html", timeline_html(cat, sprite))
     W("legend.html", legend_html(sprite))
     W("about.html", about_html(cat, sprite))
     for f in cat["fonts"]:

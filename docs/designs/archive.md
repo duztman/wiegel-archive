@@ -128,3 +128,14 @@ Data
 - Which of his faces holds up at 13 px for UI labels?
 - How many pages actually point to places/buildings (photo budget)?
 - Do some archives contain only .exe/.rar, needing manual handling?
+
+## 11. v3 — one interface size, lanes for time, colour grounds
+
+Study (built-in browser, measured CSS): Lineto (one size 17px, tag-stack menu, three-lane timeline), Grilli (one size, label column, per-style lines), Optimo (one size 12px, black name index, per-block testers), Herzog & de Meuron (one size 23px, catalogue numbers, Filter → category → value), Klim (colour band per family), Commercial Type (Vault), Radim Peško (names in their own face), Caruso St John (years under projects).
+
+Decisions:
+- Interface: DIN 1451 alte Mittelschrift at a single 24px (18px on phones); hierarchy from colour, rules and position. Reading text in CAT Linz 28px.
+- Menu: fixed tag stack; on font pages it expands to family → font → sections → previous/next.
+- Timeline page: lanes Type | Digitised | Elsewhere. Events from the page write-ups, classified by keyword; every font also gets its digitisation year from the font file's copyright line (fallback head.created, 1995–2023 only).
+- Font page: a coloured sheet (12 pairs sampled from peter-wiegel.de, chosen per family by a stable hash; switchable). Text faces get Large Title / Title / Headline / Body / Caption blocks; display and odd faces get Name / Capitals / Lowercase / Figures at large sizes. One toolbar binds to the active block.
+- Index: Grid or List (names in their own face), step filter (Family, Original, Digitised, Script, Features, Place, Order), catalogue numbers in Wiegel's order.
