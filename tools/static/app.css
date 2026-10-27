@@ -433,3 +433,13 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   .legend { grid-template-columns: minmax(0, 1fr); }
   .gap .tnum { font-size: 44px; }
 }
+
+/* ── the smallest text: always caps, always one tone ─────────────────── */
+.info, .sheet .info, .foot, .pill.small, .vlab, .dec span, .vl, .sl .k, .sl output, .sb h3, .axis .tk,
+.evs .y, .evs .ln, .facts dt, .tg, .photo figcaption .sub, .links .sub, .dl .sub, .wf .px, .gl .g span,
+.crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lane::before, .lrow .meta, .card .meta, .kicker, .fcount .info, .pic figcaption {
+  text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); opacity: 1;
+}
+.vl { font-family: var(--din); }
+.blk.on .vl { color: var(--ink-3); }
+.foot a { color: inherit; }
