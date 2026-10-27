@@ -147,6 +147,17 @@
     let tm; rt.addEventListener("input", grow); $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
+    /* the rule above Search sits on the rule above the second font in the list */
+    function alignSide() {
+      const r2 = grid.children[1];
+      if (!r2 || innerWidth < 900) { rt.style.marginBottom = ""; return; }
+      const tgt = r2.offsetTop - grid.offsetTop;
+      rt.style.marginBottom = Math.max(16, tgt - rt.offsetHeight) + "px";
+    }
+    const ro = new ResizeObserver(alignSide);
+    const watch = () => { ro.disconnect(); [grid.children[0], rt].forEach((el) => el && ro.observe(el)); alignSide(); };
+    new MutationObserver(watch).observe(grid, { childList: true });
+    watch(); addEventListener("resize", alignSide);
   }
 
   /* ── timeline: names in their own face, a font's entries light up together ── */
