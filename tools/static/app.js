@@ -111,7 +111,7 @@
       b.innerHTML = `${esc(label)}${n != null ? ` <span class="n tnum">${n}</span>` : ""}`; b.setAttribute("aria-pressed", !!on); b.onclick = fn; return b; };
     function renderSide() {
       const box = $("#fside"); box.replaceChildren();
-      const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(h, w); box.appendChild(g); };
+      const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "vlab"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(w, h); box.appendChild(g); };
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
       CATS.forEach(([k, label]) => {
         const sel = state.sel[k] || new Set();
@@ -135,11 +135,11 @@
       });
       grid.replaceChildren(...list);
       const any = Object.keys(state.sel).length || state.q;
-      $("#count").textContent = `${list.length} of ${C.fonts.length}`;
+      $("#count").textContent = list.length === C.fonts.length ? `${list.length}` : `${list.length} of ${C.fonts.length}`;
       $("#fclear").hidden = !any;
       renderSide(); save();
     }
-    $("#fclear").onclick = () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); };
+    $("#fclear").onclick = (e) => { e.preventDefault(); }; $("#fclear").addEventListener("click", () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); });
     $("#q").value = state.q; $("#q").oninput = (e) => { state.q = e.target.value; apply(); };
     let tm; $("#retype").oninput = (e) => { clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
