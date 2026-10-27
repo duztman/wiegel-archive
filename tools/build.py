@@ -260,6 +260,59 @@ def inventory(cat):
         f["copyright"] = next((x["copyright"] for x in uniq if x["copyright"]), "")
 
 
+# ── photos: freely licensed (Commons), bundled by Apify into raw/photos/*.zip ───
+def _pkey(name):
+    n = urllib.parse.unquote(name).rsplit("/", 1)[-1]
+    n = re.sub(r"^files-[0-9a-f]{8}-", "", n)
+    n = re.sub(r"^\d+px-", "", n)
+    n = unicodedata.normalize("NFKD", n).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]", "", n)
+
+
+def place_photos(cat):
+    pdir = os.path.join(ROOT, "raw", "photos")
+    pool = {}
+    if os.path.isdir(pdir):
+        for z in sorted(os.listdir(pdir)):
+            if not z.lower().endswith(".zip"):
+                continue
+            try:
+                zf = zipfile.ZipFile(os.path.join(pdir, z))
+            except zipfile.BadZipFile:
+                continue
+            for n in zf.namelist():
+                pool[_pkey(n)] = (zf, n)
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+    out_dir = os.path.join(SITE, "assets", "photos")
+    hit = 0
+    for f in cat["fonts"]:
+        ph = f.get("photo")
+        if not ph:
+            continue
+        k = _pkey(ph["src"])
+        if k not in pool:
+            continue
+        zf, n = pool[k]
+        b = zf.read(n)
+        dst = os.path.join(out_dir, f["slug"] + ".jpg")
+        if Image:
+            im = Image.open(io.BytesIO(b))
+            im.thumbnail((2400, 2400))
+            if im.mode not in ("RGB", "L"):
+                bg = Image.new("RGB", im.size, (244, 242, 236))
+                bg.paste(im.convert("RGBA"), mask=im.convert("RGBA").split()[-1])
+                im = bg
+            im.save(dst, "JPEG", quality=86, optimize=True, progressive=True)
+        else:
+            open(dst, "wb").write(b)
+        ph["local"] = True
+        hit += 1
+    log(f"photos: {hit} placed locally")
+
+
 # ── icons from the archive's own type ─────────────────────────────────────────────
 def icon_svgs(cat):
     by = {f["slug"]: f for f in cat["fonts"]}
@@ -542,9 +595,7 @@ def main():
         for d in f.get("docs", []):
             dd = os.path.join(SITE, "assets/docs", f["slug"]); os.makedirs(dd, exist_ok=True)
             shutil.copy2(os.path.join(ROOT, d["path"]), dd)
-        p = os.path.join(DATA, "photos", f["slug"] + ".jpg")
-        if f.get("photo") and os.path.exists(p):
-            shutil.copy2(p, os.path.join(SITE, "assets/photos"))
+    place_photos(cat)
     sprite = icon_svgs(cat)
     css = open(os.path.join(STATIC, "app.css"), encoding="utf-8").read().replace("/*UI_FONTS*/", ui_font_css(by))
     open(os.path.join(SITE, "assets/app.css"), "w", encoding="utf-8").write(css)
