@@ -482,7 +482,7 @@ THEME_JS = """(function(){var P=%s,A={dark:["#00A3EA","#FDFA00","#E20084","#2FB3
 try{m=localStorage.getItem("wa-mode")}catch(e){}r.dataset.mode=m=(m==="mono"?"mono":"random");
 var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
 window.WA_PAL=P;window.WA_theme=function(pair){var s=r.style;
- if(!pair&&r.dataset.mode==="random")pair=pick(Object.values(P));
+ if(!pair&&r.dataset.mode==="random"){var c=s.getPropertyValue("--paper"),L=Object.values(P).filter(function(x){return x[0]!==c});pair=pick(L.length?L:Object.values(P))}
  if(pair){s.setProperty("--paper",pair[0]);s.setProperty("--ink",pair[1]);s.setProperty("--hot",pair[1]);r.dataset.on="pair"}
  else{s.removeProperty("--paper");s.removeProperty("--ink");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
 window.WA_theme(window.WA_FONTPAL&&r.dataset.mode==="random"?P[window.WA_FONTPAL]:null)})();"""
@@ -669,10 +669,10 @@ def specimen_blocks(f, faces):
         lo_ = "".join(chr(x) for x in range(0x61, 0x7B) if x in c)
         dg_ = "".join(chr(x) for x in range(0x30, 0x3A) if x in c)
         blocks = [("Name", 200, f["name"], "fit")]
-        if up_: blocks.append(("Capitals", 160, up_, ""))
-        if lo_ and lo_.upper() != up_ or (lo_ and "gemeine" in f["icons"]): blocks.append(("Lowercase", 160, lo_, ""))
-        if dg_: blocks.append(("Figures", 160, dg_ + " " + "".join(ch for ch in "&?!€§" if ord(ch) in c), ""))
-        if f.get("sample") and f["sample"] not in (up_, lo_, f["name"]): blocks.append(("Sample", 160, f["sample"], ""))
+        if up_: blocks.append(("Capitals", 160, up_, "fit"))
+        if lo_ and lo_.upper() != up_ or (lo_ and "gemeine" in f["icons"]): blocks.append(("Lowercase", 160, lo_, "fit"))
+        if dg_: blocks.append(("Figures", 160, dg_ + " " + "".join(ch for ch in "&?!€§" if ord(ch) in c), "fit"))
+        if f.get("sample") and f["sample"] not in (up_, lo_, f["name"]): blocks.append(("Sample", 160, f["sample"], "fit"))
     out = []
     for i, (role, px, txt, mode) in enumerate(blocks):
         out.append(f'<div class="blk{" " + mode if mode else ""}{" on" if i == 0 else ""}" data-px="{px}" data-role="{role}" data-def="{ESC(txt)}">'

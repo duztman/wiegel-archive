@@ -12,14 +12,15 @@
 
   /* header height → sticky offsets */
   function setNavH() { const t = document.getElementById("top"); if (t) document.documentElement.style.setProperty("--navh", t.offsetHeight + "px"); }
-  setNavH(); addEventListener("resize", setNavH); document.fonts?.ready?.then(setNavH);
+  setNavH(); if (window.ResizeObserver && document.getElementById("top")) new ResizeObserver(setNavH).observe(document.getElementById("top")); else addEventListener("resize", setNavH);   // follows the bar when the UI font arrives and it un-wraps
 
   /* colour modes: Random (one pair of Wiegel's colours for the whole page) or Mono (black/white + one accent) */
   function markModes() { $$(".mode").forEach((b) => b.classList.toggle("on", b.dataset.m === document.documentElement.dataset.mode)); }
   $$(".mode").forEach((b) => (b.onclick = () => {
+    const again = document.documentElement.dataset.mode === b.dataset.m;   // pressing the active mode again gives a new colour
     document.documentElement.dataset.mode = b.dataset.m; store.set("wa-mode", b.dataset.m, true);
     const art = $("article.font");
-    if (art && window._setPal) window._setPal(b.dataset.m === "random" ? art.dataset.pal : "plain"); else window.WA_theme?.(null);
+    if (art && window._setPal && !again) window._setPal(b.dataset.m === "random" ? art.dataset.pal : "plain"); else window.WA_theme?.(null);
     markModes(); redrawAll();
   }));
   markModes();
@@ -116,23 +117,34 @@
     rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
 
     const pill = (label, n, on, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "pill" + (on ? " on" : "");
+      if (n === 0 && !on) { b.classList.add("zero"); b.disabled = true; }
       b.innerHTML = `${esc(label)}${n != null ? ` <span class="n tnum">${n}</span>` : ""}`; b.setAttribute("aria-pressed", !!on); b.onclick = fn; return b; };
     function renderSide() {
       const box = $("#fside"); box.replaceChildren();
       const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "vlab"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(w, h); box.appendChild(g); };
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
-      CATS.forEach(([k, label]) => {
-        const sel = state.sel[k] || new Set();
-        group(label, sortVals(k, vals[k]).map(([v, n]) => pill(v, n, sel.has(v), () => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); })));
+      CATS.forEach(([k, label, fn]) => {
+        const sel = state.sel[k] || new Set(), live = liveCounts(k, fn);
+        group(label, sortVals(k, vals[k]).map(([v]) => [v, live.get(v) || 0]).map(([v, n]) => pill(v, n, sel.has(v), () => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); })));
       });
     }
-    function apply() {
+    /* a font passes every selected group (OR inside a group, AND across groups) and the search; `skip` leaves one group out */
+    function passing(skip) {
       const q = state.q.toLowerCase();
-      const pass = (f) => {
-        for (const [k, , fn] of CATS) { const s = state.sel[k]; if (s && s.size && !fn(f).some((v) => s.has(v))) return false; }
+      return (f) => {
+        for (const [k, , fn] of CATS) { if (k === skip) continue; const s = state.sel[k]; if (s && s.size && !fn(f).some((v) => s.has(v))) return false; }
         if (q && !(f.n + " " + (f.pl || "") + " " + f.tg.join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase().includes(q)) return false;
         return true;
       };
+    }
+    /* each pill counts what it would show next to the other active filters, so no pill leads to an empty list */
+    function liveCounts(k, fn) {
+      const m = new Map(), ok = passing(k);
+      C.fonts.forEach((f) => { if (ok(f)) fn(f).forEach((v) => m.set(v, (m.get(v) || 0) + 1)); });
+      return m;
+    }
+    function apply() {
+      const pass = passing();
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
@@ -268,7 +280,9 @@
         meas.font = `100px "${f.id}"`;
         const w = meas.measureText(ed.textContent).width || 1;
         const avail = ed.clientWidth;
-        b._px = Math.max(24, Math.min(small ? 160 : 420, Math.floor((avail / w) * 100 * 0.97)));
+        const px = Math.floor((avail / w) * 100 * 0.97), floor = 2 * parseFloat(css("--ui"));   // one line across the measure
+        b.classList.toggle("wrapped", px < floor);   // text too long for one readable line wraps at the floor instead
+        b._px = Math.min(small ? 160 : 420, Math.max(floor, px));
         paint(b); if (b === active) sync();
       });
     }
