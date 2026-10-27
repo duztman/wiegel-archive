@@ -53,7 +53,7 @@ em { font-style: normal; color: var(--hot); }
 /* ── navigation: one coloured bar, text only ──────────────────────────── */
 .top { position: sticky; top: 0; z-index: 30; background: var(--navbg); color: var(--navfg); transition: background .25s, color .25s;
   padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--gut), env(safe-area-inset-left, 0px)); }
-.top::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 56px; pointer-events: none;
+.top::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none;
   background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }
 .top::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--navbg); }
 .nav1, .nav2 { display: flex; align-items: center; gap: 8px 8px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
@@ -117,9 +117,9 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 .chosen .t::after { content: "×"; }
 
 /* ── home: previews first, filter pills in a side column ─────────────── */
-.home { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: start; padding-top: 32px; }
+.home { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: start; padding-top: 40px; }
 .homelist { min-width: 0; }
-.home .side { position: sticky; z-index: 31; top: calc(var(--navh) + 32px); max-height: calc(100vh - var(--navh) - 48px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; min-width: 0; padding-bottom: 48px;
+.home .side { position: sticky; z-index: 31; top: calc(var(--navh) + 40px); max-height: calc(100vh - var(--navh) - 48px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; min-width: 0; padding-bottom: 48px;
   padding-top: 0; }
 .fsum { display: none; list-style: none; cursor: pointer; }
 .fsum::-webkit-details-marker { display: none; }
@@ -220,7 +220,7 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 /* ── font page: the coloured sheet ───────────────────────────────────── */
 .font { --bg: var(--paper); --fg: var(--ink); }
 .top { --navbg: var(--paper); --navfg: var(--ink); }
-.sheet { background: var(--bg); color: var(--fg); margin: 0 calc(-1 * max(var(--gut), env(safe-area-inset-left, 0px))); padding: 8px var(--gut) 0; transition: background .25s, color .25s; }
+.sheet { background: var(--bg); color: var(--fg); margin: 0 calc(-1 * max(var(--gut), env(safe-area-inset-left, 0px))); padding: 20px var(--gut) 0; transition: background .25s, color .25s; }
 .sheet ::selection { background: var(--fg); color: var(--bg); }
 .sheet .info { color: inherit; opacity: .7; }
 .fhead { display: grid; gap: 12px; padding: var(--st) 0 var(--sbt); }
