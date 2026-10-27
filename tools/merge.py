@@ -19,7 +19,28 @@ FAMILY = {
 }
 FAMILY_ORDER = ["Blackletter", "Handwriting", "Norm & Sans", "Serif", "Display", "Technical", "Symbols", "Other"]
 # a year counts as "the typeface's year" when its note is about the type itself
-TYPE_YEAR = re.compile(r"(design|issu|releas|cut|cast|publish|digiti|font|type|face|script|alphabet|letter|drawn|revival|sign|plate|standard|\\bDIN\\b|\\bTGL\\b)", re.I)
+NOT_TYPE = re.compile(r"\b(born|dies|died|death|founded|firm|company|incorporat|closes|closed|taken over|partnership|joins|classes|birth)\b", re.I)
+STRONG = re.compile(r"\b(issu\w*|releas\w*|publish\w*|cut|cast|designs?|designed|drawn|draws|digiti\w*|introduc\w*|appear\w*)\b", re.I)
+WEAK = re.compile(r"\b(font|type\w*|face|script|alphabet|letter\w*|sign\w*|plate|standard|DIN|TGL|opened|installed)\b", re.I)
+
+
+class _TypeYear:
+    """search(note) is truthy when a dated note is about the typeface itself; .rank gives priority."""
+    @staticmethod
+    def rank(note):
+        if NOT_TYPE.search(note):
+            return 9
+        if STRONG.search(note):
+            return 0
+        if WEAK.search(note):
+            return 1
+        return 9
+
+    def search(self, note):
+        return self.rank(note) < 9
+
+
+TYPE_YEAR = _TypeYear()
 SECTIONS = [
     ("Fonts/index.html", "A–K"),
     ("Fonts/L_bis_Z.html", "L–Z"),
@@ -82,9 +103,9 @@ def main():
         sec = section_of[k]
         pos_in[sec] += 1
         years = sorted({int(y["y"]) for y in r.get("years") or [] if str(y.get("y", "")).isdigit() and 1400 <= int(y["y"]) <= 2026})
-        typey = sorted(int(y["y"]) for y in r.get("years") or [] if str(y.get("y", "")).isdigit()
-                       and 1400 <= int(y["y"]) <= 2026 and TYPE_YEAR.search(y.get("what", "")))
-        key_year = typey[0] if typey else (years[0] if years else None)
+        typey = sorted((TYPE_YEAR.rank(y.get("what", "")), int(y["y"])) for y in r.get("years") or []
+                       if str(y.get("y", "")).isdigit() and 1400 <= int(y["y"]) <= 2026 and TYPE_YEAR.search(y.get("what", "")))
+        key_year = typey[0][1] if typey else (years[0] if years else None)
         ph = photos.get(k, {})
         acc = r.get("account") if isinstance(r.get("account"), dict) else None
         out.append({
