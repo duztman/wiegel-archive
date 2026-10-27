@@ -265,7 +265,7 @@ def inventory(cat):
 # ── photos: freely licensed (Commons), bundled by Apify into raw/photos/*.zip ───
 def _pkey(name):
     n = urllib.parse.unquote(name).rsplit("/", 1)[-1]
-    n = re.sub(r"^files-[0-9a-f]{8}-", "", n)
+    n = re.sub(r"^(files-)?[0-9a-f]{8}-", "", n)
     n = re.sub(r"^\d+px-", "", n)
     n = unicodedata.normalize("NFKD", n).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]", "", n)
