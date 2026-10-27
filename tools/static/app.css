@@ -125,11 +125,13 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 /* ── home: previews first, filter pills in a side column ─────────────── */
 /* two independent scrollers under the bar: neither moves when the other scrolls */
 .p-home main { padding-bottom: 0; }
+/* the scrollers run to the screen's bottom edge; the home-indicator inset moves inside them */
+:root:has(body.p-home) { padding-bottom: 0; }
 .p-home .foot { display: none; }
-.homegrid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: stretch;
+.homegrid { display: grid; grid-template-columns: minmax(0, 1fr) calc(var(--ui) * 12); gap: 40px; align-items: stretch;
   height: calc(100dvh - var(--navh)); }
 .homelist, .homegrid .side { position: relative; height: 100%; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
-  scrollbar-width: none; padding-top: 40px; padding-bottom: 64px; }
+  scrollbar-width: none; padding-top: 40px; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 .homelist::-webkit-scrollbar, .homegrid .side::-webkit-scrollbar { display: none; }
 .homelist .foot { display: block; padding-bottom: 0; }
 .fsum { display: none; list-style: none; cursor: pointer; }
