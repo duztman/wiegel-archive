@@ -14,14 +14,15 @@
   function setNavH() { const t = document.getElementById("top"); if (t) document.documentElement.style.setProperty("--navh", t.offsetHeight + "px"); }
   setNavH(); addEventListener("resize", setNavH); document.fonts?.ready?.then(setNavH);
 
-  /* theme */
-  $(".theme")?.addEventListener("click", () => {
-    const dark = matchMedia("(prefers-color-scheme: dark)").matches;
-    const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
-    const nxt = cur === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = nxt; store.set("wa-theme", nxt, true);
-    redrawAll();
-  });
+  /* colour modes: Random (one pair of Wiegel's colours for the whole page) or Mono (black/white + one accent) */
+  function markModes() { $$(".mode").forEach((b) => b.classList.toggle("on", b.dataset.m === document.documentElement.dataset.mode)); }
+  $$(".mode").forEach((b) => (b.onclick = () => {
+    document.documentElement.dataset.mode = b.dataset.m; store.set("wa-mode", b.dataset.m, true);
+    const art = $("article.font");
+    if (art && window._setPal) window._setPal(b.dataset.m === "random" ? art.dataset.pal : "plain"); else window.WA_theme?.(null);
+    markModes(); redrawAll();
+  }));
+  markModes();
 
   /* font loading — fetch + FontFace (works on a local server and in a sandboxed host) */
   const faces = new Map();
@@ -239,16 +240,16 @@
     $("#style")?.addEventListener("change", (e) => { cur = +e.target.value; load(F[cur]).then(() => { applyFace(); fitBlocks(); drawGlyphs(); }); });
 
     /* colour */
-    const navSync = () => { const bd = document.body.style; bd.setProperty("--navbg", art.style.getPropertyValue("--bg")); bd.setProperty("--navfg", art.style.getPropertyValue("--fg")); };
     function setPal(k) {
       $$(".sw", art).forEach((s) => s.classList.toggle("on", s.dataset.p === k));
-      if (k === "plain" || !P[k]) { art.style.setProperty("--bg", css("--paper")); art.style.setProperty("--fg", css("--ink")); }
-      else { art.style.setProperty("--bg", P[k][0]); art.style.setProperty("--fg", P[k][1]); }
-      art.dataset.cur = k; navSync();
+      window.WA_theme?.(k === "plain" || !P[k] ? null : P[k]);
+      if (k === "plain" && document.documentElement.dataset.mode === "random") { const r = document.documentElement.style; r.removeProperty("--paper"); r.removeProperty("--ink"); }
+      art.dataset.cur = k; window._redrawFont?.();
     }
-    navSync();
+    window._setPal = setPal;
+    setPal(document.documentElement.dataset.mode === "random" ? defPal : "plain");
     $$(".sw", art).forEach((s) => (s.onclick = () => setPal(s.dataset.p)));
-    $("#invert").onclick = () => { const b = art.style.getPropertyValue("--bg"), f = art.style.getPropertyValue("--fg"); art.style.setProperty("--bg", f); art.style.setProperty("--fg", b); navSync(); };
+    $("#invert").onclick = () => { const r = document.documentElement.style, b = css("--paper"), f = css("--ink"); r.setProperty("--paper", f); r.setProperty("--ink", b); r.setProperty("--hot", b); window._redrawFont?.(); };
     $("#reset").onclick = () => {
       blks.forEach((b) => { $(".ed", b).textContent = b.dataset.def; b._px = small ? Math.max(12, Math.round(+b.dataset.px * (+b.dataset.px > 30 ? 0.5 : 0.8))) : +b.dataset.px; b._lh = LEAD[b.dataset.role] ?? 1.0; b._tr = 0; paint(b); });
       userSized.clear(); setPal(defPal); fitBlocks(); sync(); wfText();
@@ -308,7 +309,7 @@
       ctx.font = `${100 * s}px "${f.id}"`;
       ctx.fillText(ch, W / 2 - ((m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2) * s, H / 2 + (cap * s) / 2);
     }
-    window._redrawFont = () => { $$(".gl .g", art).forEach((d) => d.querySelector("canvas").width && drawG(d)); if (art.dataset.cur === "plain") setPal("plain"); };
+    window._redrawFont = () => { $$(".gl .g", art).forEach((d) => d.querySelector("canvas").width && drawG(d)); };
   }
   window.WA_initFont = initFont;
   initFont();

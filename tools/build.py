@@ -478,7 +478,17 @@ NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html
        ("legend", "Legend", "legend.html"), ("about", "About", "about.html")]
 
 
-def page(title, body, depth=0, sprite="", cls="", cur=""):
+THEME_JS = """(function(){var P=%s,A={dark:["#00A3EA","#FDFA00","#E20084","#2FB35A","#FF3D7F","#B04CFF"],light:["#0079B8","#E20084","#05872C","#D40051","#7C00AD"]},r=document.documentElement,m;
+try{m=localStorage.getItem("wa-mode")}catch(e){}r.dataset.mode=m=(m==="mono"?"mono":"random");
+var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
+window.WA_PAL=P;window.WA_theme=function(pair){var s=r.style;
+ if(!pair&&r.dataset.mode==="random")pair=pick(Object.values(P));
+ if(pair){s.setProperty("--paper",pair[0]);s.setProperty("--ink",pair[1]);s.setProperty("--hot",pair[1]);r.dataset.on="pair"}
+ else{s.removeProperty("--paper");s.removeProperty("--ink");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
+window.WA_theme(window.WA_FONTPAL&&r.dataset.mode==="random"?P[window.WA_FONTPAL]:null)})();"""
+
+
+def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
     up = "../" * depth
     links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>' for k, label, href in NAV)
     return f"""<!doctype html>
@@ -486,11 +496,11 @@ def page(title, body, depth=0, sprite="", cls="", cur=""):
 <meta name="robots" content="noindex,nofollow">
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
-<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};try{{var t=localStorage.getItem("wa-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
-</head><body class="p-{cls}" style="--navbg:{NAVPAL.get(cls, NAVPAL['home'])[0]};--navfg:{NAVPAL.get(cls, NAVPAL['home'])[1]}">
+<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};window.WA_FONTPAL={json.dumps(fontpal)};{THEME_JS % json.dumps({k: v[:2] for k, v in PALETTE.items()})}</script>
+</head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<button class="theme" type="button" aria-label="Switch light or dark">Light / Dark</button></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<span class="modes"><button class="mode" type="button" data-m="random" title="A random pair of Wiegel's colours on every page">Random</button><button class="mode" type="button" data-m="mono" title="Black and white with one bright accent">Mono</button></span></nav>
 <nav class="nav2" id="subnav" aria-label="This font"></nav>
 </header>
 <main>{body}
@@ -737,7 +747,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
               + (f'<a{"" if prev_ else " class=push"} href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else ""))
     years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
-<article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}" style="--bg:{bg};--fg:{fg}">
+<article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
 <template id="subnavtpl">{subnav}</template>
 <script type="application/json" id="faces">{json.dumps(faces)}</script>
 <script type="application/json" id="glyphs">{glyphs}</script>
@@ -773,7 +783,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
 </article>"""
     if fragment:
         return body
-    return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index")
+    return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index", f["pal"])
 
 
 def legend_html(sprite):
