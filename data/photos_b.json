@@ -1,0 +1,732 @@
+[
+ {
+  "url": "http://www.peter-wiegel.de/Blankenburg.html",
+  "name": "Blankenburg",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Berlin-S-Bahnhof-Potsdamer-Platz-Bahnhofsschild.jpg/1600px-Berlin-S-Bahnhof-Potsdamer-Platz-Bahnhofsschild.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Berlin-S-Bahnhof-Potsdamer-Platz-Bahnhofsschild.jpg",
+   "title": "Berlin-S-Bahnhof-Potsdamer-Platz-Bahnhofsschild.jpg",
+   "author": "Bildarbeiter",
+   "license": "CC BY-SA 4.0",
+   "caption": "Tannenberg blackletter station sign, S-Bahnhof Potsdamer Platz, Berlin."
+  },
+  "related": [
+   {
+    "t": "Tannenberg (Schriftart) – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Tannenberg_(Schriftart)"
+   },
+   {
+    "t": "Bahnhof Blankenburg (Harz) – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Bahnhof_Blankenburg_(Harz)"
+   }
+  ],
+  "found": [
+   {
+    "t": "Frakturschriften bei der Berliner S-Bahn",
+    "u": "https://signalarchiv.de/Meldungen/10001011",
+    "site": "signalarchiv.de",
+    "note": "Article with photos of Tannenberg lettering on Berlin S-Bahn stations."
+   },
+   {
+    "t": "Bahnhof-Schilder in der Schriftart Tannenberg?",
+    "u": "https://www.drehscheibe-online.de/foren/read.php?017%2C9635558%2Cpage=2",
+    "site": "drehscheibe-online.de",
+    "note": "Railway forum thread with Tannenberg station sign photos, e.g. Honau."
+   },
+   {
+    "t": "Gebrochene im Berliner S-Bahn Nordbahnhof",
+    "u": "https://www.typografie.info/3/topic/26643-gebrochene-im-berliner-s-bahn-nordbahnhof/",
+    "site": "typografie.info",
+    "note": "Forum thread identifying blackletter signage at Nordbahnhof."
+   },
+   {
+    "t": "Bahnhof Behringersmühle",
+    "u": "http://www.dorfbahnhof.de/behring/behring.html",
+    "site": "dorfbahnhof.de",
+    "note": "Hobbyist page: wooden station sign with Fraktur name, 1994 photos."
+   },
+   {
+    "t": "Category:Tannenberg (typeface)",
+    "u": "https://commons.wikimedia.org/wiki/Category:Tannenberg_(typeface)",
+    "site": "commons.wikimedia.org",
+    "note": "31 photos of Tannenberg station and wall lettering."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=51.7956%2C10.9608",
+  "lat": 51.7956,
+  "lng": 10.9608
+ },
+ {
+  "url": "http://www.peter-wiegel.de/CATRhythmus.html",
+  "name": "CAT Rhythmus",
+  "photo": null,
+  "related": [
+   {
+    "t": "J.G. Schelter & Giesecke – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Schelter_%26_Giesecke"
+   },
+   {
+    "t": "Stasi-Unterlagen-Archiv – Bundesarchiv",
+    "u": "https://www.bundesarchiv.de/stasi-unterlagen-archiv/"
+   }
+  ],
+  "found": [
+   {
+    "t": "Aktendeckel zum Anlegen eines AU-Untersuchungsvorganges des MfS",
+    "u": "https://www.deutsche-digitale-bibliothek.de/item/3GMD7D6FVLUKQ57X45PS2F6Z3YFXKBRN",
+    "site": "deutsche-digitale-bibliothek.de",
+    "note": "DHM object: printed MfS file cover, pink card, 1950–85."
+   },
+   {
+    "t": "Debatte um IM-Zahlen",
+    "u": "https://www.bundesarchiv.de/nachricht/debatte-um-im-zahlen/",
+    "site": "bundesarchiv.de",
+    "note": "News item illustrated with an IM-Vorgang file cover."
+   },
+   {
+    "t": "Aktenordner – Stasi-Mediathek",
+    "u": "http://www.stasi-mediathek.de/themen/schlagwort/Aktenordner/",
+    "site": "stasi-mediathek.de",
+    "note": "Archive photo series with MfS files and binders."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Aurach_Tri.html",
+  "name": "Aurach Tri",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/CATArena.html",
+  "name": "CAT Arena",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Anzeigetafel_Ernst-Grube-Stadion_Magdeburg.JPG/1600px-Anzeigetafel_Ernst-Grube-Stadion_Magdeburg.JPG",
+   "page": "https://commons.wikimedia.org/wiki/File:Anzeigetafel_Ernst-Grube-Stadion_Magdeburg.JPG",
+   "title": "Anzeigetafel Ernst-Grube-Stadion Magdeburg.JPG",
+   "author": "Mm aa ii kk",
+   "license": "CC BY-SA 3.0",
+   "caption": "Old electronic scoreboard, former Ernst-Grube-Stadion, Magdeburg; representative GDR example."
+  },
+  "related": [
+   {
+    "t": "Fußball-Anzeige-Computer – robotrontechnik.de",
+    "u": "https://www.robotrontechnik.de/html/computer/fussball.htm"
+   }
+  ],
+  "found": [
+   {
+    "t": "Nostalgische FCK-Anzeigetafel wieder zu sehen",
+    "u": "https://cfc-fanpage.de/archiv/templates/news_detail.php?nid=5490&src=start",
+    "site": "cfc-fanpage.de",
+    "note": "Chemnitz Fischerwiese bulb scoreboard, inaugurated 1976; 2,000 Narva lamps."
+   },
+   {
+    "t": "Alte Anzeigetafel des Heinz-Steyer-Stadions",
+    "u": "https://www.foerderverein-tsd.de/ag-rechentechnik/alte-anzeigetafel-des-heinz-steyer-stadions/",
+    "site": "foerderverein-tsd.de",
+    "note": "1978 Elektroimpex bulb scoreboard, Dresden; preserved terminal and element."
+   },
+   {
+    "t": "Eine Legende wird 35",
+    "u": "https://www.dynamo-dresden.de/aktuelles/news/verein/eine-legende-wird-35",
+    "site": "dynamo-dresden.de",
+    "note": "History of Dynamo Dresden's 4,333-bulb scoreboard, 1979–2008."
+   },
+   {
+    "t": "100 Jahre Stadion: Anzeigetafel",
+    "u": "https://dresdner-sc.de/100-jahre-stadion-blick-auf-die-anzeigetafel-26362/",
+    "site": "dresdner-sc.de",
+    "note": "Inside the Heinz-Steyer-Stadion scoreboard; 5×7 bulb character cells."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/cbe.html",
+  "name": "CBE Normal",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/CAT_DyFa.html",
+  "name": "CAT DyFa",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Dynamische_Fahrgastinformations-Anzeige_Bushaltestelle_Geldernstra%C3%9Fe-Parkg%C3%BCrtel-3977.jpg/1600px-Dynamische_Fahrgastinformations-Anzeige_Bushaltestelle_Geldernstra%C3%9Fe-Parkg%C3%BCrtel-3977.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Dynamische_Fahrgastinformations-Anzeige_Bushaltestelle_Geldernstra%C3%9Fe-Parkg%C3%BCrtel-3977.jpg",
+   "title": "Dynamische Fahrgastinformations-Anzeige Bushaltestelle Geldernstraße-Parkgürtel-3977.jpg",
+   "author": "Raimond Spekking",
+   "license": "CC BY-SA 4.0",
+   "caption": "Dynamic passenger information display at a Cologne bus stop."
+  },
+  "related": [
+   {
+    "t": "Dynamische Fahrgastinformation – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Dynamische_Fahrgastinformation"
+   }
+  ],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/BerlinEmail.html",
+  "name": "Berlin Email",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Hausnummer_Neunundsechzig_-_1920er_Jahre%3B_Emailschild_Antik.jpg/1600px-Hausnummer_Neunundsechzig_-_1920er_Jahre%3B_Emailschild_Antik.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Hausnummer_Neunundsechzig_-_1920er_Jahre;_Emailschild_Antik.jpg",
+   "title": "Hausnummer Neunundsechzig - 1920er Jahre; Emailschild Antik.jpg",
+   "author": "Lupus in Saxonia",
+   "license": "CC BY-SA 4.0",
+   "caption": "1920s Berlin enamel house-number sign."
+  },
+  "related": [
+   {
+    "t": "Emailleschild – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Emailleschild"
+   },
+   {
+    "t": "Dunkle Welten – Berliner Unterwelten",
+    "u": "https://www.berliner-unterwelten.de/fuehrungen/oeffentliche-fuehrungen/dunkle-welten.html"
+   }
+  ],
+  "found": [
+   {
+    "t": "Bunker Askanischer Platz mit Schriftzug",
+    "u": "https://sammlung.stiftung-berliner-mauer.de/Details/Index/1501694",
+    "site": "sammlung.stiftung-berliner-mauer.de",
+    "note": "1989 slide of lettered Berlin high bunker near Anhalter Bahnhof."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Flamme.html",
+  "name": "CAT Flamme",
+  "photo": null,
+  "related": [
+   {
+    "t": "Stoppelmarkt – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Stoppelmarkt"
+   },
+   {
+    "t": "J.G. Schelter & Giesecke – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Schelter_%26_Giesecke"
+   }
+  ],
+  "found": [],
+  "maps": "https://www.google.com/maps/search/?api=1&query=Stoppelmarkt%20Westerheide%2C%20Vechta"
+ },
+ {
+  "url": "http://www.peter-wiegel.de/BerlinerWand.html",
+  "name": "Berliner Wand",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Eisfabrik_Berlin_Fassade_01.jpg/1600px-Eisfabrik_Berlin_Fassade_01.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Eisfabrik_Berlin_Fassade_01.jpg",
+   "title": "Eisfabrik Berlin Fassade 01.jpg",
+   "author": "User:Nicor",
+   "license": "CC BY-SA 3.0",
+   "caption": "Facade of the former Eisfabrik, Köpenicker Straße, Berlin-Mitte."
+  },
+  "related": [
+   {
+    "t": "Eisfabrik (Berlin-Mitte) – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Eisfabrik_(Berlin-Mitte)"
+   },
+   {
+    "t": "Denkmaldatenbank Berlin: Norddeutsche Eiswerke",
+    "u": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011020"
+   },
+   {
+    "t": "Eisfabrik Berlin – Geschichte",
+    "u": "https://www.berlin-eisfabrik.de/Geschichte/Geschichtebau.html"
+   }
+  ],
+  "found": [
+   {
+    "t": "Die Eisfabrik in der Köpenicker Straße",
+    "u": "https://kultur-mitte.de/die-eisfabrik-in-der-koepenicker-strasse-wo-frueher-eis-produziert-wurde-wird-heute-repraesentiert/",
+    "site": "kultur-mitte.de",
+    "note": "Article on lost 'Norddeutsche Eisfabrik' facade lettering and polar bear."
+   },
+   {
+    "t": "Alte Eisfabrik, Köpenicker Straße",
+    "u": "https://wiese-janik.de/2019/03/11/alte-eisfabrik-koepenicker-strasse/",
+    "site": "wiese-janik.de",
+    "note": "Architects' documentation of boiler and machine house."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=K%C3%B6penicker%20Stra%C3%9Fe%2040-41%2C%2010179%20Berlin"
+ },
+ {
+  "url": "http://www.peter-wiegel.de/DinBreit.html",
+  "name": "Fette Breitschrift (DIN 1451)",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Ortsschild_Eisingen_DIN-Breitschrift.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Ortsschild_Eisingen_DIN-Breitschrift.jpg",
+   "title": "Ortsschild Eisingen DIN-Breitschrift.jpg",
+   "author": "de:Benutzer:androl",
+   "license": "CC BY-SA 3.0",
+   "caption": "Eisingen place-name sign set in DIN 1451 Breitschrift."
+  },
+  "related": [
+   {
+    "t": "DIN 1451 – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/DIN_1451"
+   }
+  ],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Elabris.html",
+  "name": "Elabris",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/ElbTunnel.html",
+  "name": "Elb-Tunnel",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Alter_Elbtunnel_Hamburg_menschenleer.jpg/1600px-Alter_Elbtunnel_Hamburg_menschenleer.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Alter_Elbtunnel_Hamburg_menschenleer.jpg",
+   "title": "Alter Elbtunnel Hamburg menschenleer.jpg",
+   "author": "Thomas Wolf, www.foto-tw.de",
+   "license": "CC BY-SA 3.0",
+   "caption": "Empty tiled tube of the Old Elbe Tunnel, Hamburg."
+  },
+  "related": [
+   {
+    "t": "St.-Pauli-Elbtunnel – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/St._Pauli-Elbtunnel"
+   },
+   {
+    "t": "Alter Elbtunnel – hamburg.de",
+    "u": "https://www.hamburg.de/tourismus/sehenswuerdigkeiten/sehenswuerdigkeit-alter-elbtunnel-298708"
+   }
+  ],
+  "found": [
+   {
+    "t": "Falk Preusche: Alter Elbtunnel",
+    "u": "https://www.ipernity.com/tag/falk-preusche/keyword/290712",
+    "site": "ipernity.com",
+    "note": "Includes 'Gut zu wissen': Jugendstil numerals marking tunnel midpoint."
+   },
+   {
+    "t": "Der St. Pauli-Elbtunnel (+14 PiPs)",
+    "u": "https://www.ipernity.com/doc/2255442/47393950",
+    "site": "ipernity.com",
+    "note": "Photo set: tubes, majolica reliefs, lifts, stair hall."
+   },
+   {
+    "t": "Ex 2023.03.22 Alter Elbtunnel",
+    "u": "https://www.hamburg-fototouren.de/exkursion/2023/alter-elbtunnel",
+    "site": "hamburg-fototouren.de",
+    "note": "Photo-walk gallery incl. signs ('Halt', 'Hinweis') and tiles."
+   },
+   {
+    "t": "Oströhre des Alten Elbtunnels nach Sanierung geöffnet",
+    "u": "https://abendfarben.com/ostroehre-des-alten-elbtunnels-nach-sanierung-geoeffnet/",
+    "site": "abendfarben.com",
+    "note": "Architecture photos of restored east tube, 2019."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=53.5459%2C9.9666",
+  "lat": 53.5459,
+  "lng": 9.9666
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Engelsgold.html",
+  "name": "Engelsgold",
+  "photo": null,
+  "related": [
+   {
+    "t": "Kulturzentrum Goldener Engel – Stadt Baumholder",
+    "u": "https://www.baumholder.de/sehenswertes/kulturzentrum-goldener-engel/"
+   },
+   {
+    "t": "Kulturmuseum Goldener Engel",
+    "u": "https://museum-goldener-engel.de/"
+   }
+  ],
+  "found": [
+   {
+    "t": "Goldener Engel ist wieder zurück",
+    "u": "https://www.rhein-zeitung.de/lokales/nahe-zeitung/regionalmuseum-in-baumholder-goldener-engel-ist-wieder-zurueck_arid-1408083.html",
+    "site": "rhein-zeitung.de",
+    "note": "2015: original gilded sandstone angel reinstalled on rebuilt facade."
+   },
+   {
+    "t": "„Goldener Engel“ seiner Bestimmung übergeben",
+    "u": "https://www.wochenblatt-reporter.de/baumholder/c-wirtschaft-handel/goldener-engel-seiner-bestimmung-uebergeben_a25007",
+    "site": "wochenblatt-reporter.de",
+    "note": "2018 opening report on former hotel turned cultural centre."
+   },
+   {
+    "t": "Regionalmuseum Goldener Engel",
+    "u": "https://www.vgv-baumholder.de/de/tourismus/kultur-aktiv/museen/regionalmuseum-goldener-engel/",
+    "site": "vgv-baumholder.de",
+    "note": "Museum page with building photos; history as hotel, bar, variety."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=49.615812%2C7.337938",
+  "lat": 49.6158,
+  "lng": 7.3379
+ },
+ {
+  "url": "http://www.peter-wiegel.de/EspressoDolce.html",
+  "name": "Espresso Dolce",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Eyechart.html",
+  "name": "Eyechart",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/d/da/Pfundsmuseum_Sehstesttafel.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Pfundsmuseum_Sehstesttafel.jpg",
+   "title": "Pfundsmuseum Sehstesttafel.jpg",
+   "author": "Stefan Oemisch",
+   "license": "CC BY-SA 4.0",
+   "caption": "Historic eye-test chart in the Pfundsmuseum, Kleinsassen."
+  },
+  "related": [
+   {
+    "t": "Snellen chart – Wikipedia",
+    "u": "https://en.wikipedia.org/wiki/Snellen_chart"
+   }
+  ],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/GST_Aero.html",
+  "name": "GST Aero",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/1990-04-16_DDR_Bezirk_Potsdam_Kreis_K%C3%B6nigs_Wusterhausen_Flugplatz_Friedersdorf_b.jpg/1600px-1990-04-16_DDR_Bezirk_Potsdam_Kreis_K%C3%B6nigs_Wusterhausen_Flugplatz_Friedersdorf_b.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:1990-04-16_DDR_Bezirk_Potsdam_Kreis_K%C3%B6nigs_Wusterhausen_Flugplatz_Friedersdorf_b.jpg",
+   "title": "1990-04-16 DDR Bezirk Potsdam Kreis Königs Wusterhausen Flugplatz Friedersdorf b.jpg",
+   "author": "Lothar Weber",
+   "license": "CC BY-SA 4.0",
+   "caption": "GST gliding at Friedersdorf airfield, GDR, April 1990."
+  },
+  "related": [
+   {
+    "t": "Gesellschaft für Sport und Technik – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Gesellschaft_f%C3%BCr_Sport_und_Technik"
+   },
+   {
+    "t": "Sportfliegen in der DDR – MDR",
+    "u": "https://www.mdr.de/geschichte/ddr/politik-gesellschaft/sport/sportfliegen-flugverbote-gst-stasi-republikflucht-100.html"
+   }
+  ],
+  "found": [
+   {
+    "t": "VEB Lommatzsch FES-530/II Lehrmeister, DDR-3308",
+    "u": "https://abpic.co.uk/pictures/view/1398527",
+    "site": "abpic.co.uk",
+    "note": "GDR glider with DM-3308 marking, Wasserkuppe museum, 2012."
+   },
+   {
+    "t": "Themen / Luftfahrt / Segelfliegen",
+    "u": "https://www.ddr-postkarten-museum.de/index.php?%2Fcategory%2F1718=",
+    "site": "ddr-postkarten-museum.de",
+    "note": "GDR postcards of GST gliding sites and aircraft."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/KleinsemmeringHofstaetten.html",
+  "name": "Kleinsemmering-Hofstätten",
+  "photo": null,
+  "related": [
+   {
+    "t": "FF Kleinsemmering-Hofstätten",
+    "u": "https://ff-kleinsemmering-hofstaetten.at/"
+   }
+  ],
+  "found": [
+   {
+    "t": "Rüsthaus FF Kleinsemmering-Hofstätten",
+    "u": "https://ff-kleinsemmering-hofstaetten.at/rusthaus/",
+    "site": "ff-kleinsemmering-hofstaetten.at",
+    "note": "Brigade's own page with 2020 and 2024 fire-station photos."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=Auen%2013%2C%208164%20Gutenberg%2C%20%C3%96sterreich"
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Hardman.html",
+  "name": "Hardman",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/JenaGotisch.html",
+  "name": "Jena Gotisch",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Setzkasten_im_Museum_der_Arbeit.jpg/1600px-Setzkasten_im_Museum_der_Arbeit.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Setzkasten_im_Museum_der_Arbeit.jpg",
+   "title": "Setzkasten im Museum der Arbeit.jpg",
+   "author": "Koffeeinist",
+   "license": "CC0",
+   "caption": "Metal type case at Museum der Arbeit, Hamburg; representative example."
+  },
+  "related": [
+   {
+    "t": "Handgepreßt.de – Bleisatz und Handpressendruck",
+    "u": "https://handgepresst.de/"
+   },
+   {
+    "t": "Handsatz – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Handsatz"
+   }
+  ],
+  "found": [
+   {
+    "t": "Handgepreßt.de – Hintergrund",
+    "u": "https://handgepresst.de/hintergrund/",
+    "site": "handgepresst.de",
+    "note": "Printer's own account of the Jena hand-press project since 2014."
+   },
+   {
+    "t": "Kreativarena: Handgepreßt",
+    "u": "https://kreativarena.blogspot.com/2015/02/thomas-aus-jena-stellt-sich-selber-vor.html",
+    "site": "kreativarena.blogspot.com",
+    "note": "Blog profile of the Jena letterpress printer."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Immermann.html",
+  "name": "Immermann",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Hamburg-Altona-Nord_Immermannstra%C3%9Fe.jpg/1600px-Hamburg-Altona-Nord_Immermannstra%C3%9Fe.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Hamburg-Altona-Nord_Immermannstra%C3%9Fe.jpg",
+   "title": "Hamburg-Altona-Nord Immermannstraße.jpg",
+   "author": "Hinnerk11",
+   "license": "CC BY-SA 4.0",
+   "caption": "Immermannstraße street sign, Hamburg-Altona-Nord."
+  },
+  "related": [
+   {
+    "t": "Karl Immermann – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Karl_Immermann"
+   }
+  ],
+  "found": [],
+  "maps": "https://www.google.com/maps/search/?api=1&query=Immermannstra%C3%9Fe%20%26%20Lessingstra%C3%9Fe%2C%2022765%20Hamburg"
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Inkopins.html",
+  "name": "Incopins Clusters",
+  "photo": null,
+  "related": [],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/kaufhalle.html",
+  "name": "HO Kaufhalle",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Riesa_-_Werbeschrift_Kaufhalle_mit_Logo_an_ehemaliger_Einkaufsst%C3%A4tte.jpg/1600px-Riesa_-_Werbeschrift_Kaufhalle_mit_Logo_an_ehemaliger_Einkaufsst%C3%A4tte.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Riesa_-_Werbeschrift_Kaufhalle_mit_Logo_an_ehemaliger_Einkaufsst%C3%A4tte.jpg",
+   "title": "Riesa - Werbeschrift Kaufhalle mit Logo an ehemaliger Einkaufsstätte.jpg",
+   "author": "Mosbatho",
+   "license": "CC BY 4.0",
+   "caption": "Surviving 'Kaufhalle' lettering and three-figure logo, former HO store, Riesa."
+  },
+  "related": [
+   {
+    "t": "Kaufhalle – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Kaufhalle"
+   },
+   {
+    "t": "Handelsorganisation – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Handelsorganisation"
+   }
+  ],
+  "found": [
+   {
+    "t": "HO-Kaufhalle „Ihre Einkaufsquelle“ – 1980",
+    "u": "https://www.ddr-postkarten-museum.de/picture.php?%2F9592=",
+    "site": "ddr-postkarten-museum.de",
+    "note": "1980 GDR postcard of an HO-Kaufhalle."
+   },
+   {
+    "t": "Unsere HO-Kaufhalle in Rostock",
+    "u": "https://www.fotocommunity.de/photo/unsere-ho-kaufhalle-in-ro-photographische-versuchsa/29762044",
+    "site": "fotocommunity.de",
+    "note": "Amateur c.1984 photo of HO-Kaufhalle, Rostock-Reutershagen."
+   },
+   {
+    "t": "Kaufhalle in Berlin Lichtenberg / Dolgenseestrasse",
+    "u": "https://www.ddrbildarchiv.de/info/ddr-fotos/kaufhalle-berlin-lichtenberg-dolgenseestrasse-50466.html",
+    "site": "ddrbildarchiv.de",
+    "note": "1972 press photo, entrance of an HO Kaufhalle with queue."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Kanalisirung.html",
+  "name": "Kanalisirung",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Old_Manhole_Covers_in_Erfurt.JPG/1600px-Old_Manhole_Covers_in_Erfurt.JPG",
+   "page": "https://commons.wikimedia.org/wiki/File:Old_Manhole_Covers_in_Erfurt.JPG",
+   "title": "Old Manhole Covers in Erfurt.JPG",
+   "author": "SPBer",
+   "license": "CC BY-SA 3.0",
+   "caption": "Old Erfurt manhole cover lettered 'Hans Bohn – Erfurt' with city arms."
+  },
+  "related": [
+   {
+    "t": "Geschichte der Stadtentwässerung – Entwässerungsbetrieb Erfurt",
+    "u": "https://entwaesserungsbetrieb.erfurt.de/eb/de/entwaesserungsbetrieb/geschichte/stadtentwaesserung/index.html"
+   },
+   {
+    "t": "Schachtabdeckung – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Schachtabdeckung"
+   }
+  ],
+  "found": [
+   {
+    "t": "Kanalisirung Erfurt",
+    "u": "http://www.manholecovers.de/kanalisirung-erfurt",
+    "site": "manholecovers.de",
+    "note": "The actual 'Kanalisirung Erfurt' cover; credits Wiegel's font."
+   },
+   {
+    "t": "E bis J – Gullygerds Reisen",
+    "u": "https://gullygerdsreisen.de/e-bis-j.html",
+    "site": "gullygerdsreisen.de",
+    "note": "Erfurt 'Kanalisirung' cover and matching gully, dating discussion."
+   },
+   {
+    "t": "KANALISATION-Schachtdeckel – erfurt-web.de",
+    "u": "http://www.erfurt-web.de/KANALISATION-Schachtdeckel-Baustellenbilder",
+    "site": "erfurt-web.de",
+    "note": "Local site cataloguing older Erfurt covers incl. H. Sorge."
+   },
+   {
+    "t": "Erfurt: alter Kanaldeckel",
+    "u": "https://www.ipernity.com/doc/jorg_doro/51138852",
+    "site": "ipernity.com",
+    "note": "Photo of an old Erfurt manhole cover."
+   }
+  ],
+  "maps": "https://www.google.com/maps/search/?api=1&query=Erfurt%20Altstadt"
+ },
+ {
+  "url": "http://www.peter-wiegel.de/Ketwurst.html",
+  "name": "Ketwurst",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Alain-snack_schoenhauser-ecke-daenenstr_2022-03-23.png/1600px-Alain-snack_schoenhauser-ecke-daenenstr_2022-03-23.png",
+   "page": "https://commons.wikimedia.org/wiki/File:Alain-snack_schoenhauser-ecke-daenenstr_2022-03-23.png",
+   "title": "Alain-snack schoenhauser-ecke-daenenstr 2022-03-23.png",
+   "author": "Babewyn",
+   "license": "CC BY-SA 4.0",
+   "caption": "Former GDR snack bar 'Alain Snack', Schönhauser Allee, Berlin, still selling Ketwurst."
+  },
+  "related": [
+   {
+    "t": "Ketwurst – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Ketwurst"
+   }
+  ],
+  "found": [
+   {
+    "t": "DDR-Ketwurst-Bude vor dem Abriss",
+    "u": "https://www.berliner-zeitung.de/article/ddr-ketwurst-bude-vor-dem-abriss-rueckblick-auf-die-snacks-des-ostens-10230942",
+    "site": "berliner-zeitung.de",
+    "note": "2026 report on threatened 'Alain Snack' Ketwurst stand."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/KKBahn.html",
+  "name": "KKBahn",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Biertransportwagen_der_k.k._%C3%B6sterr._Staatsbahnen.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Biertransportwagen_der_k.k._%C3%B6sterr._Staatsbahnen.jpg",
+   "title": "Biertransportwagen der k.k. österr. Staatsbahnen.jpg",
+   "author": "Unknown author",
+   "license": "Public domain",
+   "caption": "kkStB beer transport wagon by Ringhoffer, Paris 1900 exhibition."
+  },
+  "related": [
+   {
+    "t": "k.k. Staatsbahnen – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/K.k._Staatsbahnen"
+   }
+  ],
+  "found": [
+   {
+    "t": "Pferdetransportwagen Serie P, Nr. 499 der kkStB",
+    "u": "https://kulturpool.at/objekte/bef36e2f-7159-493f-b228-213656ccad0e",
+    "site": "kulturpool.at",
+    "note": "Technisches Museum Wien model of kkStB horse transport wagon."
+   },
+   {
+    "t": "KFNB Ja 71 418",
+    "u": "https://eisenbahnmuseum-heizhaus.com/de/sammlung/kfnb-ja-71-418",
+    "site": "eisenbahnmuseum-heizhaus.com",
+    "note": "Restored 1902 Austrian stake wagon, Strasshof museum."
+   }
+  ],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/NeueTheuerdank.html",
+  "name": "Neue Theuerdank",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Theuerdank_MET_DP-15465-001.jpg/1600px-Theuerdank_MET_DP-15465-001.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Theuerdank_MET_DP-15465-001.jpg",
+   "title": "Theuerdank MET DP-15465-001.jpg",
+   "author": "Written by Melchior Pfintzing (Metropolitan Museum of Art)",
+   "license": "CC0",
+   "caption": "Page of the 1517 Theuerdank, Metropolitan Museum of Art copy."
+  },
+  "related": [
+   {
+    "t": "Theuerdank – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/Theuerdank"
+   }
+  ],
+  "found": [],
+  "maps": null
+ },
+ {
+  "url": "http://www.peter-wiegel.de/GL_Nummernschild.html",
+  "name": "GL-Nummernschild",
+  "photo": {
+   "src": "https://upload.wikimedia.org/wikipedia/commons/9/99/Germany_%28D%29_European_Union_license_plate_-_Number_KA_PA_777.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Germany_(D)_European_Union_license_plate_-_Number_KA_PA_777.jpg",
+   "title": "Germany (D) European Union license plate - Number KA PA 777.jpg",
+   "author": "User:Mhi",
+   "license": "Public domain",
+   "caption": "German rear licence plate in FE-Schrift."
+  },
+  "related": [
+   {
+    "t": "FE-Schrift – Wikipedia",
+    "u": "https://de.wikipedia.org/wiki/FE-Schrift"
+   }
+  ],
+  "found": [],
+  "maps": null
+ }
+]
