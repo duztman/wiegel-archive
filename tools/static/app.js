@@ -135,13 +135,15 @@
       });
       grid.replaceChildren(...list);
       const any = Object.keys(state.sel).length || state.q;
-      $("#count").textContent = list.length === C.fonts.length ? `${list.length}` : `${list.length} of ${C.fonts.length}`;
+      $("#count").textContent = list.length === C.fonts.length ? `Filtering ${list.length} fonts` : `Filtering ${list.length} of ${C.fonts.length} fonts`;
       $("#fclear").hidden = !any;
       renderSide(); save();
     }
-    $("#fclear").onclick = (e) => { e.preventDefault(); }; $("#fclear").addEventListener("click", () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); });
+    $("#fclear").addEventListener("click", () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); });
     $("#q").value = state.q; $("#q").oninput = (e) => { state.q = e.target.value; apply(); };
-    let tm; $("#retype").oninput = (e) => { clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
+    const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
+    const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
+    let tm; rt.addEventListener("input", grow); $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
   }

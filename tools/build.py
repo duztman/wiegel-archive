@@ -529,9 +529,10 @@ def index_html(cat, sprite):
 <div class="home">
   <section class="homelist" aria-label="Typefaces"><div id="grid" class="grid list" aria-live="polite"></div></section>
   <aside class="side" aria-label="Filter">
-    <details id="fdet" open><summary class="fhead2"><span>Filters</span><span class="count tnum" id="count"></span><button type="button" class="pill" id="fclear" hidden>Clear</button></summary>
+    <textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
+    <details id="fdet" open><summary class="fsum">Filters</summary>
     <div class="frow2"><input class="fin" id="q" type="search" autocomplete="off" placeholder="Search" aria-label="Search names, places, tags"><label for="q" class="sic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10" cy="10" r="6.5"/><path d="M15 15l5.5 5.5"/></svg></label></div>
-    <div class="frow2"><input class="fin" id="retype" type="text" autocomplete="off" spellcheck="false" placeholder="Set names" aria-label="Type text to set every name"></div>
+    <p class="fcount"><span class="info" id="count"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p>
     <div id="fside"></div>
     </details>
     <p class="info about-l">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)} to {max(dys)} from type, signs and handwriting dated {min(oys)} to {max(oys)}.</p>
