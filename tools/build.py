@@ -602,7 +602,7 @@ def catalogue_html(cat, sprite):
             f'<span class="c-fa">{ESC(f["family"])}</span>'
             f'<span class="c-oy tnum">{f.get("oy") or ""}</span>'
             f'<span class="c-dy tnum">{f.get("dy") or ""}</span>'
-            f'<span class="c-gl info tnum">{st} {"style" if st == 1 else "styles"} · {gl:,} glyphs</span>'
+            f'<span class="c-gl info tnum">{gl:,} glyphs</span>'
             f'<span class="c-src" title="{ESC(src)}">{ESC(src)}</span>'
             f'<span class="c-ic">{"".join(icon(c, 18) for c in f["icons"] if c in ICONS)}</span></a>')
     sorts = [("no", "No."), ("name", "Name"), ("fa", "Family"), ("oy", "Original"), ("dy", "Digitised"), ("gl", "Glyphs")]
