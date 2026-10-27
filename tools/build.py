@@ -22,6 +22,7 @@ UI_DISPLAY = "altedin1451"   # DIN 1451 alte Mittelschrift for masthead / numera
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
 PUA = range(0xE000, 0xF900)
+WRITTEN = set()   # paths written this run (deletion is disabled in the target folder, so we overwrite instead)
 ESC = html.escape
 
 # ── icon system: Wiegel's green feature buttons, redrawn ─────────────────────────
@@ -210,10 +211,11 @@ def extract(cat):
                     seen_sha.setdefault(f["slug"], set()).add(sha)
                     out = os.path.join(dst, ascii_name(base))
                     i = 2
-                    while os.path.exists(out):
+                    while out in WRITTEN:
                         stem, ext = os.path.splitext(ascii_name(base))
                         out = os.path.join(dst, f"{stem}-{i}{ext}"); i += 1
                     open(out, "wb").write(b)
+                    WRITTEN.add(out)
                     f["files"].append({"path": os.path.relpath(out, ROOT), "orig": name, "sha1": sha, "from": os.path.basename(a)})
                 elif low.endswith(DOC_EXT):
                     os.makedirs(os.path.join(dst, "docs"), exist_ok=True)
@@ -575,14 +577,10 @@ def ui_font_css(by):
 
 def main():
     cat = json.load(open(os.path.join(DATA, "catalog.json"), encoding="utf-8"))
-    if os.path.exists(FONTS):
-        shutil.rmtree(FONTS)
     extract(cat)
     inventory(cat)
     by = {f["slug"]: f for f in cat["fonts"]}
     # site tree
-    if os.path.exists(SITE):
-        shutil.rmtree(SITE)
     for d in ("assets/fonts", "assets/dl", "assets/docs", "assets/photos", "font"):
         os.makedirs(os.path.join(SITE, d), exist_ok=True)
     for f in cat["fonts"]:
