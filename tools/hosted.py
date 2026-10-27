@@ -39,7 +39,7 @@ def main():
     keep = {(f["slug"], os.path.basename(x["path"])): x["path"] for f in cat["fonts"] for x in f["faces"]}
     full = json.load(open(os.path.join(B.DATA, "catalog.json"), encoding="utf-8"))
     for f in full["fonts"]:
-        if f["slug"] in (B.UI_TEXT, B.UI_DISPLAY):
+        if f["slug"] in (B.UI_TEXT, B.UI_DISPLAY, B.UI_DIN):
             for name in os.listdir(os.path.join(B.FONTS, f["slug"])):
                 if name.lower().endswith(B.FONT_EXT):
                     keep[(f["slug"], name)] = os.path.join("fonts", f["slug"], name)
@@ -62,7 +62,7 @@ def main():
     # UI font list for the pages (as build.ui_font_css would collect)
     B.UIFONTS.clear()
     real_by = {f["slug"]: f for f in cat["fonts"]}
-    for slug, fam in ((B.UI_TEXT, "WA Text"), (B.UI_DISPLAY, "WA UI")):
+    for slug, fam in ((B.UI_TEXT, "WA Text"), (B.UI_DISPLAY, "WA UI"), (B.UI_DIN, "WA DIN")):
         for name in sorted(os.listdir(os.path.join(OUT, "assets/fonts", slug))):
             B.UIFONTS.append({"family": fam, "src": f"assets/fonts/{slug}/{name}",
                               "weight": 700 if re.search(r"(bold|fett|_g\b|-b\b)", name, re.I) else 400,

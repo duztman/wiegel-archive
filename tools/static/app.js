@@ -269,14 +269,16 @@
     $("#style")?.addEventListener("change", (e) => { cur = +e.target.value; load(F[cur]).then(() => { applyFace(); fitBlocks(); drawGlyphs(); }); });
 
     /* colour */
+    const navSync = () => { const bd = document.body.style; bd.setProperty("--navbg", art.style.getPropertyValue("--bg")); bd.setProperty("--navfg", art.style.getPropertyValue("--fg")); };
     function setPal(k) {
       $$(".sw", art).forEach((s) => s.classList.toggle("on", s.dataset.p === k));
       if (k === "plain" || !P[k]) { art.style.setProperty("--bg", css("--paper")); art.style.setProperty("--fg", css("--ink")); }
       else { art.style.setProperty("--bg", P[k][0]); art.style.setProperty("--fg", P[k][1]); }
-      art.dataset.cur = k;
+      art.dataset.cur = k; navSync();
     }
+    navSync();
     $$(".sw", art).forEach((s) => (s.onclick = () => setPal(s.dataset.p)));
-    $("#invert").onclick = () => { const b = art.style.getPropertyValue("--bg"), f = art.style.getPropertyValue("--fg"); art.style.setProperty("--bg", f); art.style.setProperty("--fg", b); };
+    $("#invert").onclick = () => { const b = art.style.getPropertyValue("--bg"), f = art.style.getPropertyValue("--fg"); art.style.setProperty("--bg", f); art.style.setProperty("--fg", b); navSync(); };
     $("#reset").onclick = () => {
       blks.forEach((b) => { $(".ed", b).textContent = b.dataset.def; b._px = small ? Math.max(12, Math.round(+b.dataset.px * (+b.dataset.px > 30 ? 0.5 : 0.8))) : +b.dataset.px; b._lh = LEAD[b.dataset.role] ?? 1.0; b._tr = 0; paint(b); });
       userSized.clear(); setPal(defPal); fitBlocks(); sync(); wfText();

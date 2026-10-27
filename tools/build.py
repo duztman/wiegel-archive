@@ -18,7 +18,8 @@ DATA, RAW, FONTS, SITE = (os.path.join(ROOT, p) for p in ("data", "raw/archives"
 STATIC = os.path.join(ROOT, "tools", "static")
 
 UI_TEXT = "proletarsk"       # Wiegel's Proletarsk: large x-height, Latin + Cyrillic, ~860 glyphs
-UI_DISPLAY = "altedin1451"   # DIN 1451 alte Mittelschrift for masthead / numerals
+UI_DISPLAY = "preussische"   # Prussian railway lettering IV 44 (1880s), DIN 1451's ancestor: the interface face
+UI_DIN = "altedin1451"       # DIN 1451 alte Mittelschrift: vertical block labels
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
 PUA = range(0xE000, 0xF900)
@@ -334,7 +335,7 @@ def place_photos(cat):
 # ── icons from the archive's own type ─────────────────────────────────────────────
 def icon_svgs(cat):
     by = {f["slug"]: f for f in cat["fonts"]}
-    pool = [os.path.join(ROOT, x["path"]) for s in (UI_TEXT, UI_DISPLAY) for x in by.get(s, {}).get("faces", [])[:1]]
+    pool = [os.path.join(ROOT, x["path"]) for s in (UI_TEXT, UI_DISPLAY, UI_DIN) for x in by.get(s, {}).get("faces", [])[:1]]
     pool += [os.path.join(ROOT, f["faces"][0]["path"]) for f in cat["fonts"] if f.get("faces") and set(f["coverage"]) >= {"greek", "cyr", "longs"}][:6]
     fonts = []
     for p in pool:
@@ -471,6 +472,8 @@ def icon(code, size=24):
     return f'<svg class="ic" width="{size}" height="{size}" aria-label="{ESC(ICONS[code][1])}" role="img"><title>{ESC(ICONS[code][1])}</title><use href="#i-{code}"/></svg>'
 
 
+NAVPAL = {"home": ("#00A3EA", "#000080"), "timeline": ("#FDFA00", "#D40051"), "catalogue": ("#05872C", "#FFFFFF"),
+          "legend": ("#687F12", "#FFFF80"), "about": ("#D3BFA4", "#800025"), "fontpage": ("#00A3EA", "#000080")}
 NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html"), ("catalogue", "Catalogue", "catalogue.html"),
        ("legend", "Legend", "legend.html"), ("about", "About", "about.html")]
 
@@ -488,7 +491,7 @@ def page(title, body, depth=0, sprite="", cls="", cur=""):
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
 <script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};try{{var t=localStorage.getItem("wa-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
-</head><body class="p-{cls}">
+</head><body class="p-{cls}" style="--navbg:{NAVPAL.get(cls, NAVPAL['home'])[0]};--navfg:{NAVPAL.get(cls, NAVPAL['home'])[1]}">
 {sprite}
 <nav class="side" aria-label="Site">
 <a class="tag home" href="{up}index.html">Wiegel Archive</a>
@@ -774,7 +777,7 @@ def about_html(cat, sprite):
 <h2>Method</h2>
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
-<p>Interface in Wiegel’s DIN 1451 alte Mittelschrift at a single size; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
+<p>Interface in Wiegel’s Preussische IV 44, the 1880s Prussian railway lettering that DIN 1451 grew out of, at a single size; block labels in his DIN 1451 alte Mittelschrift; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
 </section>"""
     return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
 
@@ -784,7 +787,7 @@ UIFONTS = []
 
 def ui_font_css(by):
     css = []
-    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI")):
+    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI"), (UI_DIN, "WA DIN")):
         f = by.get(slug)
         for x in (f or {}).get("faces", []):
             src = "fonts/" + slug + "/" + os.path.basename(x["path"])
