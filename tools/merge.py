@@ -19,7 +19,7 @@ FAMILY = {
 }
 FAMILY_ORDER = ["Blackletter", "Handwriting", "Norm & Sans", "Serif", "Display", "Technical", "Symbols", "Other"]
 # a year counts as "the typeface's year" when its note is about the type itself
-TYPE_YEAR = re.compile(r"(design|issu|releas|cut|cast|publish|digiti|font|type|face|script|alphabet|letter|drawn|revival|sign|plate|standard|DIN|TGL)", re.I)
+TYPE_YEAR = re.compile(r"(design|issu|releas|cut|cast|publish|digiti|font|type|face|script|alphabet|letter|drawn|revival|sign|plate|standard|\\bDIN\\b|\\bTGL\\b)", re.I)
 SECTIONS = [
     ("Fonts/index.html", "A–K"),
     ("Fonts/L_bis_Z.html", "L–Z"),
