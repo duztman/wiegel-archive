@@ -57,7 +57,7 @@ em { font-style: normal; color: var(--hot); }
   background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }
 .top::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--navbg); }
 .nav1, .nav2 { display: flex; align-items: center; gap: 8px 8px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
-.nav1 { padding: 12px 0 14px; }
+.nav1 { padding: 12px 0 14px; flex-wrap: wrap; overflow: visible; }
 .nav2 { padding: 10px 0 14px; border-top: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }
 .nav2:empty { display: none; }
 .top a, .top button, .top .crumb, .top .cur { display: inline-block; padding: 2px 14px 1px; border-radius: 999px; border: 0; cursor: pointer;
@@ -67,6 +67,11 @@ em { font-style: normal; color: var(--hot); }
 .top .home { background: none; color: var(--navfg); padding-left: 0; margin-right: 8px; }
 .top .home:hover { box-shadow: none; text-decoration: underline; text-decoration-thickness: var(--line); }
 .top .modes { margin-left: auto; display: flex; gap: 8px; }
+.top .rndfont { background: var(--navfg); color: var(--navbg); }
+.top .mode { min-width: 2.2em; text-align: center; }
+.pnav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 0 0 var(--pb); }
+.pnav a { padding: 2px 14px 1px; border-radius: 999px; box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--fg) 45%, transparent); }
+.pnav a:hover { background: var(--fg); color: var(--bg); box-shadow: none; text-decoration: none; }
 .top .mode { background: none; color: var(--navfg); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
 
 .top .crumb { opacity: .7; cursor: default; }
@@ -396,7 +401,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 }
 @media (max-width: 800px) {
   :root { --ui: 18px; --info: 12px; --list: 19px; --read: 21px; --gut: 24px; --st: 16px; --sbt: 32px; }
-  .nav1 { padding: 10px 0 12px; gap: 8px 22px; }
+  .nav1 { padding: 10px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
   .nav2 { gap: 8px 22px; }
   .top .sep { margin: 0 -14px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }

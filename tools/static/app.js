@@ -23,6 +23,13 @@
     markModes(); redrawAll();
   }));
   markModes();
+  $("#rndfont")?.addEventListener("click", (e) => {
+    if (!C.fonts.length) return;
+    e.preventDefault();
+    const cur = $("article.font")?.dataset.slug;
+    let f; do { f = C.fonts[Math.floor(Math.random() * C.fonts.length)]; } while (C.fonts.length > 1 && f.s === cur);
+    location.href = flink(f.s);
+  });
 
   /* font loading — fetch + FontFace (works on a local server and in a sandboxed host) */
   const faces = new Map();

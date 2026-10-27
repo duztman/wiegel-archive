@@ -500,7 +500,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<span class="modes"><button class="mode" type="button" data-m="random" title="A random pair of Wiegel's colours on every page">Random</button><button class="mode" type="button" data-m="mono" title="Black and white with one bright accent">Mono</button></span></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<span class="modes"><button class="mode" type="button" data-m="random" title="Colours: a random pair of Wiegel's colours on every page" aria-label="Random colours">R</button><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
 <nav class="nav2" id="subnav" aria-label="This font"></nav>
 </header>
 <main>{body}
@@ -743,8 +743,10 @@ def font_html(f, by, sprite, up="../", fragment=False):
     has_place = bool(photo or found or related or maps)
     subnav = (f'<span class="crumb">{ESC(f["family"])}</span><span class="sep">/</span><span class="cur">{ESC(f["name"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
-              + (f'<a class="push" href="{plink(prev_)}">← {ESC(prev_["name"])}</a>' if prev_ else "")
-              + (f'<a{"" if prev_ else " class=push"} href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else ""))
+    )
+    pnav = ('<nav class="pnav" aria-label="Previous and next font">'
+            + (f'<a href="{plink(prev_)}">← {ESC(prev_["name"])}</a>' if prev_ else "")
+            + (f'<a href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else "") + '</nav>')
     years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
@@ -752,6 +754,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
 <script type="application/json" id="faces">{json.dumps(faces)}</script>
 <script type="application/json" id="glyphs">{glyphs}</script>
 <div class="sheet" id="specimen">
+  {pnav}
   <div class="blocks{' text' if f['text'] else ' display'}" id="blocks">{specimen_blocks(f, faces)}</div>
   <div class="tools" role="toolbar" aria-label="Specimen controls">
     <div class="sliders">
