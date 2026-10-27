@@ -83,6 +83,7 @@ def main():
     W("main.html", strip_document(home))
     W("catalogue.html", B.catalogue_html(cat, sprite))
     W("timeline.html", B.timeline_html(cat, sprite))
+    W("images.html", B.images_html(cat, sprite, os.path.join(OUT, "assets", "photos")))
     W("legend.html", B.legend_html(sprite))
     W("about.html", B.about_html(cat, sprite))
     W("font.html", B.page("Wiegel Archive — Font", '<div id="fontshell"><p class="lead">Loading…</p></div><script>window.PACK=%d</script>' % PACK, 0, sprite, "fontpage", "index"))

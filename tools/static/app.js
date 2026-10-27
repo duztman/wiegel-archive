@@ -198,19 +198,24 @@
     tl.addEventListener("pointerleave", () => { if (cur) mark(cur, false); cur = null; });
   }
 
-  /* ── catalogue: sortable table ─────────────────────────────────────── */
-  const tbl = $("#cat");
-  if (tbl) {
-    const body = tbl.tBodies[0], rws = [...body.rows];
-    $$("th[data-k]", tbl).forEach((th) => (th.onclick = () => {
-      const k = +th.dataset.k, asc = th.getAttribute("aria-sort") !== "ascending";
-      $$("th", tbl).forEach((x) => x.removeAttribute("aria-sort")); th.setAttribute("aria-sort", asc ? "ascending" : "descending");
-      const val = (r) => { const c = r.cells[k]; return c.dataset.v !== undefined ? +c.dataset.v : c.textContent.trim().toLowerCase(); };
-      rws.sort((a, b) => { const x = val(a), y = val(b); return (x > y ? 1 : x < y ? -1 : 0) * (asc ? 1 : -1); });
+  /* ── catalogue: sortable lister ────────────────────────────────────── */
+  const lst = $("#cat");
+  if (lst) {
+    const body = $(".cbody", lst), rws = [...body.children];
+    let key = "no", asc = true;
+    function sortBy(k) {
+      asc = k === key ? !asc : true; key = k;
+      $$(".sortb", lst).forEach((b) => { b.classList.toggle("on", b.dataset.k === k); b.dataset.dir = b.dataset.k === k ? (asc ? "↑" : "↓") : ""; });
+      const v = (r) => (k === "name" ? r.dataset.name : +r.dataset[k]);
+      rws.sort((a, b) => { const x = v(a), y = v(b); return (x > y ? 1 : x < y ? -1 : (+a.dataset.no - +b.dataset.no)) * (asc ? 1 : -1); });
       body.replaceChildren(...rws);
-    }));
+    }
+    $$(".sortb", lst).forEach((b) => (b.onclick = () => sortBy(b.dataset.k)));
+    $(".sortb[data-k=no]", lst)?.classList.add("on");
     $("#tq").oninput = (e) => { const q = e.target.value.toLowerCase(); rws.forEach((r) => (r.hidden = q && !r.textContent.toLowerCase().includes(q))); };
   }
+  const pics = $("#pics");
+  if (pics) $$(".fn", pics).forEach((el) => lazy.observe(el));
 
   /* ── font page ─────────────────────────────────────────────────────── */
   const LEAD = { "Large Title": 1.0, Title: 1.05, Headline: 1.15, Body: 1.4, Caption: 1.4 };
