@@ -22,8 +22,9 @@
   function load(f) {
     if (!f) return Promise.reject();
     if (faces.has(f.id)) return faces.get(f.id);
-    const ff = new FontFace(f.id, `url("${R}${f.src}")`);
-    const p = ff.load().then((x) => { document.fonts.add(x); return x; });
+    // fetch + ArrayBuffer works both on a local server and inside a sandboxed host
+    const p = fetch(R + f.src).then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then((buf) => new FontFace(f.id, buf).load()).then((x) => { document.fonts.add(x); return x; });
     faces.set(f.id, p);
     return p;
   }
@@ -80,7 +81,7 @@
     const ico = (c) => `<svg class="ic" width="16" height="16"><use href="#i-${c}"/></svg>`;
     const cards = C.fonts.map((f) => {
       const a = document.createElement("a");
-      a.className = "card"; a.href = `${R}font/${f.s}.html`; a._font = f;
+      a.className = "card"; a.href = window.HOSTED ? `${R}font.html#${f.s}` : `${R}font/${f.s}.html`; a._font = f;
       const yr = f.y.length ? Math.min(...f.y) : "";
       a.innerHTML = `<canvas aria-label="${f.n} specimen"></canvas>${f.pl ? `<span class="pl">Found in the world</span>` : ""}`
         + `<span class="ico">${f.ic.slice(0, 6).map(ico).join("")}</span>`
@@ -135,8 +136,10 @@
   }
 
   /* ── font page ─────────────────────────────────────────────────────── */
+  function initFont() {
   const live = $("#live");
-  if (live) {
+  if (!live) return;
+  {
     const F = JSON.parse($("#faces").textContent || "[]");
     const G = JSON.parse($("#glyphs").textContent || "[]");
     let cur = 0;
@@ -204,5 +207,35 @@
       ctx.fillText(ch, x0, y0);
     }
     window._redrawFont = () => { $$(".gl .g").forEach((d) => d.querySelector("canvas").width && drawG(d)); };
+  }
+  }
+  window.WA_initFont = initFont;
+  initFont();
+
+  /* UI faces (Wiegel's CAT Linz + DIN 1451) loaded the same way, so they also work where CSS font URLs are blocked */
+  (window.UIFONTS || []).forEach((u) => {
+    fetch(R + u.src).then((r) => r.arrayBuffer()).then((buf) => new FontFace(u.family, buf, { weight: String(u.weight), style: u.italic ? "italic" : "normal" }).load())
+      .then((x) => document.fonts.add(x)).catch(() => {});
+  });
+
+  /* hosted shell: font.html#slug pulls the page body from a pack */
+  const shell = $("#fontshell");
+  if (shell) {
+    const order = C.fonts.map((f) => f.s);
+    const cache = {};
+    async function show() {
+      const slug = decodeURIComponent(location.hash.slice(1)) || order[0];
+      const i = order.indexOf(slug);
+      if (i < 0) { shell.innerHTML = `<p class="lede" style="padding:64px 0">No font called “${slug}”. <a href="index.html">Back to specimens</a>.</p>`; return; }
+      const pk = Math.floor(i / (window.PACK || 20));
+      cache[pk] = cache[pk] || fetch(`pages/p${pk}.json`).then((r) => r.json());
+      const pack = await cache[pk];
+      shell.innerHTML = pack[slug];
+      document.title = C.fonts[i].n + " · Wiegel Archive";
+      scrollTo(0, 0);
+      initFont();
+    }
+    addEventListener("hashchange", show);
+    show();
   }
 })();

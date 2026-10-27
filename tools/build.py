@@ -22,6 +22,10 @@ UI_DISPLAY = "altedin1451"   # DIN 1451 alte Mittelschrift for masthead / numera
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
 PUA = range(0xE000, 0xF900)
+HOSTED = False   # set by tools/hosted.py: single-shell font pages, original download links
+
+def flink(slug, up=""):
+    return f"{up}font.html#{slug}" if HOSTED else f"{up}font/{slug}.html"
 WRITTEN = set()   # paths written this run (deletion is disabled in the target folder, so we overwrite instead)
 ESC = html.escape
 
@@ -379,7 +383,7 @@ def page(title, body, depth=0, sprite="", cls=""):
 <meta name="robots" content="noindex,nofollow">
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
-<script>window.ROOT="{up}"</script>
+<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)}</script>
 </head><body class="p-{cls}">
 {sprite}
 <header class="top"><a class="mark" href="{up}index.html"><span class="w">Wiegel</span><span class="a">Archive</span></a>
@@ -450,7 +454,7 @@ def catalogue_html(cat, sprite):
         yrs = [f["year"]] if f.get("year") else []
         yr = str(f["year"]) if f.get("year") else "—"
         rows.append(
-            f'<tr data-fam="{ESC(f["family"])}"><td class="n"><a href="font/{f["slug"]}.html">{ESC(f["name"])}</a></td>'
+            f'<tr data-fam="{ESC(f["family"])}"><td class="n"><a href="{flink(f["slug"])}">{ESC(f["name"])}</a></td>'
             f'<td>{ESC(f["family"])}</td><td class="sub">{ESC(f["genre"])}</td>'
             f'<td class="num" data-v="{min(yrs) if yrs else 9999}">{yr}</td>'
             f'<td class="sub">{ESC(f.get("origin") or "")}</td><td class="sub">{ESC(f.get("place") or "")}</td>'
@@ -469,8 +473,7 @@ def catalogue_html(cat, sprite):
     return page("Wiegel Archive — Catalogue", body, 0, sprite, "catalogue")
 
 
-def font_html(f, by, sprite):
-    up = "../"
+def font_html(f, by, sprite, up="../", fragment=False):
     faces = [fonts_css_entry(f, i, x, up) for i, x in enumerate(f.get("faces", []))]
     canon = f["faces"][0] if f.get("faces") else None
     a = f.get("account") or {}
@@ -482,9 +485,9 @@ def font_html(f, by, sprite):
                     for t in f.get("feats", []) if re.match(r"^(liga|dlig|calt|salt|ss\d\d|swsh|smcp|c2sc|onum|lnum|tnum|frac|hist|kern|cv\d\d|zero)$", t))
     dl = "".join(
         f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
-        if d["local"] else f'<li><a href="{ESC(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
+        if d["local"] and not HOSTED else f'<li><a href="{ESC(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
         for d in f.get("downloads", []))
-    docs = "".join(f'<li><a href="{up}assets/docs/{f["slug"]}/{urllib.parse.quote(os.path.basename(d["path"]))}">{ESC(os.path.basename(d["path"]))}</a></li>' for d in f.get("docs", []))
+    docs = "" if HOSTED else "".join(f'<li><a href="{up}assets/docs/{f["slug"]}/{urllib.parse.quote(os.path.basename(d["path"]))}">{ESC(os.path.basename(d["path"]))}</a></li>' for d in f.get("docs", []))
     ph = f.get("photo")
     photo = ""
     if ph:
@@ -535,8 +538,10 @@ def font_html(f, by, sprite):
 <section class="glyphs"><h2>Characters <span class="sub tnum" id="gcount"></span></h2><div id="gl" class="gl"></div></section>
 <section class="files"><h2>Downloads</h2><ul class="dl">{dl}</ul>{f'<h3>Bundled documents</h3><ul class="dl">{docs}</ul>' if docs else ''}
 <p class="sub">{ESC(f.get('copyright') or '')}</p></section>
-<nav class="pn"><a href="{prev_['slug'] + '.html' if prev_ else '#'}" class="{'' if prev_ else 'off'}">← {ESC(prev_['name'] if prev_ else '')}</a><a href="{next_['slug'] + '.html' if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')} →</a></nav>
+<nav class="pn"><a href="{(flink(prev_['slug'], up) if HOSTED else prev_['slug'] + '.html') if prev_ else '#'}" class="{'' if prev_ else 'off'}">← {ESC(prev_['name'] if prev_ else '')}</a><a href="{(flink(next_['slug'], up) if HOSTED else next_['slug'] + '.html') if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')} →</a></nav>
 </article>"""
+    if fragment:
+        return body
     return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage")
 
 
@@ -566,12 +571,16 @@ def about_html(cat, sprite):
     return page("Wiegel Archive — About", body, 0, sprite, "about")
 
 
+UIFONTS = []
+
+
 def ui_font_css(by):
     css = []
     for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA Display")):
         f = by.get(slug)
         for x in (f or {}).get("faces", []):
             src = "fonts/" + slug + "/" + os.path.basename(x["path"])
+            UIFONTS.append({"family": fam, "src": "assets/" + src, "weight": x["weight"], "italic": x["italic"]})
             css.append(f'@font-face{{font-family:"{fam}";src:url("{src}");font-weight:{x["weight"]};font-style:{"italic" if x["italic"] else "normal"};font-display:swap}}')
     return "\n".join(css)
 
