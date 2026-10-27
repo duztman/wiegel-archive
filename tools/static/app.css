@@ -41,7 +41,7 @@
 html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; scroll-padding-top: calc(var(--navh) + 24px); }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 400 var(--ui)/var(--lh) var(--uiface); font-kerning: normal; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; text-decoration-thickness: var(--line); text-underline-offset: 0.18em; }
+a:hover { text-decoration: underline; text-decoration-thickness: .105em; text-underline-offset: 0.18em; }
 .tnum { font-variant-numeric: tabular-nums lining-nums; }
 .sub { color: var(--ink-3); }
 h1, h2, h3 { font: inherit; margin: 0; }
@@ -65,11 +65,12 @@ em { font-style: normal; color: var(--hot); }
 .top a:hover, .top button:hover { text-decoration: none; background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 .top .on, .top .cur { background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 .top .home { background: none; color: var(--navfg); padding-left: 0; margin-right: 8px; }
-.top .home:hover { box-shadow: none; text-decoration: underline; text-decoration-thickness: var(--line); }
+.top .home:hover { box-shadow: none; text-decoration: underline; text-decoration-thickness: .105em; }
 .top .modes { margin-left: auto; display: flex; gap: 8px; }
 .top .rndfont { background: var(--navfg); color: var(--navbg); }
 .top .mode { min-width: 2.2em; text-align: center; }
-.pnav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 0 0 var(--pb); }
+.pnav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 0 0 var(--pb); }
+.pnav .pname { margin-right: auto; }
 .pnav a { padding: 2px 14px 1px; border-radius: 999px; box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--fg) 45%, transparent); }
 .pnav a:hover { background: var(--fg); color: var(--bg); box-shadow: none; text-decoration: none; }
 .top .mode { background: none; color: var(--navfg); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
@@ -83,7 +84,7 @@ em { font-style: normal; color: var(--hot); }
 
 main { padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--gut), env(safe-area-inset-left, 0px)); min-width: 0; }
 .foot { padding: var(--sbt) 0 var(--gut); color: var(--ink-3); max-width: 46em; font: var(--info)/1.4 var(--uiface); }
-.foot a { text-decoration: underline; text-decoration-thickness: var(--line); }
+.foot a { text-decoration: underline; text-decoration-thickness: .105em; }
 
 /* text button: the only control style */
 .t { display: inline-flex; align-items: baseline; gap: 8px; padding: 0; border: 0; background: none; color: var(--ink-3); cursor: pointer; white-space: nowrap; }
@@ -124,7 +125,7 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 /* ── home: previews first, filter pills in a side column ─────────────── */
 .home { display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 19vw, 280px); gap: 40px; align-items: start; padding-top: 40px; }
 .homelist { min-width: 0; }
-.home .side { position: sticky; z-index: 31; top: calc(var(--navh) + 40px); max-height: calc(100vh - var(--navh) - 48px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; min-width: 0; padding-bottom: 48px;
+.home .side { position: sticky; z-index: 29; top: calc(var(--navh) + 40px); max-height: calc(100vh - var(--navh) - 48px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; min-width: 0; padding-bottom: 48px;
   padding-top: 0; }
 .fsum { display: none; list-style: none; cursor: pointer; }
 .fsum::-webkit-details-marker { display: none; }
@@ -305,7 +306,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .acc-wrap { font: 400 var(--read)/1.42 var(--text); max-width: 34em; }
 .acc-wrap .acc + .acc h3 { margin-top: 24px; }
 .orig { display: flex; flex-wrap: wrap; gap: 8px 32px; margin-top: 24px; }
-.orig .t, .sb p > .t { color: var(--ink); text-decoration: underline; text-decoration-thickness: var(--line); text-underline-offset: .18em; }
+.orig .t, .sb p > .t { color: var(--ink); text-decoration: underline; text-decoration-thickness: .105em; text-underline-offset: .18em; }
 
 /* facts as compact cards; other lined lists keep a small label on the rule and the value below */
 .facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 24px; }
@@ -322,7 +323,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .photo figcaption { display: grid; gap: 4px; padding-top: var(--pt); font: var(--list)/1.3 var(--text); }
 .photo figcaption .sub { font: var(--info)/1.2 var(--uiface); }
 .links, .dl { list-style: none; padding: 0; margin: 0 0 24px; }
-.links a, .dl a { font: var(--list)/1.3 var(--text); text-decoration: underline; text-decoration-thickness: var(--line); text-underline-offset: .18em; overflow-wrap: anywhere; }
+.links a, .dl a { font: var(--list)/1.3 var(--text); text-decoration: underline; text-decoration-thickness: var(--tstem, .08em); text-underline-offset: .18em; overflow-wrap: anywhere; }
 .links .sub, .dl .sub { font: var(--info)/1.2 var(--uiface); order: -1; }
 .placecol p { margin: 0 0 24px; }
 

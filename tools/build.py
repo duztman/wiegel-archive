@@ -741,10 +741,10 @@ def font_html(f, by, sprite, up="../", fragment=False):
     tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
     secs = [("specimen", "Specimen"), ("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
-    subnav = (f'<span class="crumb">{ESC(f["family"])}</span><span class="sep">/</span><span class="cur">{ESC(f["name"])}</span>'
+    subnav = (f'<span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
     )
-    pnav = ('<nav class="pnav" aria-label="Previous and next font">'
+    pnav = ('<nav class="pnav" aria-label="Previous and next font">' + f'<span class="pname">{ESC(f["name"])}</span>'
             + (f'<a href="{plink(prev_)}">← {ESC(prev_["name"])}</a>' if prev_ else "")
             + (f'<a href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else "") + '</nav>')
     years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
