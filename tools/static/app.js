@@ -141,7 +141,13 @@
         r.querySelector(".oy").textContent = f.y ? (i ? "" : "OG ") + f.y : "";
         r.querySelector(".dy").textContent = f.dy ? (i ? "" : "DG ") + f.dy : "";
       });
+      const changed = grid.children.length !== list.length || grid.firstElementChild !== list[0];
       grid.replaceChildren(...list);
+      if (changed) {   // a new result set starts at its top, never inside empty space left by the old one
+        const sc = grid.closest(".homelist");
+        if (sc && sc.scrollHeight > sc.clientHeight) sc.scrollTop = 0;
+        else if (scrollY > grid.offsetTop) scrollTo(0, Math.max(0, grid.getBoundingClientRect().top + scrollY - 120));
+      }
       const any = Object.keys(state.sel).length || state.q;
       $("#count").textContent = list.length === C.fonts.length ? `Filtering ${list.length} fonts` : `Filtering ${list.length} of ${C.fonts.length} fonts`;
       $("#fclear").hidden = !any;
