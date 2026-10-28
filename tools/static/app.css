@@ -2,7 +2,7 @@
 /*UI_FONTS*/
 /* no fallbacks in a font's own text: what the font lacks shows as nothing (an empty font for every character), never in another face */
 @font-face { font-family: "WA Blank"; src: url("blank.woff2") format("woff2"); }
-.lrow .ln, .fl .fn, .fc .aa, #tl .fn, .pic .fn { font-family: "WA Blank"; }
+.lrow .ln, .fl .fn, .fc .aa, .c-aa .aa, #tl .fn, .pic .fn { font-family: "WA Blank"; }
 
 :root {
   --paper: #f4f2ec;
@@ -375,10 +375,10 @@ a.tg { text-decoration: none; }
 .pn a:hover { color: var(--hot); text-decoration: none; }
 
 /* ── catalogue lister ────────────────────────────────────────────────── */
-.lister { margin-top: 32px; --cols: 3.2em minmax(0, 2.2fr) minmax(7em, 1fr) 4em 4em minmax(9em, 1fr); }
-.c-gl { padding-left: 40px; }
+.lister { margin-top: 32px; --cols: 3.2em calc(var(--list) * 4) minmax(0, 2.2fr) minmax(7em, 1fr) 4em 4em minmax(9em, 1fr); }
+.c-gl, .c-ic { padding-left: 40px; }   /* icons and count start where the Glyphs heading's text does */
 .chead, .crow { display: grid; grid-template-columns: var(--cols); column-gap: 20px; align-items: baseline; }
-.chead { grid-template-areas: "no name fa oy dy gl"; position: sticky; top: var(--navh); z-index: 5; background: var(--paper); padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
+.chead { grid-template-areas: "no aa name fa oy dy gl"; position: sticky; top: var(--navh); z-index: 5; background: var(--paper); padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
 .sortb { font: var(--ui)/1.1 var(--uiface); text-align: left; color: var(--ink-3); background: none; border: 0; cursor: pointer; justify-self: start;
   padding: 5px 10px 4px; margin-left: -10px; border-radius: 999px; }
 .sortb:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--rule); }
@@ -386,16 +386,19 @@ a.tg { text-decoration: none; }
 
 .sortb.c-oy, .sortb.c-dy { justify-self: end; margin: 0 -10px 0 0; }
 .sortb.c-gl { margin-left: 30px; }
-.crow { grid-template-areas: "no name fa oy dy gl" ". src src src src ic"; row-gap: 2px; padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
+.crow { grid-template-areas: "no aa name fa oy dy ic" ". . src src src src gl"; row-gap: 2px; padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
 .crow:hover { text-decoration: none; background: var(--wash); }
 .crow:hover .c-name { color: var(--hot); }
 .c-no { grid-area: no; } .c-name { grid-area: name; } .c-fa { grid-area: fa; } .c-oy { grid-area: oy; text-align: right; } .c-dy { grid-area: dy; text-align: right; }
-.c-gl { grid-area: gl; } .c-src { grid-area: src; } .c-ic { grid-area: ic; display: flex; flex-wrap: wrap; gap: 4px; }
+.c-aa { grid-area: aa; min-width: 0; } .c-gl { grid-area: gl; } .c-src { grid-area: src; } .c-ic { grid-area: ic; display: flex; flex-wrap: wrap; gap: 4px; }
 .crow .c-name { overflow-wrap: anywhere; }
 .crow .c-fa, .crow .c-oy, .crow .c-dy { font: var(--list)/1.25 var(--text); }
 .crow .c-fa { color: var(--ink-2); }
 .crow .c-src { font: var(--info)/1.35 var(--uiface); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crow .c-ic .ic { width: 18px; height: 18px; }
+.crow .c-aa { line-height: 0; padding-top: calc(var(--list) * 1.5); }   /* the Aa sits on the name's baseline; its line box is empty and the padding reserves the same room above it in every row, so rows keep one rhythm whatever the face's metrics */
+.crow .c-aa .aa { display: inline-block; font-size: calc(var(--list) * 2); line-height: 0; white-space: nowrap; color: var(--ink); opacity: .3; transition: opacity .3s; }   /* the font's own Aa, as on its card; fitted to the column */
+.crow .c-aa .aa.ok { opacity: 1; }
 
 /* ── images ──────────────────────────────────────────────────────────── */
 .pics { columns: 3 300px; column-gap: 24px; margin-top: 32px; }
@@ -495,10 +498,12 @@ a.tg { text-decoration: none; }
   .tools { position: static; }
   .lister { --cols: 2.6em minmax(0, 1fr) 3.6em 3.6em; }
   .chead { grid-template-areas: "no name oy dy"; }
+  .chead .c-aa { display: none; }
   .chead .c-fa, .chead .c-gl { display: none; }
-  .c-gl { padding-left: 0; }
+  .c-gl, .c-ic { padding-left: 0; }
   .crow .c-fa { font: var(--info)/1.2 var(--uiface); }
-  .crow { grid-template-areas: "no name oy dy" ". fa fa fa" ". src src src" ". gl gl ic"; }
+  .crow { grid-template-areas: "no aa oy dy" ". name name name" ". fa fa fa" ". src src src" ". ic ic ic" ". gl gl gl"; }   /* phone: the Aa leads the row, the name under it */
+  .crow .c-aa { padding-top: 0; line-height: 1; } .crow .c-aa .aa { line-height: 1; }   /* on its own line it takes its full height */
   .pics { columns: 1; }
   .blk { grid-template-columns: 14px minmax(0, 1fr); gap: 10px; }
   .legend { grid-template-columns: minmax(0, 1fr); }

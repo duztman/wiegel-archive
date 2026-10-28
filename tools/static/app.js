@@ -325,6 +325,8 @@
   const lst = $("#cat");
   if (lst) {
     const body = $(".cbody", lst), rws = [...body.children];
+    $$(".c-aa .aa", lst).forEach((el) => lazy.observe(el));
+    let rqa; addEventListener("resize", () => { cancelAnimationFrame(rqa); rqa = requestAnimationFrame(() => $$(".c-aa .aa.ok", lst).forEach(fitAa)); });
     let key = "no", asc = true;
     function sortBy(k) {
       asc = k === key ? !asc : true; key = k;

@@ -720,6 +720,12 @@ def index_html(cat, sprite):
     return page("Wiegel Archive", body, 0, sprite, "home", "index")
 
 
+def face_src(f):
+    """The first face of a font, as the timeline cards and the catalogue load it (the hosted copy's web file when there is one)."""
+    face = f["faces"][0] if f.get("faces") else None
+    return ("assets/fonts/" + f["slug"] + "/" + (face.get("web") or os.path.basename(face["path"]))) if face else ""
+
+
 def aa(f):
     """What a font card shows, as Font Book does: 'Aa', or figures for figures-only fonts, or the first two characters it has."""
     c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
@@ -737,9 +743,6 @@ def timeline_html(cat, sprite):
     (its own 'Aa' and its name, like Font Book). A note (what happened) heads the cards it applies to; fonts sharing a note
     share it. Wiegel's plain digitisations follow as a bulk of cards, headed "Wiegel digitised N fonts" only in a year with
     no notes. The decade strip on top jumps to the first year of a decade."""
-    def face_src(f):
-        face = f["faces"][0] if f.get("faces") else None
-        return ("assets/fonts/" + f["slug"] + "/" + (face.get("web") or os.path.basename(face["path"]))) if face else ""
     def card(f):
         return (f'<a class="fc" href="{flink(f["slug"])}" title="{ESC(f["name"])}">'
                 f'<span class="aa" data-src="{face_src(f)}">{ESC(aa(f))}</span><span class="nm">{ESC(f["name"])}</span></a>')
@@ -785,6 +788,7 @@ def catalogue_html(cat, sprite):
             f'<a class="crow" href="{flink(f["slug"])}" data-no="{f["no"]}" data-name="{ESC(f["name"].lower())}" data-fa="{cat["families"].index(f["family"]) if f["family"] in cat["families"] else 99}" '
             f'data-oy="{f.get("oy") or 9999}" data-dy="{f.get("dy") or 9999}" data-gl="{gl}" data-ix="{ix}">'
             f'<span class="c-no info tnum">{nofmt(f["no"])}</span>'
+            f'<span class="c-aa"><span class="aa" data-src="{face_src(f)}">{ESC(aa(f))}</span></span>'
             f'<span class="c-name">{ESC(f["name"])}</span>'
             f'<span class="c-fa">{ESC(f["family"])}</span>'
             f'<span class="c-oy tnum">{f.get("oy") or ""}</span>'
@@ -794,6 +798,7 @@ def catalogue_html(cat, sprite):
             f'<span class="c-ic">{"".join(icon(c, 18) for c in f["icons"] if c in ICONS)}</span></a>')
     sorts = [("no", "No."), ("name", "Name"), ("fa", "Family"), ("oy", "Original"), ("dy", "Digitised"), ("gl", "Glyphs")]
     head = "".join(f'<button type="button" class="c-{k} sortb" data-k="{k}">{l}</button>' for k, l in sorts)
+    head = head.replace("</button>", '</button><span class="c-aa"></span>', 1)   # the Aa column has no heading
     body = f"""
 <section class="intro"><p class="lead">All {len(cat['fonts'])} typefaces in one list. Sort by any heading. <em>Original</em> is the key date of the source; <em>Digitised</em> is read from the font file.</p>
 <label class="t search"><span>Filter</span><input id="tq" type="search" autocomplete="off"></label></section>
