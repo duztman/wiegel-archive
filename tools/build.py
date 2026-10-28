@@ -151,7 +151,7 @@ def analyse(path):
                 w = name.getName(i, 3, 1, 0x409)
                 w = w.toUnicode() if w else ""
                 # a Mac record written in Latin-1 reads back as MacRoman ('VarietÈ'); the Windows record has it right
-                if w and w != r and len(w) == len(r) and all(a == b or ord(a) > 127 for a, b in zip(w, r)):
+                if w and w != r and len(w) == len(r) and all(a == b or (127 < ord(a) < 0x250 and ord(b) > 127) for a, b in zip(w, r)):   # only accented letters differ
                     r = w
                 return r.strip()
         return ""
