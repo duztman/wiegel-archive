@@ -87,6 +87,8 @@ def main():
     W("images.html", B.images_html(cat, sprite, os.path.join(OUT, "assets", "photos")))
     W("legend.html", B.legend_html(sprite))
     W("about.html", B.about_html(cat, sprite))
+    W("site.html", B.site_html(cat, sprite))
+    B.copy_people(OUT)
     W("font.html", B.page("Wiegel Archive — Font", '<div id="fontshell"><p class="lead">Loading…</p></div><script>window.PACK=%d</script>' % PACK, 0, sprite, "fontpage", "index"))
     packs = {}
     for i, f in enumerate(cat["fonts"]):

@@ -484,8 +484,8 @@ def icon(code, size=24):
 
 NAVPAL = {"home": ("#00A3EA", "#000080"), "timeline": ("#FDFA00", "#D40051"), "catalogue": ("#05872C", "#FFFFFF"),
           "legend": ("#687F12", "#FFFF80"), "about": ("#D3BFA4", "#800025"), "images": ("#7C00AD", "#FFFF80"), "fontpage": ("#00A3EA", "#000080")}
-NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html"), ("images", "Images", "images.html"), ("catalogue", "Catalogue", "catalogue.html"),
-       ("about", "About", "about.html")]
+NAV = [("index", "Fonts", "index.html"), ("timeline", "Timeline", "timeline.html"), ("images", "Images", "images.html"), ("about", "About", "about.html")]
+ABOUT = [("about", "Peter Wiegel", "about.html"), ("site", "This site", "site.html"), ("legend", "Legend", "legend.html"), ("catalogue", "Catalogue", "catalogue.html")]   # the About pages share the second row
 
 
 THEME_JS = """(function(){var P=%s,A={dark:["#00A3EA","#FDFA00","#E20084","#2FB35A","#FF3D7F","#B04CFF"],light:["#0079B8","#E20084","#05872C","#D40051","#7C00AD"]},r=document.documentElement,m;
@@ -494,8 +494,8 @@ var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
 try{window.WA_INV=localStorage.getItem("wa-inv")==="1"}catch(e){}if(window.WA_INV)r.classList.add("inv");
 window.WA_PAL=P;window.WA_theme=function(pair){var s=r.style;
  if(!pair&&r.dataset.mode==="random"){var c=s.getPropertyValue("--paper"),L=Object.values(P).filter(function(x){return x[0]!==c});pair=pick(L.length?L:Object.values(P))}
- if(pair){window.WA_CUR=pair;var a=pair[0],b=pair[1];if(window.WA_INV){a=pair[1];b=pair[0]}s.setProperty("--paper",a);s.setProperty("--ink",b);s.setProperty("--hot",b);r.dataset.on="pair"}
- else{s.removeProperty("--paper");s.removeProperty("--ink");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
+ if(pair){window.WA_CUR=pair;var a=pair[0],b=pair[1];if(window.WA_INV){a=pair[1];b=pair[0]}s.setProperty("--paper",a);s.setProperty("--ink",b);s.setProperty("--hot",b);s.setProperty("--dark",pair[1]);r.dataset.on="pair"}
+ else{s.removeProperty("--paper");s.removeProperty("--ink");s.removeProperty("--dark");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
 var k;try{k=localStorage.getItem("wa-pair")}catch(e){}window.WA_PICK=P[k]?k:"";
 window.WA_theme(r.dataset.mode!=="random"?null:P[k]||(window.WA_FONTPAL?P[window.WA_FONTPAL]:null))})();"""
 
@@ -503,9 +503,11 @@ window.WA_theme(r.dataset.mode!=="random"?null:P[k]||(window.WA_FONTPAL?P[window
 SWATCHES = '<button type="button" class="sw cinv" id="cinv" title="Invert: dark grounds, light ink" aria-label="Invert colours">I</button>' + "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
 
 
-def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
+def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
+    """sub: key of the About page shown; fills the second row server-side (font pages fill it from their template)"""
     up = "../" * depth
-    links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>' for k, label, href in NAV)
+    row2 = "".join(f'<a class="{"on" if k == sub else ""}" href="{up}{href}"{" aria-current=page" if k == sub else ""}>{label}</a>' for k, label, href in ABOUT) if sub else ""
+    links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur and not sub else ""}>{label}</a>' for k, label, href in NAV)
     return deco(f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
@@ -516,7 +518,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 {sprite}
 <header class="top" id="top">
 <nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
-<nav class="nav2" id="subnav" aria-label="This font"></nav>
+<nav class="nav2" id="subnav" aria-label="{"About" if sub else "This font"}">{row2}</nav>
 </header>
 <main>{body}
 <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
@@ -635,7 +637,7 @@ def catalogue_html(cat, sprite):
 <section class="intro"><p class="lead">All {len(cat['fonts'])} typefaces in one list. Sort by any heading. <em>Original</em> is the key date of the source; <em>Digitised</em> is read from the font file.</p>
 <label class="t search"><span>Filter</span><input id="tq" type="search" autocomplete="off"></label></section>
 <div class="lister" id="cat"><div class="chead">{head}</div><div class="cbody">{''.join(rows)}</div></div>"""
-    return page("Catalogue — Wiegel Archive", body, 0, sprite, "catalogue", "catalogue")
+    return page("Catalogue — Wiegel Archive", body, 0, sprite, "catalogue", "about", sub="catalogue")
 
 
 def images_html(cat, sprite, photo_dir):
@@ -846,31 +848,58 @@ def legend_block():
 
 
 def legend_html(sprite):
-    """the legend now lives on the About page; this keeps old links working"""
-    return '<!doctype html><meta charset="utf-8"><title>Legend — Wiegel Archive</title><meta http-equiv="refresh" content="0;url=about.html#legend"><a href="about.html#legend">Legend</a>'
+    return page("Legend — Wiegel Archive", legend_block(), 0, sprite, "legend", "about", sub="legend")
+
+
+PEOPLE = os.path.join(STATIC, "people")
+REFS = [   # (title, url, site · what it is)
+    ("CAT Fonts", "http://www.peter-wiegel.de/", "peter-wiegel.de · his site, also at catfonts.de"),
+    ("Curriculum vitae", "http://www.peter-wiegel.de/Vitae.html", "peter-wiegel.de · his CV, as PDF"),
+    ("Peter Wiegel", "https://www.typografie.info/3/Personen/wiki.html/peter-wiegel-r746/", "Typografie.info · person entry"),
+    ("Catfonts-Archiv", "https://www.typografie.info/3/files/file/90-catfonts-archiv/", "Typografie.info · backup of the whole collection, 2024"),
+    ("CAT Design Wolgast", "https://luc.devroye.org/fonts-47415.html", "Luc Devroye · type design information page"),
+    ("Peter Wiegel", "https://www.klingspor-museum.de/KlingsporKuenstler/Schriftdesigner/Wiegel/PWiegel.pdf", "Klingspor Museum · specimen of his fonts, PDF"),
+    ("Peter Wiegel", "https://fontsinuse.com/foundry/182/peter-wiegel", "Fonts In Use · his fonts in use"),
+    ("Feroniapi", "https://velvetyne.fr/fonts/feroniapi/", "Velvetyne · Julienne Richard’s redesign of his Feronia, 2025"),
+]
+
+
+def copy_people(out):
+    d = os.path.join(out, "assets/people"); os.makedirs(d, exist_ok=True)
+    for x in os.listdir(PEOPLE):
+        shutil.copy2(os.path.join(PEOPLE, x), d)
 
 
 def about_html(cat, sprite):
-    n = len(cat["fonts"])
-    sw = "".join(f'<li><span class="chip-c" style="--b:{v[0]};--f:{v[1]}">Aa</span><span>{ESC(v[2])}</span><span class="sub tnum">{v[0]} / {v[1]}</span></li>' for v in USE_PAL.values())
-    body = f"""<section class="intro"><p class="lead">A working archive of the free typefaces of Peter Wiegel, built for reading, setting and comparing them.</p></section>
-<section class="prose">
+    """About · Peter Wiegel: who he is, the licences, references"""
+    refs = "".join(f'<li><a href="{ESC(u)}">{ESC(t)}</a><span class="sub">{ESC(w)}</span></li>' for t, u, w in REFS)
+    body = f"""<section class="prose">
+<figure class="photo portrait"><img src="assets/people/wiegel.png" width="174" height="215" alt="Peter Wiegel"><figcaption><span class="sub">Photo: peter-wiegel.de</span></figcaption></figure>
 <h2>Peter Wiegel</h2>
-<p>A self-described typographic amateur from Hamburg, later based in Wolgast, Peter Wiegel built CAT Fonts from the late 2000s into the 2020s: several hundred free typefaces, most of them revivals of German foundry type, school and handwriting models, standardised lettering (DIN, TGL, railway drawings) and lettering recorded from real objects. His site says that since 2022 he has been unable to maintain it for health reasons; it stays online as it is.</p>
+<p>Born in Hamburg in 1955, Peter Wiegel trained as a car mechanic, studied mechanical engineering at the Fachhochschule Hamburg and worked for years as a laboratory technician in plastics engineering and as a design engineer. From 2002 he worked freelance as an illustrator and web designer in Wolgast, on the Baltic coast, and from 2008 he built his own foundry, CAT Fonts.</p>
+<p>A self-described typographic amateur, he made several hundred free typefaces into the 2020s: most of them revivals of German foundry type, school and handwriting models, standardised lettering (DIN, TGL, railway drawings) and lettering recorded from real objects. His site says that since 2022 he has been unable to maintain it for health reasons; it stays online as it is. In 2024 Typografie.info put a backup of the whole collection online, and in 2025 Velvetyne published Feroniapi, a redesign of his Feronia.</p>
 <h2>Licences</h2>
 <p>Wiegel’s own designs are freeware, commercial use included; modified versions must stay free and take a new name. A large group of blackletter fonts on the second index page are re-encodings of Dieter Steffmann’s digitisations — free for private use; commercial use needs Steffmann’s licence. Each font page shows the licence note from Wiegel’s page and the licence embedded in the font file; the original archives, with their licence files, are kept untouched under Files.</p>
-<h2>This archive</h2>
-<p>{n} typefaces scraped with Apify from all three of Wiegel’s index pages. The texts are new English write-ups of each page — facts regrouped, not translations — with a link to the original and to a machine translation of it. Photos of the buildings, signs and objects are freely licensed and credited; other sightings are linked, not copied. Specimens are set live from the font files; nothing here is an image of type. Digitisation years are read from each font file’s copyright line, or its creation date when that is missing.</p>
+<h2>References</h2>
+<ul class="links">{refs}</ul>
+</section>"""
+    return page("Peter Wiegel — Wiegel Archive", body, 0, sprite, "about", "about", sub="about")
+
+
+def site_html(cat, sprite):
+    """About · This site: the intention in one paragraph, then the colours and the colophon"""
+    n = len(cat["fonts"])
+    sw = "".join(f'<li><span class="chip-c" style="--b:{v[0]};--f:{v[1]}">Aa</span><span>{ESC(v[2])}</span><span class="sub tnum">{v[0]} / {v[1]}</span></li>' for v in USE_PAL.values())
+    body = f"""<section class="prose">
+<h2>This site</h2>
+<p>A private archive of Peter Wiegel’s free typefaces, made to read, set and compare them in one place, the way a foundry shows its library. Each of the {n} fonts has a live specimen set from the font file itself, an English write-up of Wiegel’s page, the dated history of the original lettering and its digitisation, photographs of the objects it came from, its character set and the original downloads. All of it is generated from Wiegel’s index pages and the font files by one small script; nothing here is an image of type.</p>
 <h2>Colour</h2>
 <p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch. Each pair is set light paper on dark ink, with no light repeated; I in the colour picker inverts them all. His green, olive, magenta and crimson grounds are left out because they fight the download green of the feature chips; the lights and darks that are not on his site are shades of his colours.</p>
 <ul class="pal">{sw}</ul>
-<h2>Method</h2>
-<p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
 <p>Interface in Wiegel’s Preussische IV 44, the 1880s Prussian railway lettering that DIN 1451 grew out of, at a single size, with its small capitals for every label; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
-</section>
-{legend_block()}"""
-    return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
+</section>"""
+    return page("This site — Wiegel Archive", body, 0, sprite, "site", "about", sub="site")
 
 
 UIFONTS = []
@@ -925,6 +954,7 @@ def main():
             dd = os.path.join(SITE, "assets/docs", f["slug"]); os.makedirs(dd, exist_ok=True)
             shutil.copy2(os.path.join(ROOT, d["path"]), dd)
     place_photos(cat)
+    copy_people(SITE)
     sprite = icon_svgs(cat)
     css = open(os.path.join(STATIC, "app.css"), encoding="utf-8").read().replace("/*UI_FONTS*/", ui_font_css(by))
     open(os.path.join(SITE, "assets/app.css"), "w", encoding="utf-8").write(css)
@@ -937,6 +967,7 @@ def main():
     W("images.html", images_html(cat, sprite, os.path.join(SITE, "assets", "photos")))
     W("legend.html", legend_html(sprite))
     W("about.html", about_html(cat, sprite))
+    W("site.html", site_html(cat, sprite))
     for f in cat["fonts"]:
         W(f"font/{f['slug']}.html", font_html(f, by, sprite))
     # build report
