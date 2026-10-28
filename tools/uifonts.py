@@ -219,6 +219,19 @@ def comma(f):
         hm[n] = (hm[n][0], g.xMin)
 
 
+def capital_sharp_s(f):
+    """Preussische: ẞ (U+1E9E) from data/ui-marks.json (drawn by tools/uidraw.py), as wide as his ß."""
+    cm = f.getBestCmap()
+    if 0x1E9E in cm:
+        return
+    marks = json.load(open(MARKS, encoding="utf-8"))
+    g = _put(f, "uni1E9E", marks["Germandbls"])
+    f["hmtx"]["uni1E9E"] = (f["hmtx"][cm[0xDF]][0], g.xMin)
+    for t in f["cmap"].tables:
+        if t.isUnicode():
+            t.cmap[0x1E9E] = "uni1E9E"
+
+
 def ligatures(f, keys):
     """ff fi fl ffi ffl from data/ui-marks.json (drawn by tools/uidraw.py). Advance: the sum of its letters' advances
     (after respacing), so a ligature sets exactly as wide as the letters it replaces. Returns the GSUB rules."""
@@ -285,29 +298,34 @@ TEXT_SPACING = {
 }
 
 
+def face(slug, src, kerning=True):
+    """The site's copy of one face, as a TTFont in memory; returns (font, number of kerning pairs)."""
+    f = TTFont(src, recalcTimestamp=False)
+    subs = []
+    if slug == "proletarsk":
+        turkish(f, redraw="İ")   # Wiegel's İ carries its dot under the I
+        respace(f, TEXT_SPACING)
+        subs = ligatures(f, ("f_f_i", "f_f_l", "f_f", "f_i", "f_l"))
+    if slug == "preussische":
+        comma(f)
+        capital_sharp_s(f)
+        turkish(f)
+        quotes(f)
+        centre(f)
+    n = kern(f, json.load(open(KERN, encoding="utf-8"))[slug] if kerning else {}, subs)
+    rename(f, FAMILY[slug])
+    return f, n
+
+
 def make(srcs, out_dir, kerning=True):
     """srcs: {slug: path of Wiegel's font file}. Writes WA-UI.ttf and WA-Text.ttf; returns {family: (path, pairs)}."""
-    data = json.load(open(KERN, encoding="utf-8"))
     os.makedirs(out_dir, exist_ok=True)
     made = {}
     for slug, src in srcs.items():
-        family = FAMILY[slug]
-        f = TTFont(src, recalcTimestamp=False)
-        subs = []
-        if slug == "proletarsk":
-            turkish(f, redraw="İ")   # Wiegel's İ carries its dot under the I
-            respace(f, TEXT_SPACING)
-            subs = ligatures(f, ("f_f_i", "f_f_l", "f_f", "f_i", "f_l"))
-        if slug == "preussische":
-            comma(f)
-            turkish(f)
-            quotes(f)
-            centre(f)
-        n = kern(f, data[slug] if kerning else {}, subs)
-        rename(f, family)
-        out = os.path.join(out_dir, family.replace(" ", "-") + ".ttf")   # ttf like the other UI faces: no brotli needed on either machine
+        f, n = face(slug, src, kerning)
+        out = os.path.join(out_dir, FAMILY[slug].replace(" ", "-") + ".ttf")   # ttf like the other UI faces: no brotli needed on either machine
         f.save(out)
-        made[family] = (out, n)
+        made[FAMILY[slug]] = (out, n)
     return made
 
 

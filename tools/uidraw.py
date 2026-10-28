@@ -6,6 +6,7 @@ the JSON, so neither machine needs a boolean library.
 - f_f, f_i, f_l, f_f_i, f_f_l (Proletarsk), as Okay drew them in words on 28 Oct: the f's top runs on over the i
   where its dot was, the dot becoming the bar's round end; the crossbar runs through every f into the top of the i;
   an f before f joins its top to the next f's arch; before l the top runs into the l. The f's sloped terminal goes.
+- Germandbls (Preussische): the capital ẞ, from his ß, 7 and Z (see the comment at its code).
 - comma (Preussische): the shape of his ‚ (his comma points the other way from his ’ and ‚).
 Usage: python3 tools/uidraw.py fonts
 """
@@ -108,6 +109,37 @@ def main(fonts):
 
     for word in ("ff", "fi", "fl", "ffi", "ffl"):
         out["_".join(word)] = {"letters": word, "contours": contours(lig(word))}
+    # ẞ (Preussische), Okay 28 Oct: his ß is already cap-height. Kept: its stem with the chamfered top-left corner, and its
+    # lower bowl. New, from his own parts: a flat top with a square corner like his 7 and Z, and from that corner a diagonal
+    # at his Z's slope and stroke (106 units across), down into the top of the lower bowl.
+    gs = pr.getGlyphSet()
+    g, cmp_ = pr["glyf"], pr.getBestCmap()
+    sz = path(gs, "germandbls")
+    co, _, fl = g["germandbls"].getCoordinates(g)
+    pts = [p for p, q in zip(co, fl) if q & 1]
+    right = max(x for x, y in pts)                       # 367
+    capt = max(y for x, y in pts)                        # 735
+    stem = min(x for x, y in pts if x > 0 and y == 0)    # 104: the stem's right side
+    notch = [p for p in pts if p[0] < right and 400 < p[1] < 500 and p[0] > 300][0]   # (327, 473): where his two bowls meet
+    zco, _, zfl = g["Z"].getCoordinates(g)
+    zp = [p for p, q in zip(zco, zfl) if q & 1]
+    top_in = [p for p in zp if p[1] == max(y for x, y in zp if y < capt) and p[0] > 0][0]   # (209, 630): diagonal leaves the bar
+    bar_y = top_in[1]
+    low = [p for p in zp if p[1] == min(y for x, y in zp if y > 0) and p[0] > 0][0]        # (105, 105): diagonal reaches the foot
+    slope = (top_in[0] - 0) / (bar_y - low[1])           # his Z: x per unit of y along the diagonal
+    width = 315 - top_in[0]                              # the diagonal's horizontal stroke in his Z (106)
+    flat0 = min(x for x, y in pts if y == capt)          # 157: where his ß's flat top begins, after the chamfered corner
+    left_part = op(sz, box(-1000, -1000, flat0, 3000), pathops.PathOp.INTERSECTION)
+    bowl = op(sz, box(-1000, -1000, 3000, notch[1]), pathops.PathOp.INTERSECTION)
+    top = box(flat0 - 1, bar_y, right, capt)
+    yb = notch[1] - (capt - bar_y)                       # the diagonal ends a stroke below the notch, inside the bowl's top
+    diag = pathops.Path(); dp = diag.getPen()
+    dp.moveTo((right, bar_y)); dp.lineTo((right - width, bar_y))
+    dp.lineTo((right - width - slope * (bar_y - yb), yb)); dp.lineTo((right - slope * (bar_y - yb), yb)); dp.closePath()
+    u = left_part
+    for q in (bowl, top, diag):
+        u = op(u, q, pathops.PathOp.UNION)
+    out["Germandbls"] = contours(u)
     # Preussische's comma points down to the right; his ’ and ‚ point down to the left. The comma takes the ‚ shape.
     gs = pr.getGlyphSet()
     out["comma"] = contours(path(gs, "quotesinglbase"))

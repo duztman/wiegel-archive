@@ -387,6 +387,9 @@ def icon_svgs(cat):
     for p in pool:   # the order decides which font a mark is cut from; a font missing here changes the sprite
         try:
             fonts.append(TTFont(p, fontNumber=0))
+            if pool.index(p) == 0 and os.path.basename(os.path.dirname(p)) == UI_DISPLAY:
+                import uifonts   # then the interface's own copy of Preussische IV 44: marks Wiegel's file lacks (ẞ) come from it, the rest stay his
+                fonts.append(uifonts.face(UI_DISPLAY, p, kerning=False)[0])
         except Exception as e:
             log(f"icons: pool font unreadable, marks may be cut from another font: {os.path.relpath(p, ROOT)} ({e.__class__.__name__})")
     out = {}
