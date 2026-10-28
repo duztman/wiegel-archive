@@ -375,16 +375,15 @@ a.tg { text-decoration: none; }
 .pn a:hover { color: var(--hot); text-decoration: none; }
 
 /* ── catalogue lister ────────────────────────────────────────────────── */
-.lister { margin-top: 32px; --cols: 3.2em calc(var(--list) * 4) minmax(0, 2.2fr) minmax(7em, 1fr) 4em 4em minmax(9em, 1fr); }
+.lister { margin-top: 32px; --cols: 3.2em calc(var(--list) * 4) minmax(0, 2.2fr) minmax(7em, 1fr) calc(var(--ui) * 4.2) calc(var(--ui) * 4.2) minmax(9em, 1fr); }   /* date columns: room for "Digitised" and its sort arrow */
 .c-gl, .c-ic { padding-left: 40px; }   /* icons and count start where the Glyphs heading's text does */
 .chead, .crow { display: grid; grid-template-columns: var(--cols); column-gap: 20px; align-items: baseline; }
 .chead { grid-template-areas: "no aa name fa oy dy gl"; position: sticky; top: var(--navh); z-index: 5; background: var(--paper); padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
-.sortb { font: var(--ui)/1.1 var(--uiface); text-align: left; color: var(--ink-3); background: none; border: 0; cursor: pointer; justify-self: start;
-  padding: 5px 10px 4px; margin-left: -10px; border-radius: 999px; }
-.sortb:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--rule); }
-.sortb.on { background: var(--hot); color: var(--paper); }
+.sortb { position: relative; font: var(--ui)/1.1 var(--uiface); text-align: left; color: var(--ink-3); background: none; border: 0; cursor: pointer; justify-self: start;
+  white-space: nowrap; padding: 5px 1.05em 4px 0; }   /* no pill: the right padding keeps room for the sort arrow, so a heading never wraps or shifts */
+.sortb:hover, .sortb.on { color: var(--ink); }   /* the sorted heading is dark, with its arrow beside it */
 
-.sortb.c-gl { margin-left: 30px; }
+.sortb.c-gl { margin-left: 40px; }
 .crow { grid-template-areas: "no aa name fa oy dy ic" ". . src src src src gl"; row-gap: 2px; padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
 .crow:hover { text-decoration: none; background: var(--wash); }
 .crow:hover .c-name { color: var(--hot); }
@@ -496,7 +495,7 @@ a.tg { text-decoration: none; }
   .fc .aa { font-size: 44px; }
   .sliders { grid-template-columns: minmax(0, 1fr); }
   .tools { position: static; }
-  .lister { --cols: 2.6em minmax(0, 1fr) 3.6em 3.6em; }
+  .lister { --cols: 2.6em minmax(0, 1fr) calc(var(--ui) * 4.2) calc(var(--ui) * 4.2); }
   .chead { grid-template-areas: "no name oy dy"; }
   .chead .c-aa { display: none; }
   .chead .c-fa, .chead .c-gl { display: none; }
@@ -534,7 +533,7 @@ a.tg { text-decoration: none; }
 /* inside pills the arrow is long and has no circle */
 .arw { width: .75em; height: .5em; flex: none; fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; overflow: visible; }
 .arw.u { transform: rotate(-90deg); } .arw.d { transform: rotate(90deg); }
-.sortb .arw { margin-left: .3em; vertical-align: 0.1em; }
+.sortb .arw { position: absolute; right: 0; top: calc(50% - .25em); }
 .t:has(.ca), .pn a { display: inline; }   /* inline, so the icon can sit on the letters' band rather than the line box */
 
 @supports not (height: 1cap) {   /* Safari before 17.2 (last, so it wins over --ref: 1cap): the UI face's cap height is .735em */
