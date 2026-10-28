@@ -957,9 +957,13 @@ def font_html(f, by, sprite, up="../", fragment=False):
     subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="secs"><span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
               + '</span>')   # on phone the pills scroll under the name, which stays
+    has_bold = any("bold" in x["short"].lower() for _, x in (ms or []))
     def style_label(x):
         sh = x["short"]
-        return f["name"] if sh in ("Regular", "Normal") else sh   # a face with no style of its own keeps its full name
+        plain = sh in ("Regular", "Normal") or x["name"] == f["name"]   # the face with no style of its own
+        if plain:
+            return "Regular" if has_bold else f["name"]   # Regular beside a Bold (Okay, 28 Oct 2026), else the font's name
+        return sh
     styles = [(i, style_label(x)) for i, x in ms] if ms else []   # a font that comes alone has no style pills
     stylenav = ('<span class="styles">' + "".join(f'<button type="button" data-i="{i}"{" class=on aria-pressed=true" if i == 0 else " aria-pressed=false"}>{ESC(l)}</button>' for i, l in styles) + '</span>'
                 + '<span class="pnav">'
