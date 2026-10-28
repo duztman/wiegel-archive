@@ -80,7 +80,7 @@ em { font-style: normal; color: var(--hot); }
 .top .home { background: none; color: var(--navfg); padding-left: 0; margin-right: 8px; }
 .top a:hover, .pnav a:hover, a.pill:hover { text-decoration: none; }   /* buttons never underline */
 .top .home:hover { box-shadow: none; }
-.nsearch { flex: .85 1 0; min-width: 4em; margin: 0 16px; display: flex; }   /* takes 85% of the gap between About and C Random; the rest pushes C Random flush right */
+.nsearch { flex: .85 1 0; min-width: 4em; margin: 0 0 0 auto; display: flex; }   /* takes 85% of the gap between About and C Random, centred in it: the other 15% splits evenly between its auto margin and the one before C Random */
 .nsearch .fin { padding: 2px 14px 1px 18px; line-height: var(--lh); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); color: var(--navfg); }
 .nsearch .fin::placeholder { color: color-mix(in oklab, var(--navfg) 40%, transparent); }
 .nsearch .fin:focus { box-shadow: inset 0 0 0 var(--line) var(--navfg); }
