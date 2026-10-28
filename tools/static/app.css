@@ -112,7 +112,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .retype::placeholder { color: var(--ink-3); }
 
 /* side column head: the write box and the selected filters stay at the top while the pills scroll under them */
-.sidehead { position: sticky; top: 0; z-index: 2; background: var(--paper); padding-top: 40px; }
+.sidehead { position: sticky; top: 0; z-index: 2; background: var(--paper); }   /* its first row, Cards / Preview, carries the 40px head */
 .picked { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding: 16px 0 var(--pb); }
 .picked .pill.on { background: var(--rule); color: var(--hot); }   /* selected tags: filled in the pill-outline colour, letters at full strength */   /* selected tags: a light tint of the accent */
 .picked .pill { font-size: calc(var(--ui) * .75); padding: 2px 10.5px 1.5px; gap: 6px; align-items: center; }   /* 75% of a filter pill */
@@ -140,6 +140,8 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .fin.settext:focus { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--ink); }
 .fcount { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; margin: 0; height: 40px; padding-bottom: var(--pt); }   /* sits in the list's 40px head, above the first rule */
 .homegrid .homelist { padding-top: 0; }
+.vmode { justify-content: flex-end; }   /* Cards / Preview, in the side column's 40px head, level with Clear */
+.grid.fcs { padding-top: var(--pt); }
 .pill.zero { opacity: .35; cursor: default; pointer-events: none; } /* nothing left to show next to the active filters */
 .fcount .info { text-transform: uppercase; letter-spacing: .05em; }
 .pill.small { font: var(--info)/1.2 var(--uiface); text-transform: uppercase; letter-spacing: .05em; }
@@ -196,9 +198,9 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 /* one stem, today at the top. Columns: year | node on the stem | font cards. Cards: Font Book's 'Aa' and the name, outlined like the preview box */
 #tl { --yw: 64px; --nw: 48px; }
 .decs { position: sticky; top: var(--navh); z-index: 31; background: var(--paper); display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0 14px; border-bottom: var(--line) solid var(--rule); }
-.dc { padding: 5px 10px 2px 14px; border-radius: 999px; font: var(--info)/1.2 var(--uiface); letter-spacing: .05em; color: var(--ink); text-decoration: none; box-shadow: inset 0 0 0 calc(var(--info) * .105) currentColor; }   /* as the small tags: outlined, never filled */
-.dc.off { color: color-mix(in oklab, var(--ink) 30%, transparent); }
-@media (hover: hover) { a.dc:hover { color: var(--hot); } }
+.dc { padding: 5px 10px 2px 14px; border-radius: 999px; font: var(--info)/1.2 var(--uiface); letter-spacing: .05em; color: var(--ink-3); text-decoration: none; box-shadow: inset 0 0 0 calc(var(--info) * .105) currentColor; }   /* as the small pills (Clear): faint outline, never filled */
+.dc.off { opacity: .4; }
+@media (hover: hover) { a.dc:hover { color: var(--ink); } }
 .decs .brk { width: 16px; }
 .decs::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none; opacity: 0; transition: opacity .2s;
   background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }   /* the strip sits over the top bar's fade and carries it */
@@ -209,7 +211,9 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .yr { display: grid; grid-template-columns: var(--yw) var(--nw) minmax(0, 1fr); align-items: start; padding: var(--st) 0; scroll-margin-top: calc(var(--navh) + var(--decsh, 0px) + 16px); }
 .yl { margin: 0; font: 400 var(--ui)/var(--lh) var(--uiface); text-align: right; }
 .node { justify-self: center; width: 15px; height: 15px; margin-top: calc((var(--ui) * var(--lh) - 15px) / 2); border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 var(--line) var(--ink); position: relative; }
-.yb { display: grid; gap: 16px; }
+.yb { display: grid; gap: 32px; }
+.ng { display: grid; gap: 12px; }
+.note { margin: 0; font: var(--list)/1.3 var(--text); color: var(--ink-2); max-width: 34em; }
 .fcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 12px; }
 .fc { aspect-ratio: 1; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; justify-items: center; align-items: center; padding: 0 12px 12px; border-radius: 17px; box-shadow: inset 0 0 0 var(--line) var(--rule); color: var(--ink); text-decoration: none; }
 .fc .aa { font-size: 72px; line-height: 1; white-space: nowrap; opacity: .3; transition: opacity .3s; }
@@ -217,6 +221,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .fc .nm { font: var(--info)/1.2 var(--uiface); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (hover: hover) { .fc:hover { box-shadow: inset 0 0 0 var(--line) var(--ink); } }
 .dgn { margin: 0; font: var(--info)/var(--lh) var(--uiface); padding-top: calc((var(--ui) - var(--info)) / 2); }   /* centred on the year's line */
+.yb > .ng:first-child .note { padding-top: calc((var(--ui) * var(--lh) - var(--list) * 1.3) / 2); }   /* a note that opens a year sits on the year's line */
 
 /* ── font page: the coloured sheet ───────────────────────────────────── */
 .font { --bg: var(--paper); --fg: var(--ink); }
@@ -462,6 +467,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lrow .meta, .kicker, .fcount .info, .pic figcaption, .now, .fc .nm, .dgn {
   text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); opacity: 1;
 }
+.vmode .pill.small.on { background: none; color: var(--ink); }   /* the active view: full strength, never filled */
 /* vertical labels are the same small caps text as everywhere else, just turned */
 .blk.on .vl { color: var(--ink-3); }
 .foot a { color: inherit; }

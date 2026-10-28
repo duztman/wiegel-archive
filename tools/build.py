@@ -632,6 +632,7 @@ def write_catalog_js(cat):
             "tg": f.get("tags", []), "pal": f["pal"], **({"xf": extra_families(f)} if extra_families(f) else {}),
             **({"set": set_count(f), "mn": " ".join(x["name"] for _, x in members_of(f))} if members_of(f) else {}),
             **({"fo": 1} if figures_only(f) else {}),
+            **({"aa": aa(f)} if aa(f) != "Aa" else {}),   # what its card shows
         })
     js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in USE_PAL.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
@@ -647,7 +648,7 @@ def index_html(cat, sprite):
   <section class="homelist" aria-label="Typefaces"><p class="fcount"><span class="info" id="count" aria-live="polite"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p><div id="grid" class="grid list"></div>
   <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
-    <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Preview text" aria-label="Type text to set every name"></textarea>
+    <div class="sidehead"><p class="fcount vmode" role="group" aria-label="View"><button type="button" class="pill small" data-v="cards" aria-pressed="false">Cards</button><button type="button" class="pill small on" data-v="preview" aria-pressed="true">Preview</button></p><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Preview text" aria-label="Type text to set every name"></textarea>
     <div class="picked" id="picked" aria-label="Selected filters"></div></div>
     <details id="fdet" open><summary class="fsum">Filters <svg class="ca pm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/><path d="M5.6 10H14.4" vector-effect="non-scaling-stroke"/><path class="v" d="M10 5.6V14.4" vector-effect="non-scaling-stroke"/></svg></summary>
     <div id="fside"></div>
@@ -671,27 +672,34 @@ def aa(f):
 
 def timeline_html(cat, sprite):
     """One stem, today at the top and the past below. A year appears only where something happened. Each font is a card
-    (its own 'Aa' and its name, like Font Book); what happened is the card's title, not shown. The only text is the count
-    of Wiegel's digitisations that year, above their cards. The decade strip on top jumps to the first year of a decade."""
+    (its own 'Aa' and its name, like Font Book). A note (what happened) heads the cards it applies to; fonts sharing a note
+    share it. Wiegel's plain digitisations follow as a bulk of cards, headed "Wiegel digitised N fonts" only in a year with
+    no notes. The decade strip on top jumps to the first year of a decade."""
     def face_src(f):
         face = f["faces"][0] if f.get("faces") else None
         return ("assets/fonts/" + f["slug"] + "/" + (face.get("web") or os.path.basename(face["path"]))) if face else ""
-    def card(f, what):
-        return (f'<a class="fc" href="{flink(f["slug"])}" title="{ESC(f["name"] + " · " + what)}">'
+    def card(f):
+        return (f'<a class="fc" href="{flink(f["slug"])}" title="{ESC(f["name"])}">'
                 f'<span class="aa" data-src="{face_src(f)}">{ESC(aa(f))}</span><span class="nm">{ESC(f["name"])}</span></a>')
-    ev = collections.defaultdict(lambda: collections.defaultdict(list))
+    cards = lambda fs: f'<div class="fcs">{"".join(card(f) for f in sorted(fs, key=lambda f: f["name"].lower()))}</div>'
+    order = {"type": 0, "world": 1, "digital": 2}
+    notes, bulk = collections.defaultdict(dict), collections.defaultdict(list)   # year -> {note: [fonts]} in lane order; year -> [fonts]
     for f in cat["fonts"]:
         for e in f["events"]:
-            ev[e["y"]][e["lane"]].append((f, e["what"]))
-    years = sorted(ev, reverse=True)
+            if e.get("auto"):
+                bulk[e["y"]].append(f)
+    for e, f in sorted(((e, f) for f in cat["fonts"] for e in f["events"] if not e.get("auto")), key=lambda t: (order[t[0]["lane"]], t[1]["name"].lower())):
+        fs = notes[e["y"]].setdefault(e["what"], [])
+        if f not in fs:
+            fs.append(f)
+    years = sorted(set(notes) | set(bulk), reverse=True)
     rows = []
     for y in years:
-        named = sorted(ev[y]["type"] + ev[y]["world"], key=lambda t: t[0]["name"].lower())
-        dg = sorted(ev[y]["digital"], key=lambda t: t[0]["name"].lower())
-        body = f'<div class="fcs">{"".join(card(f, w) for f, w in named)}</div>' if named else ""
-        if dg:
-            body += (f'<p class="dgn">Wiegel digitised <span class="tnum">{len(dg)}</span> font{"s" if len(dg) > 1 else ""}</p>'
-                     f'<div class="fcs">{"".join(card(f, w) for f, w in dg)}</div>')
+        body = "".join(f'<div class="ng"><p class="note">{ESC(w[:1].upper() + w[1:])}</p>{cards(fs)}</div>' for w, fs in notes[y].items())
+        if bulk[y]:
+            n = len(bulk[y])
+            head = "" if notes[y] else f'<p class="dgn">Wiegel digitised <span class="tnum">{n}</span> font{"s" if n > 1 else ""}</p>'
+            body += f'<div class="ng">{head}{cards(bulk[y])}</div>'
         rows.append(f'<section class="yr" id="y{y}"><h2 class="yl tnum">{y}</h2><i class="node"></i><div class="yb">{body}</div></section>')
     first = {}
     for y in years:
@@ -700,9 +708,6 @@ def timeline_html(cat, sprite):
     dec = lambda d: (f'<a class="dc tnum" href="#y{first[d]}">{d}s</a>' if d in first else f'<span class="dc off tnum">{d}s</span>')
     strip = "".join(dec(d) for d in range(top, 1790, -10)) + '<i class="brk"></i>' + "".join(dec(d) for d in sorted((d for d in first if d < 1800), reverse=True))
     body = f"""
-<section class="intro">
-  <p class="lead">What happened, and when: the letters being cut, cast or drawn, the buildings, signs and lives around them, and Wiegel’s digitisations. Today at the top, the past below; a year appears only where something happened.</p>
-</section>
 <div id="tl">
   <nav class="decs" aria-label="Decades">{strip}</nav>
   <div class="stem"><p class="now">Today</p>{"".join(rows)}</div>

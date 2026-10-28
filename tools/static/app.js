@@ -214,6 +214,12 @@
       return a;
     });
     rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
+    /* the same fonts as cards (as on the timeline): their own 'Aa' and the name; made on first use */
+    const card = (r) => { if (r._card) return r._card; const f = r._font, a = document.createElement("a");
+      a.className = "fc"; a.href = flink(f.s); a.title = f.n; a._row = r;
+      a.innerHTML = `<span class="aa" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.aa || "Aa")}</span><span class="nm">${esc(f.n)}</span>`;
+      lazy.observe(a.firstChild); return (r._card = a); };
+    let view = store.get("wa-view") === "cards" ? "cards" : "preview";
 
     const pill = (label, n, on, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "pill" + (on ? " on" : "");
       if (n === 0 && !on) { b.classList.add("zero"); b.disabled = true; }
@@ -249,9 +255,12 @@
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
-      const changed = grid.children.length !== list.length || grid.firstElementChild !== list[0];
-      const same = !changed && list.every((r, i) => grid.children[i] === r);
-      if (!same) grid.replaceChildren(...list);   // same rows in the same order: leave the list alone
+      const shown = [...grid.children].map((el) => el._row || el);
+      const changed = shown.length !== list.length || shown[0] !== list[0];
+      const same = !changed && list.every((r, i) => shown[i] === r);
+      const els = view === "cards" ? list.map(card) : list;
+      if (!same || grid.firstElementChild !== els[0]) grid.replaceChildren(...els);   // same rows in the same order and view: leave the list alone
+      grid.className = view === "cards" ? "grid fcs" : "grid list";
       if (changed) {   // a new result set starts at its top, never inside empty space left by the old one
         const sc = grid.closest(".homelist");
         if (sc && sc.scrollHeight > sc.clientHeight) sc.scrollTop = 0;
@@ -268,6 +277,12 @@
     const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
     const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
     let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._font.n)); }, 120); };
+    /* Cards / Preview: in cards the preview box goes */
+    const vbs = $$(".vmode .pill");
+    const setView = (v) => { view = v; store.set("wa-view", v); rt.hidden = v === "cards";
+      vbs.forEach((b) => { const on = b.dataset.v === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }); };
+    vbs.forEach((b) => (b.onclick = () => { if (b.dataset.v !== view) { setView(b.dataset.v); apply(); } }));
+    setView(view);
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
     /* the rule above the first filter group sits on the rule above the second font in the list */
@@ -281,7 +296,7 @@
     const ro = new ResizeObserver(alignSide);
     const watch = () => { ro.disconnect(); [grid.children[0], rt].forEach((el) => el && ro.observe(el)); alignSide(); };
     new MutationObserver(watch).observe(grid, { childList: true });
-    watch(); addEventListener("resize", alignSide);
+    let rq; watch(); addEventListener("resize", () => { alignSide(); cancelAnimationFrame(rq); rq = requestAnimationFrame(() => $$(".aa.ok", grid).forEach(fitAa)); });
     const side = $(".homegrid .side"); side?.addEventListener("scroll", () => side.classList.toggle("scrolled", side.scrollTop > 0), { passive: true });
   }
 
