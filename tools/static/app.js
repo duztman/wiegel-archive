@@ -17,6 +17,17 @@
   const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0);
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
+  /* top-bar search: Enter searches the index (here, or by going there with the query) */
+  const ns = $(".nsearch");
+  ns?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = $("#nq").value.trim(), side = $("#q");
+    if (side) { side.value = q; side.dispatchEvent(new Event("input")); return; }
+    let st = {}; try { st = JSON.parse(store.get("wa-index2") || "{}"); } catch {}
+    store.set("wa-index2", JSON.stringify({ ...st, sel: {}, q }));
+    location.href = R + "index.html";
+  });
+
   /* colour modes: Random (one pair of Wiegel's colours for the whole page) or Mono (black/white + one accent) */
   function markModes() { $$(".mode").forEach((b) => b.classList.toggle("on", b.dataset.m === document.documentElement.dataset.mode)); }
   $$(".mode").forEach((b) => (b.onclick = () => {

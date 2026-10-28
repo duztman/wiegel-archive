@@ -475,7 +475,7 @@ def icon(code, size=24):
 NAVPAL = {"home": ("#00A3EA", "#000080"), "timeline": ("#FDFA00", "#D40051"), "catalogue": ("#05872C", "#FFFFFF"),
           "legend": ("#687F12", "#FFFF80"), "about": ("#D3BFA4", "#800025"), "images": ("#7C00AD", "#FFFF80"), "fontpage": ("#00A3EA", "#000080")}
 NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html"), ("images", "Images", "images.html"), ("catalogue", "Catalogue", "catalogue.html"),
-       ("legend", "Legend", "legend.html"), ("about", "About", "about.html")]
+       ("about", "About", "about.html")]
 
 
 THEME_JS = """(function(){var P=%s,A={dark:["#00A3EA","#FDFA00","#E20084","#2FB35A","#FF3D7F","#B04CFF"],light:["#0079B8","#E20084","#05872C","#D40051","#7C00AD"]},r=document.documentElement,m;
@@ -500,7 +500,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<span class="modes"><button class="mode" type="button" data-m="random" title="Colours: a random pair of Wiegel's colours on every page" aria-label="Random colours">R</button><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><button class="mode" type="button" data-m="random" title="Colours: a random pair of Wiegel's colours on every page" aria-label="Random colours">R</button><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
 <nav class="nav2" id="subnav" aria-label="This font"></nav>
 </header>
 <main>{body}
@@ -808,11 +808,16 @@ def font_html(f, by, sprite, up="../", fragment=False):
     return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index", f["pal"])
 
 
-def legend_html(sprite):
+def legend_block():
     items = "".join(f'<li>{icon(c, 48)}<div><h3>{ESC(l)}</h3><p>{ESC(d)}</p></div></li>' for c, (_, l, d) in ICONS.items())
-    body = f"""<section class="intro"><p class="lead">Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn as line chips in the page’s own colour, at the one line thickness, with the mark cut from the archive’s own type and centred on its ink.</p></section>
+    return f"""<section class="prose" id="legend"><h2>Legend</h2>
+<p>Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn as line chips in the page’s own colour, at the one line thickness, with the mark cut from the archive’s own type and centred on its ink.</p></section>
 <ul class="legend">{items}</ul>"""
-    return page("Legend — Wiegel Archive", body, 0, sprite, "legend", "legend")
+
+
+def legend_html(sprite):
+    """the legend now lives on the About page; this keeps old links working"""
+    return '<!doctype html><meta charset="utf-8"><title>Legend — Wiegel Archive</title><meta http-equiv="refresh" content="0;url=about.html#legend"><a href="about.html#legend">Legend</a>'
 
 
 def about_html(cat, sprite):
@@ -833,7 +838,8 @@ def about_html(cat, sprite):
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
 <p>Interface in Wiegel’s Preussische IV 44, the 1880s Prussian railway lettering that DIN 1451 grew out of, at a single size; block labels in his DIN 1451 alte Mittelschrift; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
-</section>"""
+</section>
+{legend_block()}"""
     return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
 
 
