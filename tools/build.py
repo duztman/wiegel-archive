@@ -392,33 +392,30 @@ def icon_svgs(cat):
 
 # ── data derived for v3 ───────────────────────────────────────────────────────────
 # Wiegel's own colours, sampled from peter-wiegel.de (CSS + button/banner images)
+# light paper / dark ink, light first; ordered by the light's hue, yellow to pinks. One light per pair, none repeated.
+# From Wiegel's site: starburst yellow, pale yellow, specimen tan, banner sky, navy, oxblood, UNZ indigo, button violet;
+# the other lights and darks are shades of those, chosen so no ground fights his download green (all ≥ 1.6 : 1 against it).
 PALETTE = collections.OrderedDict([
-    ("sky",     ("#00A3EA", "#000080", "Banner sky / link navy")),
-    ("sun",     ("#FDFA00", "#D40051", "Starburst yellow / crimson")),
-    ("olive",   ("#687F12", "#FFFF80", "Active button olive / pale yellow")),
-    ("violet",  ("#7C00AD", "#FFFF80", "Button violet / pale yellow")),
-    ("magenta", ("#E20084", "#FFFFFF", "Focus magenta / white")),
-    ("green",   ("#05872C", "#FFFFFF", "Download green / white")),
-    ("indigo",  ("#3B2A98", "#FFFF80", "UNZ indigo / pale yellow")),
-    ("tan",     ("#D3BFA4", "#800025", "Specimen paper / oxblood")),
-    ("navy",    ("#000080", "#FFFF80", "Navy / pale yellow")),
-    ("oxblood", ("#800025", "#D3BFA4", "Oxblood / paper")),
-    ("crimson", ("#D40051", "#FFFF80", "Crimson / pale yellow")),
-    ("pale",    ("#FFFF80", "#000080", "Pale yellow / navy")),
+    ("sun",      ("#FDFA00", "#5C2A00", "Starburst yellow / umber")),
+    ("pale",     ("#FFFF80", "#000080", "Pale yellow / navy")),
+    ("tan",      ("#D3BFA4", "#800025", "Specimen paper / oxblood")),
+    ("sky",      ("#00A3EA", "#002A4D", "Banner sky / deep sea")),
+    ("lavender", ("#CFC8F5", "#3B2A98", "Lavender / UNZ indigo")),
+    ("lilac",    ("#E5C7FA", "#7C00AD", "Lilac / button violet")),
+    ("rose",     ("#FF9EC4", "#2A0A3D", "Rose / aubergine")),
+    ("blush",    ("#FFD1DC", "#5A0038", "Blush / plum")),
 ])
-# grounds that clash with Wiegel's download green (#05872C), which the feature chips keep:
-# contrast ≤ 1.15 : 1 — green itself, olive, and the complementary magenta and crimson
-NO_GREEN = {"green", "olive", "magenta", "crimson"}
-USE_PAL = collections.OrderedDict((k, v) for k, v in PALETTE.items() if k not in NO_GREEN)
+NO_GREEN = set()
+USE_PAL = PALETTE
 FAM_PAL = {
-    "Blackletter": ["tan", "oxblood", "navy", "pale"],
-    "Handwriting": ["pale", "sky", "indigo"],
-    "Norm & Sans": ["sun", "sky", "navy"],
-    "Serif":       ["oxblood", "tan", "pale"],
-    "Display":     ["violet", "sun", "sky", "indigo"],
-    "Technical":   ["sun", "navy", "pale"],
-    "Symbols":     ["violet", "sky", "indigo"],
-    "Other":       ["indigo", "tan", "sky"],
+    "Blackletter": ["tan", "pale", "blush"],
+    "Handwriting": ["pale", "sky", "lavender"],
+    "Norm & Sans": ["sun", "sky", "pale"],
+    "Serif":       ["tan", "pale", "blush"],
+    "Display":     ["lilac", "sun", "sky", "rose"],
+    "Technical":   ["sun", "pale", "sky"],
+    "Symbols":     ["lilac", "lavender", "rose"],
+    "Other":       ["lavender", "tan", "rose"],
 }
 TEXT_FAMS = {"Blackletter", "Handwriting", "Norm & Sans", "Serif", "Technical"}
 LANES = [("type", "Type"), ("digital", "Digitised"), ("world", "Elsewhere")]
@@ -494,15 +491,16 @@ NAV = [("index", "Index", "index.html"), ("timeline", "Timeline", "timeline.html
 THEME_JS = """(function(){var P=%s,A={dark:["#00A3EA","#FDFA00","#E20084","#2FB35A","#FF3D7F","#B04CFF"],light:["#0079B8","#E20084","#05872C","#D40051","#7C00AD"]},r=document.documentElement,m;
 try{m=localStorage.getItem("wa-mode")}catch(e){}r.dataset.mode=m=(m==="mono"?"mono":"random");
 var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
+try{window.WA_INV=localStorage.getItem("wa-inv")==="1"}catch(e){}if(window.WA_INV)r.classList.add("inv");
 window.WA_PAL=P;window.WA_theme=function(pair){var s=r.style;
  if(!pair&&r.dataset.mode==="random"){var c=s.getPropertyValue("--paper"),L=Object.values(P).filter(function(x){return x[0]!==c});pair=pick(L.length?L:Object.values(P))}
- if(pair){s.setProperty("--paper",pair[0]);s.setProperty("--ink",pair[1]);s.setProperty("--hot",pair[1]);r.dataset.on="pair"}
+ if(pair){window.WA_CUR=pair;var a=pair[0],b=pair[1];if(window.WA_INV){a=pair[1];b=pair[0]}s.setProperty("--paper",a);s.setProperty("--ink",b);s.setProperty("--hot",b);r.dataset.on="pair"}
  else{s.removeProperty("--paper");s.removeProperty("--ink");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
 var k;try{k=localStorage.getItem("wa-pair")}catch(e){}window.WA_PICK=P[k]?k:"";
 window.WA_theme(r.dataset.mode!=="random"?null:P[k]||(window.WA_FONTPAL?P[window.WA_FONTPAL]:null))})();"""
 
 
-SWATCHES = "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
+SWATCHES = '<button type="button" class="sw cinv" id="cinv" title="Invert: dark grounds, light ink" aria-label="Invert colours">I</button>' + "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
 
 
 def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
@@ -842,7 +840,7 @@ def about_html(cat, sprite):
 <h2>This archive</h2>
 <p>{n} typefaces scraped with Apify from all three of Wiegel’s index pages. The texts are new English write-ups of each page — facts regrouped, not translations — with a link to the original and to a machine translation of it. Photos of the buildings, signs and objects are freely licensed and credited; other sightings are linked, not copied. Specimens are set live from the font files; nothing here is an image of type. Digitisation years are read from each font file’s copyright line, or its creation date when that is missing.</p>
 <h2>Colour</h2>
-<p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch. Grounds that fight his download green — the green itself, olive, magenta and crimson — are left out, so the feature chips always read.</p>
+<p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch. Each pair is set light paper on dark ink, with no light repeated; I in the colour picker inverts them all. His green, olive, magenta and crimson grounds are left out because they fight the download green of the feature chips; the lights and darks that are not on his site are shades of his colours.</p>
 <ul class="pal">{sw}</ul>
 <h2>Method</h2>
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>

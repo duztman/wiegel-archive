@@ -36,7 +36,8 @@
     const pick = root.dataset.mode === "random" ? window.WA_PICK : "";
     cbtn?.classList.toggle("on", !!pick);
     $$(".mode[data-m=mono]").forEach((b) => b.classList.toggle("on", root.dataset.mode === "mono"));
-    $$("#cpanel .sw").forEach((s) => s.classList.toggle("on", s.dataset.p === pick));
+    $$("#cpanel .sw[data-p]").forEach((s) => s.classList.toggle("on", s.dataset.p === pick));
+    $("#cinv")?.classList.toggle("on", !!window.WA_INV);
   }
   function applyColour() {
     const art = $("article.font");
@@ -52,17 +53,25 @@
       const items = [...cbtn.closest(".nav1").children].filter((el) => !el.contains(cbtn) && !el.classList.contains("home")).reverse();
       let left = right;
       for (const el of items) { const r = el.getBoundingClientRect(); left = r.left; if (r.left <= need && el.matches(".nsearch, a, form")) break; }
-      cpanel.style.minWidth = Math.ceil(right - Math.min(left, need)) + "px";
+      const W = Math.ceil(right - Math.min(left, need)), cw = cbtn.offsetWidth, sws = $$(".sw", cpanel), n = sws.length;
+      const g = Math.max(4, (W - cw - n * sws[0].offsetWidth) / (n + 1));   // the same gap before, between and after
+      cpanel.style.minWidth = W + "px"; cpanel.style.gap = g + "px"; cpanel.style.paddingLeft = g + "px"; cpanel.style.paddingRight = cw + g + "px";
     }
     cpanel.hidden = !on; cbtn.setAttribute("aria-expanded", on); cbtn.closest(".cpick").classList.toggle("open", on); };
   cbtn?.addEventListener("click", () => openPanel(cpanel.hidden));
-  $$("#cpanel .sw").forEach((s) => (s.onclick = () => {
+  $$("#cpanel .sw[data-p]").forEach((s) => (s.onclick = () => {
     const k = s.dataset.p, same = root.dataset.mode === "random" && window.WA_PICK === k;
     window.WA_PICK = same ? "" : k;
     try { same ? localStorage.removeItem("wa-pair") : localStorage.setItem("wa-pair", k); } catch {}
     root.dataset.mode = "random"; store.set("wa-mode", "random", true);
     applyColour();
   }));
+  $("#cinv")?.addEventListener("click", () => {   // I: every pair turns dark paper / light ink, the swatches too
+    window.WA_INV = !window.WA_INV; root.classList.toggle("inv", window.WA_INV);
+    try { localStorage.setItem("wa-inv", window.WA_INV ? "1" : "0"); } catch {}
+    if (root.dataset.mode === "random" && window.WA_CUR) window.WA_theme(window.WA_CUR);
+    markModes(); redrawAll();
+  });
   document.addEventListener("click", (e) => { if (cpanel && !cpanel.hidden && !e.target.closest(".cpick")) openPanel(false); });
   $$(".mode[data-m=mono]").forEach((b) => (b.onclick = () => {
     const again = root.dataset.mode === "mono";
@@ -441,7 +450,7 @@
     const shift = (pt + L + pb) / 2 - (baseline - ink.cy * size);   // + moves the text down
     const dy = Math.max(-pt, Math.min(pb, shift));
     el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
-    if (el.classList.contains("mode")) el.style.textIndent = 2 * (ink.adv / 2 - ink.cx) * size + "px";   // circles: centre sideways too
+    if (el.classList.contains("mode") || el.classList.contains("cinv")) el.style.textIndent = 2 * (ink.adv / 2 - ink.cx) * size + "px";   // circles: centre sideways too
   }
   let inkQ = 0;
   const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };

@@ -303,8 +303,12 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
 .cpanel[hidden] { display: none; }
 .top .cpick.open .cbtn { box-shadow: none; }   /* the pill's outline is C's outline now */
-.top .sw { width: calc(1lh - 6px); height: calc(1lh - 6px); flex: none; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+.top .sw { --swd: calc(var(--ui) * var(--lh) - 6px); width: var(--swd); height: var(--swd); flex: none; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
   background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
+.cpanel { justify-content: flex-start; }
+.inv .top .sw[data-p], .inv .top .sw[data-p].on, .inv .top .sw[data-p]:hover { background: linear-gradient(135deg, var(--f) 0 50%, var(--b) 50% 100%); }   /* inverted: dark on top */
+.top .sw.cinv { background: none; color: var(--navfg); display: block; font-size: calc(var(--swd) * .75); line-height: 1; padding: calc(var(--swd) * .125) 0; text-align: center; }   /* same size as a swatch; label ink-centred by script */
+.top .sw.cinv.on, .top .sw.cinv:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; }
 .top .sw.on, .top .sw:hover { background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 
 /* ── sections: label column + body ────────────────────────────────────── */
