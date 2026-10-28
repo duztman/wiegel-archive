@@ -1150,13 +1150,27 @@ def ui_font_css(by):
         src = "fonts/" + UI_MONO + "/" + os.path.basename(x["path"])
         UIFONTS.append({"family": "WA Mono", "src": "assets/" + src, "weight": 400, "italic": False})
         css.append(f'@font-face{{font-family:"WA Mono";src:url("{src}");font-display:swap}}')
-    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI")):
-        f = by.get(slug)
-        for x in (f or {}).get("faces", []):
-            src = "fonts/" + slug + "/" + os.path.basename(x["path"])
-            UIFONTS.append({"family": fam, "src": "assets/" + src, "weight": x["weight"], "italic": x["italic"]})
-            css.append(f'@font-face{{font-family:"{fam}";src:url("{src}");font-weight:{x["weight"]};font-style:{"italic" if x["italic"] else "normal"};font-display:swap}}')
+    for x in ui_faces(by, os.path.join(SITE, "assets")):
+        UIFONTS.append(x)
+        src = x["src"][len("assets/"):]
+        css.append(f'@font-face{{font-family:"{x["family"]}";src:url("{src}");font-weight:{x["weight"]};font-style:{"italic" if x["italic"] else "normal"};font-display:swap}}')
     return "\n".join(css)
+
+
+def ui_faces(by, assets):
+    """WA UI and WA Text: the site's own copies of Preussische IV 44 and Proletarsk (kerned, Turkish added; see
+    tools/uifonts.py), written to assets/fonts/ui/. The specimen pages and downloads keep Wiegel's originals."""
+    import uifonts
+    srcs = {}
+    for slug in (UI_DISPLAY, UI_TEXT):
+        faces = (by.get(slug) or {}).get("faces", [])
+        if faces and os.path.exists(os.path.join(ROOT, faces[0]["path"])):
+            srcs[slug] = os.path.join(ROOT, faces[0]["path"])
+        else:
+            log(f"ui fonts: {slug} has no font file here; WA {'UI' if slug == UI_DISPLAY else 'Text'} falls back to the system face")
+    made = uifonts.make(srcs, os.path.join(assets, "fonts", "ui"))
+    return [{"family": fam, "src": "assets/fonts/ui/" + os.path.basename(path), "weight": 400, "italic": False}
+            for fam, (path, n) in sorted(made.items(), key=lambda kv: kv[0] != "WA Text")]   # WA Text first, as before
 
 
 def load_files(cat):

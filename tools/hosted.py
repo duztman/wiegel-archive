@@ -116,11 +116,7 @@ def main():
     # UI font list for the pages (as build.ui_font_css would collect)
     B.UIFONTS.clear()
     real_by = {f["slug"]: f for f in cat["fonts"]}
-    for slug, fam in ((B.UI_TEXT, "WA Text"), (B.UI_DISPLAY, "WA UI")):
-        for name in sorted(os.listdir(os.path.join(OUT, "assets/fonts", slug))):
-            B.UIFONTS.append({"family": fam, "src": f"assets/fonts/{slug}/{name}",
-                              "weight": 700 if re.search(r"(bold|fett|_g\b|-b\b)", name, re.I) else 400,
-                              "italic": bool(re.search(r"(italic|kursiv)", name, re.I))})
+    B.UIFONTS.extend(B.ui_faces(real_by, os.path.join(OUT, "assets")))   # the site's own kerned copies (tools/uifonts.py)
 
     mono = B.mono_face(real_by)   # Erika Type Bold for the glyph codes, as woff2
     if mono:

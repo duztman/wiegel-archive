@@ -546,6 +546,7 @@
     inkCache.set(k, r); return r;
   }
   const NUDGE = 2;   // px: labels sit 2px right of their computed centre
+  const CENTRED = 0.05;   // em: WA UI's letters now carry half their old right sidebearing on the left (tools/uifonts.py centre(): Wiegel set them flush left, ~0.1em all on the right), so their ink sits this much further right; word labels take it back from NUDGE and stay where Okay tuned them
   const RASTER = 0.029;   // measured: rendered glyphs sit 0.029em lower than canvas metrics place them (8× screenshots of C, M and the nav pills)
   const PILLS = ".pill:not(.small), .top a:not(.home), .top button, .top .crumb, .pnav a";
   function inkCenter(el) {
@@ -564,7 +565,7 @@
     const dy = Math.max(-pt, Math.min(pb, shift));
     el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
     // sideways: circles centre their letter's ink box; every label then sits NUDGE px right (tuned by eye on Okay's iPad)
-    const sx = (circle ? (ink.adv / 2 - cx) * size : 0) + NUDGE, [, , pl, pr] = el._pad;
+    const sx = circle ? (ink.adv / 2 - cx) * size + NUDGE : NUDGE - CENTRED * size, [, , pl, pr] = el._pad;
     if (circle) { el.style.paddingLeft = Math.max(0, 2 * sx) + "px"; el.style.paddingRight = Math.max(0, -2 * sx) + "px"; }   // asymmetric padding, not text-indent: Safari centres an indented line differently
     else { el.style.paddingLeft = pl + sx + "px"; el.style.paddingRight = Math.max(0, pr - sx) + "px"; }
   }
