@@ -732,7 +732,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
                  f'<span class="sub">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{ESC(ph.get("page",""))}">source</a></span></figcaption></figure>')
     found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" — " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
     related = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x["t"])}</a></li>' for x in f.get("related", []))
-    maps = f'<p><a class="t" href="{ESC(f["maps"])}">Open in Google Maps ↗</a></p>' if f.get("maps") else ""
+    maps = f'<p><a class="t" href="{ESC(f["maps"])}">Open in Google Maps</a></p>' if f.get("maps") else ""
     prev_, next_ = by.get(f.get("prev")), by.get(f.get("next"))
     plink = lambda g: flink(g["slug"], up) if HOSTED else g["slug"] + ".html"
     meta_rows = [("Number", nofmt(f["no"])), ("Family", f["family"]), ("Genre", f["genre"]), ("Original", str(f["oy"]) if f.get("oy") else None),
@@ -783,7 +783,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
   </header>
 </div>
 {sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
-{sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{ESC(f["translate"])}">Read Wiegel’s original in English ↗</a> <a class="t" href="{ESC(f["url"])}">Original German page ↗</a></p>', "account")}
+{sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{ESC(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{ESC(f["url"])}">Original German page</a></p>', "account")}
 {sec("Facts", f'<dl class="facts">{meta}</dl>' + (f'<div class="tags">{tags}</div>' if tags else ''))}
 {sec("Place", photo + f'<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div>', "place") if has_place else ""}
 {sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}

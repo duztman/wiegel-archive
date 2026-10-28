@@ -41,7 +41,7 @@
 html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; scroll-padding-top: calc(var(--navh) + 24px); }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 400 var(--ui)/var(--lh) var(--uiface); font-kerning: normal; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; text-decoration-thickness: .105em; text-underline-offset: 0.18em; }
+a:hover { text-decoration: none; }   /* no underlines anywhere; links out carry the circled arrow */
 .tnum { font-variant-numeric: tabular-nums lining-nums; }
 .sub { color: var(--ink-3); }
 h1, h2, h3 { font: inherit; margin: 0; }
@@ -67,7 +67,7 @@ em { font-style: normal; color: var(--hot); }
 .top .on, .top .cur { background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 .top .home { background: none; color: var(--navfg); padding-left: 0; margin-right: 8px; }
 .top a:hover, .pnav a:hover, a.pill:hover { text-decoration: none; }   /* buttons never underline */
-.top .home:hover { box-shadow: none; text-decoration: underline; text-decoration-thickness: .105em; }
+.top .home:hover { box-shadow: none; }
 .top .modes { margin-left: auto; display: flex; gap: 8px; }
 .top .mode { width: calc(1lh + 3px); padding-inline: 0; text-align: center; }   /* circles: one line plus the pill's 2px + 1px vertical padding */
 .pnav { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 0 0; } /* rule→pill as in the nav rows; the first block's own padding sets pill→ink like rule→ink below */
@@ -87,7 +87,7 @@ em { font-style: normal; color: var(--hot); }
 
 main { padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--gut), env(safe-area-inset-left, 0px)); min-width: 0; }
 .foot { padding: var(--sbt) 0 var(--gut); color: var(--ink-3); max-width: 46em; font: var(--info)/1.4 var(--uiface); }
-.foot a { text-decoration: underline; text-decoration-thickness: .105em; }
+.foot a { text-decoration: none; }
 
 /* text button: the only control style */
 .t { display: inline-flex; align-items: baseline; gap: 8px; padding: 0; border: 0; background: none; color: var(--ink-3); cursor: pointer; white-space: nowrap; }
@@ -325,7 +325,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .acc-wrap { font: 400 var(--read)/1.42 var(--text); max-width: 34em; }
 .acc-wrap .acc + .acc h3 { margin-top: 24px; }
 .orig { display: flex; flex-wrap: wrap; gap: 8px 32px; margin-top: 24px; }
-.orig .t, .sb p > .t { color: var(--ink); text-decoration: underline; text-decoration-thickness: .105em; text-underline-offset: .18em; }
+.orig .t, .sb p > .t { color: var(--ink); text-decoration: none; }
 
 /* facts as compact cards; other lined lists keep a small label on the rule and the value below */
 .facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 24px; }
@@ -342,7 +342,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .photo figcaption { display: grid; gap: 4px; padding-top: var(--pt); font: var(--list)/1.3 var(--text); }
 .photo figcaption .sub { font: var(--info)/1.2 var(--uiface); }
 .links, .dl { list-style: none; padding: 0; margin: 0 0 24px; }
-.links a, .dl a { font: var(--list)/1.3 var(--text); text-decoration: underline; text-decoration-thickness: var(--tstem, .08em); text-underline-offset: .18em; overflow-wrap: anywhere; }
+.links a, .dl a { font: var(--list)/1.3 var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .links .sub, .dl .sub { font: var(--info)/1.2 var(--uiface); order: -1; }
 .placecol p { margin: 0 0 24px; }
 
@@ -462,3 +462,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .vl { font-family: var(--din); }
 .blk.on .vl { color: var(--ink-3); }
 .foot a { color: inherit; }
+
+/* links out end in a circled arrow drawn at the one line thickness: icon .8 × UI size, stroke .105 × UI = --line */
+a[href^="http"]::after, .dl a::after { content: ""; display: inline-block; width: calc(var(--ui) * .8); height: calc(var(--ui) * .8); margin-left: .25em; vertical-align: middle;
+  background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='13.125'%3E%3Ccircle cx='50' cy='50' r='43.4'/%3E%3Cpath d='M33 67L65 35M41 35H65V59'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='13.125'%3E%3Ccircle cx='50' cy='50' r='43.4'/%3E%3Cpath d='M33 67L65 35M41 35H65V59'/%3E%3C/svg%3E") center / contain no-repeat; }
+.dl a:not([href^="http"])::after { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='13.125'%3E%3Ccircle cx='50' cy='50' r='43.4'/%3E%3Cpath d='M50 26V70M33 53L50 70L67 53'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='13.125'%3E%3Ccircle cx='50' cy='50' r='43.4'/%3E%3Cpath d='M50 26V70M33 53L50 70L67 53'/%3E%3C/svg%3E"); }
+.foot a[href^="http"]::after { width: 1.1em; height: 1.1em; }
+.t[href^="http"]::after { margin-left: 0; align-self: center; }   /* .t is a flex row: its 8px gap is the space */
