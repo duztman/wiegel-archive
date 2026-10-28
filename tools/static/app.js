@@ -47,18 +47,30 @@
     markModes(); redrawAll();
   }
   const openPanel = (on) => { if (!cpanel) return;
+    const pick = cbtn.closest(".cpick"), cw = cbtn.offsetWidth;
+    clearTimeout(cpanel._t);
     if (on) {   // the pill reaches past the search; if its swatches need more room it covers whole neighbours, never half of one
-      cpanel.style.minWidth = ""; cpanel.hidden = false;
-      const right = cbtn.getBoundingClientRect().right, need = right - cpanel.scrollWidth;
+      const cin = $(".cin", cpanel);
+      Object.assign(cpanel.style, { width: "", transition: "none" }); Object.assign(cin.style, { width: "", gap: "", paddingLeft: "", paddingRight: "" });
+      cpanel.hidden = false;
+      const right = cbtn.getBoundingClientRect().right, need = right - cin.scrollWidth;
       const items = [...cbtn.closest(".nav1").children].filter((el) => !el.contains(cbtn) && !el.classList.contains("home")).reverse();
       let left = right;
       for (const el of items) { const r = el.getBoundingClientRect(); left = r.left; if (r.left <= need && el.matches(".nsearch, a, form")) break; }
-      const W = Math.ceil(right - Math.min(left, need)), cw = cbtn.offsetWidth, sws = $$(".sw", cpanel), n = sws.length;
+      const W = Math.ceil(right - Math.min(left, need)), sws = $$(".sw", cpanel), n = sws.length;
       const g = Math.max(4, (W - cw - n * sws[0].offsetWidth) / (n + 1));   // the same gap before, between and after
-      cpanel.style.minWidth = W + "px"; cpanel.style.gap = g + "px"; cpanel.style.paddingLeft = g + "px"; cpanel.style.paddingRight = cw + g + "px";
+      Object.assign(cin.style, { width: W + "px", gap: g + "px", paddingLeft: g + "px", paddingRight: cw + g + "px" });
+      cpanel.style.width = cw + "px";
+      cpanel.offsetWidth;   // start closed, then grow
+      cpanel.style.transition = ""; cpanel.style.width = W + "px";
+      pick.classList.add("open");
+    } else {
+      cpanel.style.width = cw + "px"; pick.classList.remove("open");
+      cpanel._t = setTimeout(() => (cpanel.hidden = true), 480);
     }
-    cpanel.hidden = !on; cbtn.setAttribute("aria-expanded", on); cbtn.closest(".cpick").classList.toggle("open", on); };
-  cbtn?.addEventListener("click", () => openPanel(cpanel.hidden));
+    cbtn.setAttribute("aria-expanded", on);
+  };
+  cbtn?.addEventListener("click", () => openPanel(!cbtn.closest(".cpick").classList.contains("open")));
   $$("#cpanel .sw[data-p]").forEach((s) => (s.onclick = () => {
     const k = s.dataset.p, same = root.dataset.mode === "random" && window.WA_PICK === k;
     window.WA_PICK = same ? "" : k;
@@ -72,7 +84,7 @@
     if (root.dataset.mode === "random" && window.WA_CUR) window.WA_theme(window.WA_CUR);
     markModes(); redrawAll();
   });
-  document.addEventListener("click", (e) => { if (cpanel && !cpanel.hidden && !e.target.closest(".cpick")) openPanel(false); });
+  document.addEventListener("click", (e) => { if (cpanel && cbtn.closest(".cpick").classList.contains("open") && !e.target.closest(".cpick")) openPanel(false); });
   $$(".mode[data-m=mono]").forEach((b) => (b.onclick = () => {
     const again = root.dataset.mode === "mono";
     root.dataset.mode = "mono"; store.set("wa-mode", "mono", true);
@@ -423,7 +435,7 @@
   window.WA_initFont = initFont;
   initFont();
 
-  /* pill labels sit on their ink's centre of weight, not on the font's line box */
+  /* pill labels: a lone letter in a circle sits on its ink box; words sit on their cap band (baseline to cap height) */
   const inkCache = new Map(), inkCv = document.createElement("canvas"), inkCx = inkCv.getContext("2d", { willReadFrequently: true });
   function inkOf(text, font) {   // centroid of the ink in em: x from the pen start, y above the baseline; plus advance and font box
     const k = font + "|" + text;
@@ -433,7 +445,7 @@
     inkCv.width = w; inkCv.height = h; inkCx.font = `${font.replace(/[\d.]+px/, "100px")}`; inkCx.fillText(text, 20, 200);
     const d = inkCx.getImageData(0, 0, w, h).data; let sx = 0, sy = 0, sw = 0;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const a = d[(y * w + x) * 4 + 3]; if (a) { sx += a * x; sy += a * y; sw += a; } }
-    const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, bx: (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 200, by: (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
+    const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, bx: (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 200, cap: inkCx.measureText("H").actualBoundingBoxAscent / 100, by: (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
     inkCache.set(k, r); return r;
   }
   const RASTER = 0.029;   // measured: rendered glyphs sit 0.029em lower than canvas metrics place them (8× screenshots of C, M and the nav pills)
@@ -447,7 +459,7 @@
     const size = parseFloat(cs.fontSize), ink = inkOf(t, `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`);
     if (!ink || !ink.fA) return;
     const circle = el.classList.contains("mode") || el.classList.contains("cinv");   // a lone letter in a circle sits on its ink box, which reads as centred; words sit on their weight
-    const cx = circle ? ink.bx : ink.cx, cy = circle ? ink.by : ink.cy;
+    const cx = circle ? ink.bx : ink.cx, cy = circle ? ink.by : ink.cap / 2;   // words: the band from baseline to cap height sits on the pill's middle (ascenders and descenders hang out evenly)
     const [pt, pb] = el._pad, L = parseFloat(cs.lineHeight) || size * 1.2;
     const baseline = pt + (L - (ink.fA + ink.fD) * size) / 2 + ink.fA * size;
     const shift = (pt + L + pb) / 2 - (baseline - cy * size) - RASTER * size;   // + moves the text down
