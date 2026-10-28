@@ -667,7 +667,7 @@ PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich
 # the one arrow: a circle with an arrow, stroke = the one line thickness; class sets the direction (r l u d ne)
 def CA(d="r"):
     return (f'<svg class="ca {d}" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/>'
-            '<path d="M5.6 10H14M10.6 6.6L14 10L10.6 13.4" vector-effect="non-scaling-stroke"/></svg>')
+            '<path d="M5.6 10H14M9.2 5.2L14 10L9.2 14.8" vector-effect="non-scaling-stroke"/></svg>')
 # inside pills: the long arrow without a circle, same stroke
 _ARW = '<svg class="arw" viewBox="0 0 18 12" aria-hidden="true"><path d="{}" vector-effect="non-scaling-stroke"/></svg>'
 ARROW_L = _ARW.format("M17 6H1M6 1L1 6L6 11")
