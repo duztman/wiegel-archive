@@ -484,7 +484,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .foot a { color: inherit; }
 
 /* the one arrow: circle + arrow at the one line thickness; direction by class */
-.ca { width: .68em; height: .68em; flex: none; display: inline-block; vertical-align: -0.08em; margin-left: .25em; fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; overflow: visible; }
+.ca { width: .8em; height: .8em; flex: none; display: inline-block; vertical-align: -0.08em; margin-left: .25em; fill: none; stroke: currentColor; stroke-width: calc(var(--line) - 1px); stroke-linecap: butt; overflow: visible; }   /* 1px under the line weight: it is drawn small */
+.nw { white-space: nowrap; }
 .ca.l { transform: rotate(180deg); } .ca.u { transform: rotate(-90deg); } .ca.d { transform: rotate(90deg); } .ca.ne { transform: rotate(-45deg); }
 .pnav .ca, .pn .ca, .t .ca, .pill .ca { margin-left: 0; }
 .pn a .ca.l, .pnav a .ca.l { margin-right: 0; }

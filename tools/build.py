@@ -667,7 +667,7 @@ PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich
 # the one arrow: a circle with an arrow, stroke = the one line thickness; class sets the direction (r l u d ne)
 def CA(d="r"):
     return (f'<svg class="ca {d}" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/>'
-            '<path d="M5.6 10H14M9.2 5.2L14 10L9.2 14.8" vector-effect="non-scaling-stroke"/></svg>')
+            '<path d="M1.4 10H15.4M10.6 5.2L15.4 10L10.6 14.8" vector-effect="non-scaling-stroke"/></svg>')
 # inside pills: the long arrow without a circle, same stroke
 _ARW = '<svg class="arw" viewBox="0 0 18 12" aria-hidden="true"><path d="{}" vector-effect="non-scaling-stroke"/></svg>'
 ARROW_L = _ARW.format("M17 6H1M6 1L1 6L6 11")
@@ -681,6 +681,9 @@ def deco(html):
         if re.search(r'href="https?:', a): d = "ne"
         elif " download" in a or "assets/docs/" in a: d = "d"
         else: return m.group(0)
+        tail = re.match(r"(.*?)([^\s<>]+)\s*$", inner, re.S)   # the last word travels with the arrow, never leaving it alone on a line
+        if tail and 'class="t"' not in a:
+            return f'<a{a}>{tail.group(1)}<span class="nw">{tail.group(2)}{CA(d)}</span></a>'
         return f'<a{a}>{inner}{CA(d)}</a>'
     return _LINK.sub(one, html)
 
@@ -756,7 +759,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
         photo = (f'<figure class="photo"><img src="{up}assets/photos/{f["slug"]}.jpg" alt="{ESC(ph.get("caption",""))}" loading="lazy" '
                  f'onerror="this.onerror=null;this.src=\'{ESC(ph["src"])}\'"><figcaption><span>{ESC(ph.get("caption",""))}</span>'
                  f'<span class="sub">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{ESC(ph.get("page",""))}">source</a></span></figcaption></figure>')
-    found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" — " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
+    found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" · " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
     related = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x["t"])}</a></li>' for x in f.get("related", []))
     maps = f'<p><a class="t" href="{ESC(f["maps"])}">Open in Google Maps</a></p>' if f.get("maps") else ""
     prev_, next_ = by.get(f.get("prev")), by.get(f.get("next"))
