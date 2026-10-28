@@ -453,7 +453,7 @@
     const shift = (pt + L + pb) / 2 - (baseline - cy * size) - RASTER * size;   // + moves the text down
     const dy = Math.max(-pt, Math.min(pb, shift));
     el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
-    if (circle) el.style.textIndent = 2 * (ink.adv / 2 - cx) * size + "px";   // circles: centre sideways too
+    if (circle) { const sx = (ink.adv / 2 - cx) * size; el.style.paddingLeft = Math.max(0, 2 * sx) + "px"; el.style.paddingRight = Math.max(0, -2 * sx) + "px"; }   // asymmetric padding, not text-indent: Safari centres an indented line differently   // circles: centre sideways too
   }
   let inkQ = 0;
   const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };
