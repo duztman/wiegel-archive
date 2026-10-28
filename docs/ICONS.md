@@ -18,7 +18,7 @@ Wiegel marks each font with small green buttons for its character set and featur
 
 ## How a mark is made
 
-1. **Pick a font.** The pool is the UI face (Preussische IV 44), then Alte DIN 1451, then Proletarsk, then up to six archive fonts that cover Greek, Cyrillic and long s. The first one that has every character of the mark wins.
+1. **Pick a font.** The pool is the UI face (Wiegel's Preussische IV 44 file), then the site's copy of it (`WA UI`, which adds ẞ: the capital sharp s mark comes from there), then Alte DIN 1451, then Proletarsk, then up to six archive fonts that cover Greek, Cyrillic and long s. The first one that has every character of the mark wins.
 2. **Outline.** Each glyph is drawn with fontTools into an SVG path (`SVGPathPen`), advancing by the glyph width.
 3. **One optical size.** Scale is set by the geometric mean of the ink box, `10.5 / √(w·h)`, then capped to fit a 15 × 12 field. A slim `i` and a wide `UNZ` read as the same size.
 4. **Centre on the ink's weight**, not its box: the area centroid (`StatisticsPen`), clamped to a 4.5-unit margin inside the 24-unit chip. Offsets are rounded to quarter units.

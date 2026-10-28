@@ -323,6 +323,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 
 .acc-wrap { font: 400 var(--read)/1.42 var(--text); max-width: 34em; }
 .acc-wrap .acc + .acc h3 { margin-top: 24px; }
+.nosave a[data-save] { display: none; }   /* hosted: no downloads capability in this view */
 .orig { display: flex; flex-wrap: wrap; gap: 8px 32px; margin-top: 24px; }
 .orig .t, .sb p > .t { color: var(--ink); text-decoration: none; }
 

@@ -580,6 +580,25 @@
       .then((x) => { document.fonts.add(x); redrawAll(); inkCache.clear(); inkAll(); }).catch(() => {});
   });
 
+  /* the interface copies (Account › On this site): the hosted page cannot start a download itself, so it hands the file
+     to the viewer through the artifact's downloads capability; where that is missing the link is hidden */
+  if (window.HOSTED) {
+    let saver;
+    const ready = (window.claude?.use ? window.claude.use("downloads") : Promise.resolve(null)).catch(() => null)
+      .then((d) => { saver = d; document.documentElement.classList.toggle("nosave", !d); return d; });
+    document.addEventListener("click", async (e) => {
+      const a = e.target.closest?.("a[data-save]");
+      if (!a) return;
+      e.preventDefault();
+      const d = saver ?? await ready;
+      if (!d) return;
+      try {
+        const buf = await (await fetch(R + a.getAttribute("href"))).arrayBuffer();
+        await d.save({ filename: a.dataset.save, data: buf });
+      } catch (err) { if (!["declined", "rate_limited"].includes(err?.code)) console.warn("download:", err?.code || err); }
+    });
+  }
+
   /* hosted shell: font.html#slug pulls the page body from a pack */
   const shell = $("#fontshell");
   if (shell) {

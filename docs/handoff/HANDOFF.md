@@ -76,6 +76,9 @@ The progression of 27–28 Oct (260 screenshots, indexed against Okay's messages
   - Without `raw/archives`, file lists come from `build-report.json`.
   - When a font file is absent, `inventory()` uses the metadata recorded there (cmap, metrics, names).
   - This is what lets the cloud session build the hosted copy without the 158 MB font folder. In the cloud copy `build.py main()` itself still crashes, because it copies every face; use `hosted.py` there.
+- **`tools/uifonts.py`:** the interface faces `WA UI` and `WA Text` (site-only copies of Preussische IV 44 and Proletarsk) into `assets/fonts/ui/`; `build.py` and `hosted.py` call it. Reads `data/ui-kern.json` and `data/ui-marks.json`; needs only fontTools.
+  - Redrafting the kerning: `python3 tools/uikern.py fonts HALFKERN KERNING_PAIRS` (clones of behdad/halfkern and andre-fuchs/kerning-pairs; halfkern needs pycairo, freetype-py, uharfbuzz, scipy, scikit-fmm). Okay's corrections live in its `ADJUST`.
+  - Redrawing new shapes (Turkish marks, ẞ, ligatures, comma): `python3 tools/uidraw.py fonts` (needs skia-pathops).
 - **`tools/hosted.py`:** builds `hosted/`: one face per font, the `font.html#slug` shell, `pages/pN.json` packs of 20, photos at 1600 px.
 - **`tools/static/app.css`, `app.js`:** all styling and behaviour, vanilla. Fonts load through `fetch` + `FontFace`.
 
@@ -98,6 +101,8 @@ The progression of 27–28 Oct (260 screenshots, indexed against Okay's messages
    3. Run `python3 tools/build.py && python3 tools/hosted.py` there.
 7. **Regression check before publishing:** deterministic screenshots of every page and 20 fonts at 1366 and 390 (`sun` pair), before and after, compared pixel by pixel. Lazy images and font loads make a few shots noisy: repeat a differing shot before believing it. Note that `goto` between `font.html#a` and `font.html#b` is a hash change in the same document, not a reload.
 8. **Verify the copies agree:** `shasum -a 256` of `hosted/*.html` and `hosted/assets/app.css` on the Mac must equal the cloud build.
+
+**Artifact capabilities:** the hosted artifact declares `downloads` (since v81, for the WA UI / WA Text links under Account). Publish without `capabilities` to keep it; passing `{}` clears it and the links hide.
 
 **Deleting files on the Mac is not permitted.** Move leftovers into `_to_delete/` and tell Okay.
 

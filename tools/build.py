@@ -930,6 +930,30 @@ def sec(label, inner, id_=""):
     return f'<section class="sec"{f" id={id_}" if id_ else ""}><h2 class="lab">{label}</h2><div class="sb">{inner}</div></section>'
 
 
+# The site's own copies of the two interface faces (tools/uifonts.py), offered under Account on their fonts' pages.
+UI_COPY = {
+    UI_DISPLAY: ("WA UI", "WA-UI.ttf",
+                 "The interface of this archive is set in an edited copy of this font, made for the site: kerned (Wiegel’s own "
+                 "pairs kept, about two thousand added), spacing evened out, curly quotes set on the cap height, the comma turned "
+                 "to point the same way as his quotes, and Ğ ğ İ Ş ş and a capital ẞ drawn from his own letters.",
+                 "Under Wiegel’s licence, Creative Commons Attribution 3.0 Germany, with his credit kept."),
+    UI_TEXT: ("WA Text", "WA-Text.ttf",
+              "The running text of this archive is set in an edited copy of this font, made for the site: kerned, uneven "
+              "sidebearings evened out (h, b, p, d, q, k, l, t and the quotes), ff, fi, fl, ffi and ffl ligatures drawn from his f, "
+              "and the İ given its dot above.",
+              "Under Wiegel’s licences, GPL with font exception and SIL Open Font License, with his credit kept."),
+}
+
+
+def ui_copy_note(f, up):
+    c = UI_COPY.get(f["slug"])
+    if not c:
+        return ""
+    fam, file, what, lic = c
+    return (f'<div class="acc"><h3>On this site</h3><p>{ESC(what)} {ESC(lic)} '
+            f'<a href="{up}assets/fonts/ui/{file}" download data-save="{file}">Download {ESC(fam)}</a></p></div>')
+
+
 def font_html(f, by, sprite, up="../", fragment=False):
     faces = [fonts_css_entry(f, i, x, up) for i, x in enumerate(f.get("faces", []))]
     canon = f["faces"][0] if f.get("faces") else None
@@ -971,6 +995,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     acc = "".join(f'<div class="acc"><h3>{h}</h3><p>{xlink(a[k], f, up, k == "use")}</p></div>' for k, h in (("what", "The typeface"), ("history", "History"), ("use", "In use"), ("notes", "Notes")) if a.get(k))
     if not acc:
         acc = f'<div class="acc"><p>{ESC(f.get("summary",""))}</p></div>'
+    acc += ui_copy_note(f, up)
     n_st, n_gl = (set_count(f) or [len(faces)])[0], f.get("glyphs", 0)
     fpills = [("fa", f["family"]), ("g", f["genre"]), ("st", f'{n_st} style{"s" if n_st != 1 else ""}'), ("gl", f"{n_gl} characters")] + [("tg", t) for t in f.get("tags", [])]
     seen = set()   # one pill per value: a genre equal to the family, or a tag repeating a fact, is shown once
