@@ -784,6 +784,7 @@ def catalogue_html(cat, sprite):
         ix = ["A–K", "L–Z", "Fonts 2", "Unlisted"].index(f["section"]) * 1000 + f["pos"]
         st, gl = len(f.get("faces", [])), f.get("glyphs", 0)
         src = f.get("place") or f.get("origin") or ""
+        ics = "".join(icon(c, 18) for c in f["icons"] if c in ICONS)
         rows.append(
             f'<a class="crow" href="{flink(f["slug"])}" data-no="{f["no"]}" data-name="{ESC(f["name"].lower())}" data-fa="{cat["families"].index(f["family"]) if f["family"] in cat["families"] else 99}" '
             f'data-oy="{f.get("oy") or 9999}" data-dy="{f.get("dy") or 9999}" data-gl="{gl}" data-ix="{ix}">'
@@ -793,9 +794,9 @@ def catalogue_html(cat, sprite):
             f'<span class="c-fa">{ESC(f["family"])}</span>'
             f'<span class="c-oy tnum">{f.get("oy") or ""}</span>'
             f'<span class="c-dy tnum">{f.get("dy") or ""}</span>'
-            f'<span class="c-gl info tnum">{gl:,} glyphs</span>'
+            f'<span class="c-gl info tnum{"" if ics else " up"}">{gl:,} glyphs</span>'   # no chips: the count takes their line
             f'<span class="c-src" title="{ESC(src)}">{ESC(src)}</span>'
-            f'<span class="c-ic">{"".join(icon(c, 18) for c in f["icons"] if c in ICONS)}</span></a>')
+            + (f'<span class="c-ic">{ics}</span>' if ics else "") + '</a>')
     sorts = [("no", "No."), ("name", "Name"), ("fa", "Family"), ("oy", "Original"), ("dy", "Digitised"), ("gl", "Glyphs")]
     head = "".join(f'<button type="button" class="c-{k} sortb" data-k="{k}">{l}</button>' for k, l in sorts)
     head = head.replace("</button>", '</button><span class="c-aa"></span>', 1)   # the Aa column has no heading
