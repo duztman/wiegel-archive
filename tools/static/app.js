@@ -281,7 +281,7 @@
   /* ── timeline: names in their own face; a year jumped to clears the sticky decade strip ── */
   const tl = $("#tl");
   if (tl) {
-    $$(".fn", tl).forEach((el) => lazy.observe(el));
+    $$(".aa", tl).forEach((el) => lazy.observe(el));
     const decs = $(".decs", tl), dh = () => tl.style.setProperty("--decsh", decs.offsetHeight + "px");
     dh(); addEventListener("resize", dh);
   }

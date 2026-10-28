@@ -659,18 +659,26 @@ def index_html(cat, sprite):
     return page("Wiegel Archive", body, 0, sprite, "home", "index")
 
 
-TL_LANES = (("type", "Type"), ("world", "Elsewhere"))   # named events, in this order within a year; digitisations follow as one line
+def aa(f):
+    """What a font card shows, as Font Book does: 'Aa', or figures for figures-only fonts, or the first two characters it has."""
+    c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
+    if figures_only(f):
+        return "12"
+    if 0x41 in c:
+        return "A" + ("a" if 0x61 in c else "B" if 0x42 in c else "")
+    return "".join(chr(x) for x in sorted(c) if x > 0x20)[:2]
 
 
 def timeline_html(cat, sprite):
-    """One stem, today at the top and the past below. A year appears only where something happened: the letters cut, cast or drawn
-    (Type), the buildings, signs and lives around them (Elsewhere), and Wiegel's digitisations, one line of names per year.
-    The decade strip on top is lit where there are events and jumps to the first year in that decade."""
+    """One stem, today at the top and the past below. A year appears only where something happened. Each font is a card
+    (its own 'Aa' and its name, like Font Book); what happened is the card's title, not shown. The only text is the count
+    of Wiegel's digitisations that year, above their cards. The decade strip on top jumps to the first year of a decade."""
     def face_src(f):
         face = f["faces"][0] if f.get("faces") else None
         return ("assets/fonts/" + f["slug"] + "/" + (face.get("web") or os.path.basename(face["path"]))) if face else ""
-    def name(f, cls="fn"):
-        return f'<a class="{cls}" href="{flink(f["slug"])}" data-src="{face_src(f)}">{ESC(f["name"])}</a>'
+    def card(f, what):
+        return (f'<a class="fc" href="{flink(f["slug"])}" title="{ESC(f["name"] + " · " + what)}">'
+                f'<span class="aa" data-src="{face_src(f)}">{ESC(aa(f))}</span><span class="nm">{ESC(f["name"])}</span></a>')
     ev = collections.defaultdict(lambda: collections.defaultdict(list))
     for f in cat["fonts"]:
         for e in f["events"]:
@@ -678,18 +686,18 @@ def timeline_html(cat, sprite):
     years = sorted(ev, reverse=True)
     rows = []
     for y in years:
-        items = [f'<li class="e l-{lane}"><span class="lb">{lab}</span>{name(f)}<span class="w">{ESC(what)}</span></li>'
-                 for lane, lab in TL_LANES for f, what in sorted(ev[y][lane], key=lambda t: t[0]["name"].lower())]
+        named = sorted(ev[y]["type"] + ev[y]["world"], key=lambda t: t[0]["name"].lower())
         dg = sorted(ev[y]["digital"], key=lambda t: t[0]["name"].lower())
+        body = f'<div class="fcs">{"".join(card(f, w) for f, w in named)}</div>' if named else ""
         if dg:
-            items.append(f'<li class="e l-digital"><span class="lb">Digitised <span class="tnum">{len(dg)}</span></span>'
-                         f'<span class="dg">{"".join(name(f, "fn s") for f, _ in dg)}</span></li>')
-        rows.append(f'<section class="yr" id="y{y}"><h2 class="yl tnum">{y}</h2><i class="node"></i><ul>{"".join(items)}</ul></section>')
+            body += (f'<p class="dgn">Wiegel digitised <span class="tnum">{len(dg)}</span> font{"s" if len(dg) > 1 else ""}</p>'
+                     f'<div class="fcs">{"".join(card(f, w) for f, w in dg)}</div>')
+        rows.append(f'<section class="yr" id="y{y}"><h2 class="yl tnum">{y}</h2><i class="node"></i><div class="yb">{body}</div></section>')
     first = {}
     for y in years:
         first.setdefault(y // 10 * 10, y)
     top = years[0] // 10 * 10
-    dec = lambda d: (f'<a class="dc on tnum" href="#y{first[d]}">{d}s</a>' if d in first else f'<span class="dc tnum">{d}s</span>')
+    dec = lambda d: (f'<a class="dc tnum" href="#y{first[d]}">{d}s</a>' if d in first else f'<span class="dc off tnum">{d}s</span>')
     strip = "".join(dec(d) for d in range(top, 1790, -10)) + '<i class="brk"></i>' + "".join(dec(d) for d in sorted((d for d in first if d < 1800), reverse=True))
     body = f"""
 <section class="intro">
