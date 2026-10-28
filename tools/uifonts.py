@@ -161,17 +161,82 @@ def centre(f):
     return moved
 
 
-def kern(f, pairs):
+def respace(f, rules):
+    """Set chosen sides of chosen letters to a sidebearing taken from another of Wiegel's letters.
+    rules: {char: (left, right)}, each a (char, side) to copy from, or None to keep. The ink does not move relative to
+    the advance's other side; accented forms move with their base letter. Returns {char: (old, new)} for the report."""
+    cm = f.getBestCmap()
+    glyf, hm = f["glyf"], f["hmtx"]
+    side = lambda c, s: hm[cm[ord(c)]][1] if s == "L" else hm[cm[ord(c)]][0] - glyf[cm[ord(c)]].xMax
+    plan, report = {}, {}
+    for c, (l, r) in rules.items():
+        n = cm[ord(c)]
+        ol, orr = side(c, "L"), side(c, "R")
+        nl = side(*l) if l else ol
+        nr = side(*r) if r else orr
+        plan[n] = (nl - ol, (nl - ol) + (nr - orr))   # (shift of the ink, change of the advance)
+        report[c] = ((ol, orr), (nl, nr))
+    rev = {}
+    for u, n in cm.items():
+        rev.setdefault(n, u)
+    for n in f.getGlyphOrder():
+        b = _base(f, n, rev)
+        if b not in plan:
+            continue
+        dx, dadv = plan[b]
+        g = glyf[n]
+        if g.numberOfContours and not g.isComposite():
+            g.coordinates.translate((dx, 0))
+            g.recalcBounds(glyf)
+        adv, _ = hm[n]
+        hm[n] = (adv + dadv, g.xMin if g.numberOfContours else 0)
+    return report
+
+
+def ligatures(f, keys):
+    """f_i, f_l from data/ui-marks.json (drawn by tools/uidraw.py). Advance: the right letter's ink end plus its own
+    right sidebearing, so the ligature takes the respaced ı or l with it. Returns the GSUB rules."""
+    marks = json.load(open(MARKS, encoding="utf-8"))
+    cm = f.getBestCmap()
+    glyf, hm = f["glyf"], f["hmtx"]
+    subs = []
+    for key in keys:
+        m = marks[key]
+        pen = TTGlyphPen(None)
+        for c in m["contours"]:
+            for op, args in c:
+                getattr(pen, op)(*[tuple(pt) for pt in args])
+        g = pen.glyph()
+        r = cm[ord(m["right"])]
+        f.setGlyphOrder(f.getGlyphOrder() + [key])
+        glyf[key] = g
+        g.recalcBounds(glyf)
+        rsb = hm[r][0] - glyf[r].xMax
+        hm[key] = (g.xMax + rsb, g.xMin)
+        typed = key.split("_")[1]   # what is typed: f then i (the drawing uses ı, the i without its dot) or f then l
+        subs.append(f"sub {cm[ord('f')]} {cm[ord(typed)]} by {key};")
+    return subs
+
+
+def kern(f, pairs, subs=()):
     """Replace the font's kerning with pairs ({"AV": -60, …}, characters → font units), as a GPOS kern feature."""
     cm = f.getBestCmap()
     lines = []
     for p, v in sorted(pairs.items()):
         if v and len(p) == 2 and all(ord(c) in cm for c in p):
             lines.append(f"pos {cm[ord(p[0])]} {cm[ord(p[1])]} {int(v)};")
-    for t in ("kern", "GPOS", "hdmx", "LTSH", "VDMX"):   # the device tables hold per-size advances of the old glyph set
+    for t in ("kern", "GPOS", "GSUB", "hdmx", "LTSH", "VDMX"):   # the device tables hold per-size advances of the old glyph set
         if t in f:
             del f[t]
     fea = "languagesystem DFLT dflt;\nlanguagesystem latn dflt;\nlanguagesystem cyrl dflt;\nfeature kern {\n" + "\n".join(lines) + "\n} kern;\n"
+    if subs:   # fi drops the dot of i, so it reads ı in Turkish: text marked lang="tr" keeps fl only
+        fea = fea.replace("languagesystem cyrl dflt;", "languagesystem latn TRK;\nlanguagesystem cyrl dflt;")
+        names = []
+        for i, rule in enumerate(subs):
+            names.append((f"L{i}", " f_i;" in rule))
+            fea += f"lookup L{i} {{ {rule} }} L{i};\n"
+        use = lambda tr: " ".join(f"lookup {n};" for n, dotless in names if not (tr and dotless))
+        fea += f"feature liga {{\n script DFLT; language dflt; {use(False)}\n script latn; language dflt; {use(False)}\n language TRK exclude_dflt; {use(True)}\n}} liga;\n"
     addOpenTypeFeaturesFromString(f, fea)
     return len(lines)
 
@@ -189,7 +254,22 @@ def rename(f, family):
     nt.setName(note.strip(), 10, 3, 1, 0x409)
 
 
-def make(srcs, out_dir):
+# Proletarsk's uneven sides, set from his own n, o, x, t and f (Okay, 28 Oct: "hd, kt too close; k trips up the system").
+# Straight stems as n, bowls as o; k's leg as x's; l's tail as t's; t's crossbar as f's; quotes as o's round side.
+TEXT_SPACING = {
+    "h": (None, ("n", "R")),
+    "b": (None, ("o", "R")), "p": (None, ("o", "R")),
+    "d": (("o", "L"), None), "q": (("o", "L"), None),
+    "k": (None, ("x", "R")),
+    "l": (None, ("t", "R")),
+    "t": (("f", "L"), None),
+    "'": (("o", "L"), ("o", "R")), '"': (("o", "L"), ("o", "R")),
+    "‘": (("o", "L"), ("o", "R")), "’": (("o", "L"), ("o", "R")),
+    "“": (("o", "L"), ("o", "R")), "”": (("o", "L"), ("o", "R")),
+}
+
+
+def make(srcs, out_dir, kerning=True):
     """srcs: {slug: path of Wiegel's font file}. Writes WA-UI.ttf and WA-Text.ttf; returns {family: (path, pairs)}."""
     data = json.load(open(KERN, encoding="utf-8"))
     os.makedirs(out_dir, exist_ok=True)
@@ -197,13 +277,16 @@ def make(srcs, out_dir):
     for slug, src in srcs.items():
         family = FAMILY[slug]
         f = TTFont(src, recalcTimestamp=False)
+        subs = []
         if slug == "proletarsk":
             turkish(f, redraw="İ")   # Wiegel's İ carries its dot under the I
+            respace(f, TEXT_SPACING)
+            subs = ligatures(f, ("f_i", "f_l"))
         if slug == "preussische":
             turkish(f)
             quotes(f)
             centre(f)
-        n = kern(f, data[slug])
+        n = kern(f, data[slug] if kerning else {}, subs)
         rename(f, family)
         out = os.path.join(out_dir, family.replace(" ", "-") + ".ttf")   # ttf like the other UI faces: no brotli needed on either machine
         f.save(out)
