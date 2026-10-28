@@ -484,17 +484,18 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .foot a { color: inherit; }
 
 /* the one arrow: circle + arrow at the one line thickness; direction by class */
-.ca { width: .8em; height: .8em; flex: none; display: inline-block; vertical-align: -0.08em; margin-left: .25em; fill: none; stroke: currentColor; stroke-width: calc(var(--line) - 1px); stroke-linecap: butt; overflow: visible; }   /* 1px under the line weight: it is drawn small */
+/* sized and placed by the letters it sits with: the ring is 1/6 larger than the x-height (or the cap height in capitals),
+   and centred on that band. The ring's centre line spans 17.2 of the icon's 20 units. */
+.ca { --ref: 1ex; --d: calc(var(--ref) * 7 / 6 * 20 / 17.2); width: var(--d); height: var(--d); flex: none; display: inline-block;
+  vertical-align: calc(var(--ref) / 2 - var(--d) / 2); margin-left: .25em; fill: none; stroke: currentColor; stroke-width: calc(var(--line) - 1px); stroke-linecap: butt; overflow: visible; }   /* 1px under the line weight: it is drawn small */
 .nw { white-space: nowrap; }
 .ca.l { transform: rotate(180deg); } .ca.u { transform: rotate(-90deg); } .ca.d { transform: rotate(90deg); } .ca.ne { transform: rotate(-45deg); }
-.pnav .ca, .pn .ca, .t .ca, .pill .ca { margin-left: 0; }
-.pn a .ca.l, .pnav a .ca.l { margin-right: 0; }
-.info .ca, .kicker .ca { width: 1.1em; height: 1.1em; vertical-align: -0.22em; margin: 0 .1em; }
-.sortb .ca { width: .7em; height: .7em; }
+.pill .ca { margin-left: 0; }
+.pn a .ca.l { margin: 0 .25em 0 0; }
+.info .ca, .kicker .ca, .sub .ca, .lane .ca { --ref: 1cap; margin: 0 .2em; }   /* in capitals: aligned to the cap height */
 .fsum .ca.pm { margin-left: .3em; } details[open] > .fsum .pm .v { display: none; }
-.pn a { display: inline-flex; align-items: center; gap: 8px; }
 /* inside pills the arrow is long and has no circle */
 .arw { width: .75em; height: .5em; flex: none; fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; overflow: visible; }
 .arw.u { transform: rotate(-90deg); } .arw.d { transform: rotate(90deg); }
 .sortb .arw { margin-left: .3em; vertical-align: 0.1em; }
-.t:has(.ca) { gap: .2em; }   /* the arrow sits close to its words */
+.t:has(.ca), .pn a { display: inline; }   /* inline, so the icon can sit on the letters' band rather than the line box */
