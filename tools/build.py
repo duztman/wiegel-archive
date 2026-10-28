@@ -704,11 +704,11 @@ def index_html(cat, sprite):
     oys = [e["y"] for f in fonts for e in f["events"] if e["lane"] == "type"]
     dys = [f["dy"] for f in fonts if f.get("dy")]
     body = f"""
-<div class="homegrid">
+<div class="homegrid cards">
   <section class="homelist" aria-label="Typefaces"><p class="fcount"><span class="info" id="count" aria-live="polite"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p><div id="grid" class="grid list"></div>
   <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
-    <div class="sidehead"><p class="fcount vmode" role="group" aria-label="View"><button type="button" class="pill small" data-v="cards" aria-pressed="false">Cards</button><button type="button" class="pill small on" data-v="preview" aria-pressed="true">Preview</button></p><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Preview text" aria-label="Type text to set every name"></textarea>
+    <div class="sidehead"><p class="fcount vmode" role="group" aria-label="View"><button type="button" class="pill small on" data-v="cards" aria-pressed="true">Cards</button><button type="button" class="pill small" data-v="preview" aria-pressed="false">Preview</button></p><textarea class="fin settext" id="retype" hidden rows="2" autocomplete="off" spellcheck="false" placeholder="Preview text" aria-label="Type text to set every name"></textarea>
     <div class="picked" id="picked" aria-label="Selected filters"></div></div>
     <details id="fdet" open><summary class="fsum">Filters <svg class="ca pm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/><path d="M5.6 10H14.4" vector-effect="non-scaling-stroke"/><path class="v" d="M10 5.6V14.4" vector-effect="non-scaling-stroke"/></svg></summary>
     <div id="fside"></div>

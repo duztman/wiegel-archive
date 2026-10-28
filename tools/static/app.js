@@ -230,7 +230,7 @@
       if (f.ms) a.addEventListener("click", () => store.set("wa-style", f.s + ":" + r._i));
       a.innerHTML = `<span class="aa" data-src="${esc(r._src)}">${esc(f.aa || "Aa")}</span><span class="nm">${esc(r._n)}</span>`;
       lazy.observe(a.firstChild); return (r._card = a); };
-    let view = store.get("wa-view") === "cards" ? "cards" : "preview";
+    let view = store.get("wa-listview") === "preview" ? "preview" : "cards";   /* Cards is the default; a new key, since the old one was written on every load and holds "preview" for everyone */
 
     const pill = (label, n, on, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "pill" + (on ? " on" : "");
       if (n === 0 && !on) { b.classList.add("zero"); b.disabled = true; }
@@ -291,9 +291,9 @@
     let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._n)); }, 120); };
     /* Cards / Preview: in cards the preview box goes */
     const vbs = $$(".vmode .pill");
-    const setView = (v) => { view = v; store.set("wa-view", v); rt.hidden = v === "cards"; grid.closest(".homegrid")?.classList.toggle("cards", v === "cards");
+    const setView = (v, save) => { view = v; if (save) store.set("wa-listview", v); rt.hidden = v === "cards"; grid.closest(".homegrid")?.classList.toggle("cards", v === "cards");
       vbs.forEach((b) => { const on = b.dataset.v === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }); };
-    vbs.forEach((b) => (b.onclick = () => { if (b.dataset.v !== view) { setView(b.dataset.v); apply(); alignSide(); } }));
+    vbs.forEach((b) => (b.onclick = () => { if (b.dataset.v !== view) { setView(b.dataset.v, true); apply(); alignSide(); } }));
     setView(view);
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
