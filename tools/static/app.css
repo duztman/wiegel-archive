@@ -68,7 +68,7 @@ em { font-style: normal; color: var(--hot); }
 .top a:hover, .pnav a:hover, a.pill:hover { text-decoration: none; }   /* buttons never underline */
 .top .home:hover { box-shadow: none; }
 .nsearch { flex: 1 1 0; min-width: 4em; margin: 0 0 0 16px; display: flex; }   /* fills the gap between About and R M Random */
-.nsearch .fin { box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); color: var(--navfg); }
+.nsearch .fin { padding: 2px 16px 1px; line-height: var(--lh); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); color: var(--navfg); }
 .nsearch .fin::placeholder { color: color-mix(in oklab, var(--navfg) 40%, transparent); }
 .nsearch .fin:focus { box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 .top .modes { margin-left: 16px; display: flex; gap: 8px; }
@@ -258,7 +258,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .vl { font: var(--info)/1 var(--uiface); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; opacity: .45; transition: opacity .2s; cursor: pointer; }
 .vl b { font-weight: inherit; }
 .blk.on .vl { opacity: 1; }
-.blk.on .vl::before { content: ""; display: inline-block; width: 1cap; height: 1cap; border-radius: 50%; background: currentColor; margin-inline-end: 1cap; }   /* a cap-high dot, one dot away from the name */
+.blk.on .vl::before { content: ""; display: inline-block; width: 1cap; height: 1cap; border-radius: 50%; background: currentColor; margin-inline-end: 1cap; vertical-align: .09em; }   /* a cap-high dot, one dot away from the name, centred on the cap band */
 .ed { font-family: var(--ff); line-height: var(--blh, 1.1); letter-spacing: var(--btr, 0); font-feature-settings: var(--fea, normal); outline: none; overflow-wrap: anywhere; min-width: 0; }
 .blk.fit .ed { white-space: nowrap; overflow: hidden; overflow-wrap: normal; }
 .blk.fit.wrapped .ed { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
@@ -295,11 +295,17 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .feat span { padding: 1px 12px 0; border-radius: 999px; box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--fg) 40%, transparent); }
 .feat input:checked + span { background: var(--fg); color: var(--bg); box-shadow: none; }
 .feat input:focus-visible + span { outline: var(--line) solid var(--fg); outline-offset: 3px; }
-.sws { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; padding: 0 6px; }
-.sw { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: 0 0 0 var(--line) color-mix(in oklab, var(--fg) 55%, transparent); position: relative; }
-.sw::after { content: ""; position: absolute; inset: -9px; }
-.sw.plain { --b: var(--paper); --f: var(--ink); }
-.sw.on { outline: var(--line) solid var(--fg); outline-offset: 4px; }
+/* C: the circle opens into a pill that grows left over the search, holding Wiegel's pairs */
+.cpick { position: relative; display: flex; }
+.cpick .cbtn { position: relative; z-index: 2; }
+.cpanel { position: absolute; z-index: 1; right: 0; top: 0; bottom: 0; display: flex; align-items: center; gap: 6px;
+  padding: 0 calc(1lh + 3px + 6px) 0 4.5px; border-radius: 999px; background: var(--navbg);
+  box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
+.cpanel[hidden] { display: none; }
+.top .cpick.open .cbtn { box-shadow: none; }   /* the pill's outline is C's outline now */
+.top .sw { width: calc(1lh - 6px); height: calc(1lh - 6px); flex: none; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
+.top .sw.on, .top .sw:hover { background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 
 /* ── sections: label column + body ────────────────────────────────────── */
 .sec { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid var(--rule); }

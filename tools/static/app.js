@@ -28,13 +28,46 @@
     location.href = R + "index.html";
   });
 
-  /* colour modes: Random (one pair of Wiegel's colours for the whole page) or Mono (black/white + one accent) */
-  function markModes() { $$(".mode").forEach((b) => b.classList.toggle("on", b.dataset.m === document.documentElement.dataset.mode)); }
-  $$(".mode").forEach((b) => (b.onclick = () => {
-    const again = document.documentElement.dataset.mode === b.dataset.m;   // pressing the active mode again gives a new colour
-    document.documentElement.dataset.mode = b.dataset.m; store.set("wa-mode", b.dataset.m, true);
+  /* colour: C opens Wiegel's pairs in a pill that grows left from it; the pick is remembered on every page.
+     Tapping the picked pair again forgets it (random pairs again). M: black/white + one accent; again for a new accent. */
+  const root = document.documentElement, cbtn = $("#cbtn"), cpanel = $("#cpanel");
+  const PAL = window.WA_PAL || {};
+  function markModes() {
+    const pick = root.dataset.mode === "random" ? window.WA_PICK : "";
+    cbtn?.classList.toggle("on", !!pick);
+    $$(".mode[data-m=mono]").forEach((b) => b.classList.toggle("on", root.dataset.mode === "mono"));
+    $$("#cpanel .sw").forEach((s) => s.classList.toggle("on", s.dataset.p === pick));
+  }
+  function applyColour() {
     const art = $("article.font");
-    if (art && window._setPal && !again) window._setPal(b.dataset.m === "random" ? art.dataset.pal : "plain"); else window.WA_theme?.(null);
+    if (root.dataset.mode === "mono") { art && window._setPal ? window._setPal("plain") : window.WA_theme?.(null); }
+    else if (window.WA_PICK) { art && window._setPal ? window._setPal(window.WA_PICK) : window.WA_theme?.(PAL[window.WA_PICK]); }
+    else { art && window._setPal ? window._setPal(art.dataset.pal) : window.WA_theme?.(null); }
+    markModes(); redrawAll();
+  }
+  const openPanel = (on) => { if (!cpanel) return;
+    if (on) {   // the pill reaches past the search; if its swatches need more room it covers whole neighbours, never half of one
+      cpanel.style.minWidth = ""; cpanel.hidden = false;
+      const right = cbtn.getBoundingClientRect().right, need = right - cpanel.scrollWidth;
+      const items = [...cbtn.closest(".nav1").children].filter((el) => !el.contains(cbtn) && !el.classList.contains("home")).reverse();
+      let left = right;
+      for (const el of items) { const r = el.getBoundingClientRect(); left = r.left; if (r.left <= need && el.matches(".nsearch, a, form")) break; }
+      cpanel.style.minWidth = Math.ceil(right - Math.min(left, need)) + "px";
+    }
+    cpanel.hidden = !on; cbtn.setAttribute("aria-expanded", on); cbtn.closest(".cpick").classList.toggle("open", on); };
+  cbtn?.addEventListener("click", () => openPanel(cpanel.hidden));
+  $$("#cpanel .sw").forEach((s) => (s.onclick = () => {
+    const k = s.dataset.p, same = root.dataset.mode === "random" && window.WA_PICK === k;
+    window.WA_PICK = same ? "" : k;
+    try { same ? localStorage.removeItem("wa-pair") : localStorage.setItem("wa-pair", k); } catch {}
+    root.dataset.mode = "random"; store.set("wa-mode", "random", true);
+    applyColour();
+  }));
+  document.addEventListener("click", (e) => { if (cpanel && !cpanel.hidden && !e.target.closest(".cpick")) openPanel(false); });
+  $$(".mode[data-m=mono]").forEach((b) => (b.onclick = () => {
+    const again = root.dataset.mode === "mono";
+    root.dataset.mode = "mono"; store.set("wa-mode", "mono", true);
+    if (again) window.WA_theme?.(null); else applyColour();
     markModes(); redrawAll();
   }));
   markModes();
@@ -317,13 +350,7 @@
       art.dataset.cur = k; window._redrawFont?.();
     }
     window._setPal = setPal;
-    setPal(document.documentElement.dataset.mode === "random" ? defPal : "plain");
-    $$(".sw", art).forEach((s) => (s.onclick = () => setPal(s.dataset.p)));
-    $("#invert").onclick = () => { const r = document.documentElement.style, b = css("--paper"), f = css("--ink"); r.setProperty("--paper", f); r.setProperty("--ink", b); r.setProperty("--hot", b); window._redrawFont?.(); };
-    $("#reset").onclick = () => {
-      blks.forEach((b) => { $(".ed", b).textContent = b.dataset.def; b._px = small ? Math.max(12, Math.round(+b.dataset.px * (+b.dataset.px > 30 ? 0.5 : 0.8))) : +b.dataset.px; b._lh = LEAD[b.dataset.role] ?? 1.0; b._tr = 0; paint(b); });
-      userSized.clear(); setPal(defPal); fitBlocks(); sync(); wfText();
-    };
+    setPal(document.documentElement.dataset.mode === "random" ? (window.WA_PICK || defPal) : "plain");
 
     /* waterfall */
     const wf = $("#wf");

@@ -498,7 +498,11 @@ window.WA_PAL=P;window.WA_theme=function(pair){var s=r.style;
  if(!pair&&r.dataset.mode==="random"){var c=s.getPropertyValue("--paper"),L=Object.values(P).filter(function(x){return x[0]!==c});pair=pick(L.length?L:Object.values(P))}
  if(pair){s.setProperty("--paper",pair[0]);s.setProperty("--ink",pair[1]);s.setProperty("--hot",pair[1]);r.dataset.on="pair"}
  else{s.removeProperty("--paper");s.removeProperty("--ink");var d=matchMedia("(prefers-color-scheme: dark)").matches;s.setProperty("--hot",pick(d?A.dark:A.light));r.dataset.on="mono"}};
-window.WA_theme(window.WA_FONTPAL&&r.dataset.mode==="random"?P[window.WA_FONTPAL]:null)})();"""
+var k;try{k=localStorage.getItem("wa-pair")}catch(e){}window.WA_PICK=P[k]?k:"";
+window.WA_theme(r.dataset.mode!=="random"?null:P[k]||(window.WA_FONTPAL?P[window.WA_FONTPAL]:null))})();"""
+
+
+SWATCHES = "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
 
 
 def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
@@ -513,7 +517,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><button class="mode" type="button" data-m="random" title="Colours: a random pair of Wiegel's colours on every page" aria-label="Random colours">R</button><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours">{SWATCHES}</span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
 <nav class="nav2" id="subnav" aria-label="This font"></nav>
 </header>
 <main>{body}
@@ -743,10 +747,6 @@ def font_html(f, by, sprite, up="../", fragment=False):
     bg, fg, _ = PALETTE[f["pal"]]
     icons = "".join(f'<li>{icon(c, 24)}<span>{ESC(ICONS[c][1])}</span></li>' for c in f["icons"] if c in ICONS)
     styles = "".join(f'<option value="{i}">{ESC(x["style"])}</option>' for i, x in enumerate(faces))
-    feats = "".join(f'<label class="feat"><input type="checkbox" value="{t}"{" checked" if t in ("liga", "calt", "kern") else ""}><span>{t}</span></label>'
-                    for t in f.get("feats", []) if re.match(r"^(liga|dlig|calt|salt|ss\d\d|swsh|smcp|c2sc|onum|lnum|tnum|frac|hist|kern|cv\d\d|zero)$", t))
-    sw = "".join(f'<button type="button" class="sw{" on" if k == f["pal"] else ""}" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
-    sw += '<button type="button" class="sw plain" data-p="plain" title="Paper / ink" aria-label="Paper and ink"></button>'
     dl = "".join(
         f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub tnum">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
         if d["local"] and not HOSTED else f'<li><a href="{ESC(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
@@ -797,13 +797,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
       <label class="sl"><span class="k">Leading</span><output id="lho" class="tnum">1.10</output><input type="range" id="lh" min="0.7" max="2" step="0.01" value="1.1"></label>
       <label class="sl"><span class="k">Tracking</span><output id="tro" class="tnum">0</output><input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"></label>
     </div>
-    <div class="opts">
-      {f'<label>Style <select id="style">{styles}</select></label>' if len(faces) > 1 else ''}
-      {f'<span class="feats">{feats}</span>' if feats else ''}
-      <span class="sws" role="group" aria-label="Colours from Wiegel's site">{sw}</span>
-      <button type="button" id="invert" class="t">Invert</button>
-      <button type="button" id="reset" class="t">Reset</button>
-    </div>
+    {f'<div class="opts"><label>Style <select id="style">{styles}</select></label></div>' if len(faces) > 1 else ''}
   </div>
   <header class="fhead">
     <p class="kicker info tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
