@@ -59,7 +59,7 @@
   function markModes() {
     const pick = root.dataset.mode === "random" ? window.WA_PICK : "";
     cbtn?.classList.toggle("on", !!pick);
-    $$(".mode[data-m=mono]").forEach((b) => { b.classList.toggle("on", root.dataset.mode === "mono"); b.setAttribute("aria-pressed", root.dataset.mode === "mono"); });
+    $$("[data-m=mono]").forEach((b) => { b.classList.toggle("on", root.dataset.mode === "mono"); b.setAttribute("aria-pressed", root.dataset.mode === "mono"); });
     $$("#cpanel .sw[data-p]").forEach((s) => { s.classList.toggle("on", s.dataset.p === pick); s.setAttribute("aria-pressed", s.dataset.p === pick); });
     $("#cinv")?.classList.toggle("on", !!window.WA_INV); $("#cinv")?.setAttribute("aria-pressed", !!window.WA_INV);
   }
@@ -110,7 +110,7 @@
   });
   document.addEventListener("click", (e) => { if (cpanel && cbtn.closest(".cpick").classList.contains("open") && !e.target.closest(".cpick")) openPanel(false); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && cpanel && cbtn.closest(".cpick").classList.contains("open")) { openPanel(false); cbtn.focus(); } });
-  $$(".mode[data-m=mono]").forEach((b) => (b.onclick = () => {
+  $$("[data-m=mono]").forEach((b) => (b.onclick = () => {
     const again = root.dataset.mode === "mono";
     root.dataset.mode = "mono"; store.set("wa-mode", "mono", true);
     if (again) window.WA_theme?.(null); else applyColour();
