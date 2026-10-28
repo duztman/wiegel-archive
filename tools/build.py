@@ -19,7 +19,7 @@ STATIC = os.path.join(ROOT, "tools", "static")
 
 UI_TEXT = "proletarsk"       # Wiegel's Proletarsk: large x-height, Latin + Cyrillic, ~860 glyphs
 UI_DISPLAY = "preussische"   # Prussian railway lettering IV 44 (1880s), DIN 1451's ancestor: the interface face
-UI_DIN = "altedin1451"       # DIN 1451 alte Mittelschrift: vertical block labels
+UI_DIN = "altedin1451"       # no longer used in the interface (labels use the UI face)
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
 PUA = range(0xE000, 0xF900)
@@ -840,7 +840,7 @@ def about_html(cat, sprite):
 <h2>Method</h2>
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>
 <h2>Colophon</h2>
-<p>Interface in Wiegel’s Preussische IV 44, the 1880s Prussian railway lettering that DIN 1451 grew out of, at a single size; block labels in his DIN 1451 alte Mittelschrift; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
+<p>Interface in Wiegel’s Preussische IV 44, the 1880s Prussian railway lettering that DIN 1451 grew out of, at a single size, with its small capitals for every label; reading text in his Proletarsk. Built {datetime.date.today().isoformat()}.</p>
 </section>
 {legend_block()}"""
     return page("About — Wiegel Archive", body, 0, sprite, "about", "about")
@@ -851,7 +851,7 @@ UIFONTS = []
 
 def ui_font_css(by):
     css = []
-    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI"), (UI_DIN, "WA DIN")):
+    for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI")):
         f = by.get(slug)
         for x in (f or {}).get("faces", []):
             src = "fonts/" + slug + "/" + os.path.basename(x["path"])
