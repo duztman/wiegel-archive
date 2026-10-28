@@ -432,28 +432,26 @@ def icon_svgs(cat):
 
 # ── data derived for v3 ───────────────────────────────────────────────────────────
 # Wiegel's own colours, sampled from peter-wiegel.de (CSS + button/banner images)
-# light paper / dark ink, light first; ordered by the light's hue, yellow to pinks. One light per pair, none repeated.
+# light paper / dark ink, light first (pale yellow / navy and lilac / violet dropped 28 Oct 2026, Okay); ordered by the light's hue, yellow to pinks. One light per pair, none repeated.
 # From Wiegel's site: starburst yellow, pale yellow, specimen tan, banner sky, navy, oxblood, UNZ indigo, button violet;
 # the other lights and darks are shades of those, chosen so no ground fights his download green (all ≥ 1.6 : 1 against it).
 PALETTE = collections.OrderedDict([
     ("sun",      ("#FDFA00", "#5C2A00", "Starburst yellow / umber")),
-    ("pale",     ("#FFFF80", "#000080", "Pale yellow / navy")),
     ("tan",      ("#D3BFA4", "#800025", "Specimen paper / oxblood")),
     ("sky",      ("#00A3EA", "#002A4D", "Banner sky / deep sea")),
     ("lavender", ("#CFC8F5", "#3B2A98", "Lavender / UNZ indigo")),
-    ("lilac",    ("#E5C7FA", "#7C00AD", "Lilac / button violet")),
     ("rose",     ("#FF9EC4", "#2A0A3D", "Rose / aubergine")),
     ("blush",    ("#FFD1DC", "#5A0038", "Blush / plum")),
 ])
 USE_PAL = PALETTE
 FAM_PAL = {
-    "Blackletter": ["tan", "pale", "blush"],
-    "Handwriting": ["pale", "sky", "lavender"],
-    "Norm & Sans": ["sun", "sky", "pale"],
-    "Serif":       ["tan", "pale", "blush"],
-    "Display":     ["lilac", "sun", "sky", "rose"],
-    "Technical":   ["sun", "pale", "sky"],
-    "Symbols":     ["lilac", "lavender", "rose"],
+    "Blackletter": ["tan", "blush"],
+    "Handwriting": ["sky", "lavender"],
+    "Norm & Sans": ["sun", "sky"],
+    "Serif":       ["tan", "blush"],
+    "Display":     ["sun", "sky", "rose"],
+    "Technical":   ["sun", "sky"],
+    "Symbols":     ["lavender", "rose"],
     "Other":       ["lavender", "tan", "rose"],
 }
 TEXT_FAMS = {"Blackletter", "Handwriting", "Norm & Sans", "Serif", "Technical"}
