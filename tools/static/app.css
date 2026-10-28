@@ -64,6 +64,9 @@ em { font-style: normal; color: var(--hot); }
 .nav2:empty { display: none; }
 .nav3 { display: flex; align-items: flex-start; gap: 8px 24px; padding: 12px 0 14px; }   /* font pages: styles left, prev/next right; no rule under it */
 .nav3:empty { display: none; }
+.nav2 .secs { display: contents; }   /* desktop: the section pills sit in the row as before */
+.top .burger, .top .menu { display: none; }   /* phone only */
+.burger svg, .mclose svg { width: 18px; height: 18px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: var(--line); }
 .nav3 .styles { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .nav3 .pnav { flex: none; white-space: nowrap; gap: 8px; padding: 0; }
 .top a, .top button, .top .crumb { display: inline-block; padding: 2px 14px 1px; border-radius: 999px; border: 0; cursor: pointer;
@@ -432,7 +435,30 @@ a.tg { text-decoration: none; }
   .fl .fn { font-size: 32px; } .fl.other .fn { font-size: 24px; }
   :root { --ui: 18px; --info: 12px; --list: 19px; --read: 21px; --gut: 24px; --st: 16px; --sbt: 32px; }
   .nav1 { padding: 10px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
-  .nav2 { gap: 8px 22px; }
+  .nav2 { gap: 8px; }
+  /* phone bar: the name and the page's pill stay; a menu button flush right opens everything else full screen */
+  .nav1 > a:not(.home):not(.on), .nav1 > .nsearch, .nav1 > .modes { display: none; }
+  .top .burger { display: inline-block; margin-left: auto; }
+  .top .menu { position: fixed; inset: 0; z-index: 100; background: var(--navbg); color: var(--navfg); display: grid; place-content: center; justify-items: center; gap: 32px; padding: var(--gut); overflow-y: auto; }
+  .top .menu[hidden] { display: none; }
+  .mclose { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: var(--gut); }
+  .mlist { display: grid; justify-items: center; gap: 12px; }
+  .mslot { display: grid; justify-items: center; gap: 16px; width: min(100%, 20em); }
+  .mslot .nsearch { margin: 0; width: 100%; }
+  .mslot .modes { margin: 0; flex-wrap: wrap; justify-content: center; }
+  .mslot .cbtn { display: none; }   /* the pairs are always open in the menu */
+  .mslot .cpanel { position: static; width: auto; box-shadow: none; }
+  .mslot .cin { width: auto; gap: 8px; padding: 0; flex-wrap: wrap; justify-content: center; }
+  /* phone second row: the name stays, its pills scroll under it, fading in, and run to the screen's edge */
+  .nav2:has(.secs) { overflow: visible; flex-wrap: nowrap; }
+  .nav2 .pname { flex: none; }
+  .nav2 .secs { display: flex; gap: 8px; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none;
+    margin-right: calc(-1 * max(var(--gut), env(safe-area-inset-right, 0px))); padding-right: max(var(--gut), env(safe-area-inset-right, 0px)); }
+  .nav2 .secs > * { flex: none; }
+  .nav2 .secs.sc { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px); mask-image: linear-gradient(to right, transparent, #000 24px); }
+  .nav2.long { flex-wrap: wrap; }   /* a very long name takes a row of its own */
+  .nav2.long .pname { flex: 1 0 100%; }
+  .nav2.long .secs { flex: 1 0 100%; }
   .nav3 { flex-wrap: wrap; gap: 8px; }   /* phone: prev/next on their own line, the styles one swiping row under them, so the sticky bar stays short */
   .nav3 .pnav { order: -1; flex: 1 0 100%; justify-content: flex-end; }
   .nav3 .styles { flex: 1 0 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }

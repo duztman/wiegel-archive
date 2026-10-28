@@ -567,7 +567,7 @@ SWATCHES = '<button type="button" class="sw cinv" id="cinv" title="Invert: dark 
 def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
     """sub: key of the About page shown; fills the second row server-side (font pages fill it from their template)"""
     up = "../" * depth
-    row2 = "".join(f'<a class="{"on" if k == sub else ""}" href="{up}{href}"{" aria-current=page" if k == sub else ""}>{label}</a>' for k, label, href in ABOUT) if sub else ""
+    row2 = ('<span class="secs">' + "".join(f'<a class="{"on" if k == sub else ""}" href="{up}{href}"{" aria-current=page" if k == sub else ""}>{label}</a>' for k, label, href in ABOUT) + '</span>') if sub else ""
     links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur and not sub else ""}>{label}</a>' for k, label, href in NAV)
     return deco(f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -578,9 +578,10 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel" aria-label="Colours">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel" aria-label="Colours">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span><button class="mode burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 5H15M3 9H15M3 13H15" vector-effect="non-scaling-stroke"/></svg></button></nav>
 <nav class="nav2" id="subnav" aria-label="{"About" if sub else "This font"}">{row2}</nav>
 <nav class="nav3" id="stylenav" aria-label="Styles and neighbours"></nav>
+<div class="menu" id="menu" hidden role="dialog" aria-modal="true" aria-label="Menu"><button class="mode mclose" id="mclose" type="button" aria-label="Close menu"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 4L14 14M14 4L4 14" vector-effect="non-scaling-stroke"/></svg></button><nav class="mlist" aria-label="Site">{links}</nav><div class="mslot"></div></div>
 </header>
 <main>{body}
 <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
@@ -953,9 +954,9 @@ def font_html(f, by, sprite, up="../", fragment=False):
              + (f'<ul class="chips">{chips}</ul>' if chips else ""))   # licence → linked small pills → feature chips
     secs = [("specimen", "Specimen")] + ([("set", f"Set of {set_n}")] if ms else []) + [("timeline", "Font history"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
-    subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="crumb">{ESC(f["family"])}</span>'
+    subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="secs"><span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
-    )
+              + '</span>')   # on phone the pills scroll under the name, which stays
     def style_label(x):
         sh = x["short"]
         return f["name"] if sh in ("Regular", "Normal") else sh   # a face with no style of its own keeps its full name

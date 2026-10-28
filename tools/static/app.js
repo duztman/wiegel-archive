@@ -19,6 +19,28 @@
   homeList?.addEventListener("scroll", onScroll, { passive: true });
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
+  $$("#subnav > .secs").forEach((x) => x.addEventListener("scroll", () => x.classList.toggle("sc", x.scrollLeft > 0), { passive: true }));   // About row: fades in at the left once scrolled
+
+  /* phone menu: the search and the colour controls move into it while it is open */
+  const burger = $("#burger"), menu = $("#menu");
+  if (burger && menu) {
+    const slot = $(".mslot", menu), parts = [$(".nsearch"), $(".top .modes")].filter(Boolean);
+    const homes = parts.map((el) => [el.parentNode, el.nextSibling]);
+    const open = (on) => {
+      const cp = $("#cpanel");
+      if (cp) { cp.removeAttribute("style"); $(".cin", cp).removeAttribute("style"); cp.hidden = !on; cp.closest(".cpick").classList.remove("open"); }   // the pairs are always open in the menu
+      if (on) parts.forEach((el) => slot.appendChild(el));
+      else parts.map((el, i) => [el, i]).reverse().forEach(([el, i]) => homes[i][0].insertBefore(el, homes[i][1]));   // last first, so each one's neighbour is back
+      menu.hidden = !on; burger.setAttribute("aria-expanded", on); document.documentElement.style.overflow = on ? "hidden" : "";
+      (on ? $("#mclose") : burger).focus();
+    };
+    burger.addEventListener("click", () => open(true));
+    $("#mclose").addEventListener("click", () => open(false));
+    menu.addEventListener("click", (e) => { if (e.target.closest(".mlist a")) open(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) open(false); });
+    matchMedia("(max-width: 800px)").addEventListener("change", (e) => { if (!e.matches && !menu.hidden) open(false); });
+  }
+
   /* top-bar search: Enter searches the index (here, or by going there with the query) */
   const ns = $(".nsearch");
   ns?.addEventListener("submit", (e) => {
@@ -348,6 +370,12 @@
     const signal = fontAC.signal;
     const sub = $("#subnav"), tpl = $("#subnavtpl");
     if (sub && tpl) { sub.innerHTML = tpl.innerHTML; }
+    const secs = $(".secs", sub || document), pn = $(".pname", sub || document);
+    if (secs) {   // phone: the pills fade in under the name once scrolled; a very long name takes its own row
+      secs.addEventListener("scroll", () => secs.classList.toggle("sc", secs.scrollLeft > 0), { passive: true, signal });
+      const long = () => sub.classList.toggle("long", innerWidth <= 800 && pn && pn.scrollWidth > sub.clientWidth * 0.5);
+      long(); document.fonts?.ready.then(long); addEventListener("resize", long, { signal });   // again once the UI face has its real width
+    }
     const sn = $("#stylenav"), stpl = $("#stylenavtpl");
     if (sn) sn.innerHTML = stpl ? stpl.innerHTML : "";
     setNavH();
