@@ -122,7 +122,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 /* side column head: the write box and the selected filters stay at the top while the pills scroll under them */
 .sidehead { position: sticky; top: 0; z-index: 2; background: var(--paper); padding-top: 40px; }
 .picked { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding: 16px 0 var(--pb); }
-.picked .pill.on { background: color-mix(in oklab, var(--hot) 40%, white); color: color-mix(in oklab, var(--hot) 75%, black); }   /* selected tags: a light tint of the accent */   /* selected tags: a light tint of the accent */
+.picked .pill.on { background: var(--rule); color: var(--hot); }   /* selected tags: filled in the pill-outline colour, letters at full strength */   /* selected tags: a light tint of the accent */
 .picked .pill { font-size: calc(var(--ui) * .75); padding: 2px 10.5px 1.5px; gap: 6px; align-items: center; }   /* 75% of a filter pill */
 .picked .x { width: calc(var(--ui) * .75); height: calc(var(--ui) * .75); flex: none; stroke: currentColor; stroke-width: var(--line); fill: none; }   /* 3× the font's × */
 .sidehead::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none; opacity: 0; transition: opacity .2s;
