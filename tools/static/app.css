@@ -63,26 +63,25 @@ em { font-style: normal; color: var(--hot); }
 .nav2:empty { display: none; }
 .top a, .top button, .top .crumb, .top .cur { display: inline-block; padding: 2px 14px 1px; border-radius: 999px; border: 0; cursor: pointer;
   background: var(--navfg); color: var(--navbg); transition: background .2s, color .2s; }
-.top a:hover, .top button:hover { text-decoration: none; background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
+@media (hover: hover) { .top a:hover, .top button:hover { text-decoration: none; background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); } }
 .top .on, .top .cur { background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
 .top .home { background: none; color: var(--navfg); padding-left: 0; margin-right: 8px; }
 .top .home:hover { box-shadow: none; text-decoration: underline; text-decoration-thickness: .105em; }
 .top .modes { margin-left: auto; display: flex; gap: 8px; }
-.top .rndfont { background: var(--navfg); color: var(--navbg); }
-.top .mode { min-width: 2.2em; text-align: center; }
-.pnav { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 0 14px; } /* same row rhythm as .nav1/.nav2 */
+.top .mode { width: calc(1lh + 3px); padding-inline: 0; text-align: center; }   /* circles: one line plus the pill's 2px + 1px vertical padding */
+.pnav { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 0 0; } /* rule→pill as in the nav rows; the first block's own padding sets pill→ink like rule→ink below */
 .top .pname { padding-right: 14px; margin-right: 8px; } /* plain, spaced like .top .home */
 .pnav a { padding: 2px 14px 1px; border-radius: 999px; color: color-mix(in oklab, var(--fg) 45%, transparent); box-shadow: inset 0 0 0 var(--line) currentColor; }
 .pnav a { display: inline-flex; align-items: center; gap: 8px; }
 .pnav .arw { width: .75em; height: .5em; flex: none; stroke: currentColor; stroke-width: var(--line); fill: none; stroke-linecap: butt; }
-.pnav a:hover { background: var(--fg); color: var(--bg); box-shadow: none; text-decoration: none; }
-.top .mode { background: none; color: var(--navfg); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
+@media (hover: hover) { .pnav a:hover { background: var(--fg); color: var(--bg); box-shadow: none; text-decoration: none; } }
+.top .mode, .top .rndfont { background: none; color: var(--navfg); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
 
 .top .crumb { opacity: .7; cursor: default; }
 .top .crumb:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; }
 .top .sep { display: none; }
 .nav2 a { background: none; color: color-mix(in oklab, var(--navfg) 40%, transparent); box-shadow: inset 0 0 0 var(--line) currentColor; }
-.nav2 a:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; }
+@media (hover: hover) { .nav2 a:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; } }
 .top .push { margin-left: auto; }
 
 main { padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--gut), env(safe-area-inset-left, 0px)); min-width: 0; }
@@ -253,7 +252,7 @@ symbol .mark-t { fill: #fff; font: 600 11px/1 var(--uiface); }
 .icons-row li { display: flex; gap: 8px; align-items: center; }
 
 .blocks { --ff: inherit; }
-.blk:first-child { border-top: 0; padding-top: 0; }   /* under the prev/next row, whose 14px is the gap */
+.blk:first-child { border-top: 0; }
 .blk { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 16px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid color-mix(in oklab, var(--fg) 30%, transparent); cursor: text; }
 .vl { font: 12px/1 var(--din); letter-spacing: .02em; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; opacity: .45; transition: opacity .2s; cursor: pointer; }
 .vl b { font-weight: inherit; }
