@@ -62,7 +62,7 @@ em { font-style: normal; color: var(--hot); }
 .scrolled .top::after { opacity: 1; }   /* the fade only appears once something can sit under it */
 .top::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--navbg); }
 .nav1, .nav2 { display: flex; align-items: center; gap: 8px 8px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
-.nav1 { padding: 12px 0 14px; flex-wrap: wrap; overflow: visible; }
+.nav1 { padding: 24px 0 14px; flex-wrap: wrap; overflow: visible; }   /* twice the room above the bar's first row */
 .nav2 { padding: 12px 0 14px; border-top: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); border-bottom: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }
 .nav2:empty { display: none; }
 .nav1:has(+ .nav2:empty) { border-bottom: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }   /* the bar always ends on a rule, with a second row or without one */
@@ -443,7 +443,7 @@ a.tg { text-decoration: none; }
 @media (max-width: 800px) {
   .fl .fn { font-size: 32px; } .fl.other .fn { font-size: 24px; }
   :root { --ui: 18px; --info: 12px; --list: 19px; --read: 21px; --gut: 24px; --st: 16px; --sbt: 32px; }
-  .nav1 { padding: 10px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
+  .nav1 { padding: 20px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
   .nav2 { gap: 8px; }
   /* phone bar: the name and the page's pill stay; a menu button flush right opens everything else full screen */
   .nav1 > a:not(.home):not(.on), .nav1 > .nsearch, .nav1 > .modes { display: none; }
