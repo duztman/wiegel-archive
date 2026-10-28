@@ -143,7 +143,7 @@
     const SCRIPTS = { latin1: "Latin-1", ext: "Extended Latin", greek: "Greek", cyr: "Cyrillic", longs: "Long s", capsz: "Capital ẞ", euro: "Euro sign" };
     const bucket = (y) => (!y ? "Undated" : y < 1800 ? "Before 1800" : `${Math.floor(y / 10) * 10}s`);
     const CATS = [
-      ["fa", "Family", (f) => (f.din ? [f.fa, "DIN"] : [f.fa])],   // DIN fonts show under their own family and under DIN
+      ["fa", "Family", (f) => [f.fa, ...(f.xf || [])]],   // DIN and dot-matrix fonts show under their own family as well
       ["oy", "Original", (f) => [bucket(f.y)]],
       ["cv", "Script", (f) => (f.cv || []).map((k) => SCRIPTS[k]).filter(Boolean)],
       ["ic", "Features", (f) => (f.ic || []).map((k) => (C.icons || {})[k]).filter(Boolean)],
@@ -155,7 +155,11 @@
     const num = (v) => parseInt(v) || (v === "Before 1800" ? 0 : 9999);
     const sortVals = (k, m) => {
       const e = [...m.entries()];
-      if (k === "fa") { const fam = [...C.families]; fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); return e.sort((a, b) => fam.indexOf(a[0]) - fam.indexOf(b[0])); }
+      if (k === "fa") {   // the extra pills follow the family most of their fonts belong to
+        const fam = [...C.families];
+        fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); fam.splice(fam.indexOf("Technical") + 1, 0, "Dot matrix");
+        return e.sort((a, b) => fam.indexOf(a[0]) - fam.indexOf(b[0]));
+      }
       if (k === "oy" || k === "dy") return e.sort((a, b) => num(a[0]) - num(b[0]));
       return e.sort((a, b) => b[1] - a[1]);
     };

@@ -572,9 +572,23 @@ def is_din(f):
     return bool(DIN_RX.search(" ".join([f["name"], f.get("origin") or ""] + f.get("tags", []))))
 
 
+DOT_EXTRA = {"baudotmurrey"}   # punched-tape holes on a grid; Wiegel files it under dingbats
+
+
+def is_dot(f):
+    """In the Dot matrix pill as well: letters built from small elements repeated on a grid (bulbs, LEDs, pixels, cells, holes)."""
+    return f["genre"] == "dot-matrix/led" or f["slug"] in DOT_EXTRA
+
+
+def extra_families(f):
+    """Family pills a font shows under besides its own (checked by eye on 28 Oct 2026)."""
+    return [x for x, test in (("DIN", is_din), ("Dot matrix", is_dot)) if test(f)]
+
+
 def write_catalog_js(cat):
     rows = []
-    log("din: " + ", ".join(f["slug"] for f in cat["fonts"] if is_din(f)))
+    for x in ("DIN", "Dot matrix"):
+        log(f"{x}: " + ", ".join(f["slug"] for f in cat["fonts"] if x in extra_families(f)))
     for f in cat["fonts"]:
         faces = [fonts_css_entry(f, i, x, "") for i, x in enumerate(f.get("faces", []))]
         rows.append({
@@ -582,7 +596,7 @@ def write_catalog_js(cat):
             "y": f.get("oy"), "dy": f.get("dy"), "sec": f["section"], "p": f["pos"], "of": f["of"],
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
-            "tg": f.get("tags", []), "pal": f["pal"], **({"din": 1} if is_din(f) else {}),
+            "tg": f.get("tags", []), "pal": f["pal"], **({"xf": extra_families(f)} if extra_families(f) else {}),
         })
     js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in USE_PAL.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
