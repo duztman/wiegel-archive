@@ -688,6 +688,25 @@ def deco(html):
     return _LINK.sub(one, html)
 
 
+def lic_name(t):
+    """Only the name of the licence embedded in a font file; boilerplate, URLs and jokes are left out."""
+    t = t or ""; low = t.lower(); names = []
+    if "creative commons" in low:
+        v = re.search(r"(\d\.\d)", t)
+        names.append("Creative Commons" + (" Attribution" if "namensnennung" in low or "attribution" in low else "")
+                     + (" " + v.group(1) if v else "") + (" Germany" if "deutschland" in low else ""))
+    if "gpl" in low or "gpj" in low or "general public" in low:
+        names.append("GNU GPL" + (" with font exception" if "font exception" in low else ""))
+    if "ofl" in low or "open font" in low or "openont" in low:
+        v = re.search(r"open font license,? version (\d\.\d)", low)
+        names.append("SIL Open Font License" + (" " + v.group(1) if v else ""))
+    if not names:
+        if "privaten gebrauch" in low or "private use" in low: names.append("Private use only")
+        elif "evaluat" in low: names.append("Evaluation only")
+        elif any(k in low for k in ("freeware", "alles ist erlaubt", "free software", "freie software", "unlimited permission")): names.append("Freeware")
+    return " and ".join(names)
+
+
 def specimen_blocks(f, faces):
     """Apple-style text styles for text faces; big editable previews for display and odd faces."""
     c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
@@ -767,7 +786,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     meta_rows = [("Number", nofmt(f["no"])), ("Family", f["family"]), ("Genre", f["genre"]), ("Original", str(f["oy"]) if f.get("oy") else None),
                  ("Digitised", f'{f["dy"]} by {f["dwho"]}' if f.get("dy") else None), ("Source", f.get("origin")), ("Place / object", f.get("place")),
                  ("Designer field", f.get("designer")), ("Styles", str(len(faces))), ("Characters", f'{f.get("glyphs",0):,}'),
-                 ("Licence (page)", f.get("license")), ("Licence (font file)", (f.get("font_license") or "")[:240]),
+                 ("Licence (page)", f.get("license")), ("Licence (font file)", lic_name(f.get("font_license"))),
                  ("Wiegel's index", f'{f["section"]}, {f["pos"]} of {f["of"]}')]
     meta = "".join(f'<div{" class=wide" if len(v) > 34 else ""}><dt>{ESC(k)}</dt><dd>{ESC(v)}</dd></div>' for k, v in meta_rows if v)
     glyphs = json.dumps(canon["cmap"][:4000] if canon else [])
