@@ -14,6 +14,9 @@
   function setNavH() { const t = document.getElementById("top"); if (t) document.documentElement.style.setProperty("--navh", t.offsetHeight + "px"); }
   setNavH(); if (window.ResizeObserver && document.getElementById("top")) new ResizeObserver(setNavH).observe(document.getElementById("top")); else addEventListener("resize", setNavH);   // follows the bar when the UI font arrives and it un-wraps
 
+  const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0);
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
   /* colour modes: Random (one pair of Wiegel's colours for the whole page) or Mono (black/white + one accent) */
   function markModes() { $$(".mode").forEach((b) => b.classList.toggle("on", b.dataset.m === document.documentElement.dataset.mode)); }
   $$(".mode").forEach((b) => (b.onclick = () => {
@@ -251,12 +254,14 @@
     function capAlign(b) {
       const f = F[cur]; if (!f) return;
       meas.font = `${b._px}px "${f.id}"`;
-      const m = meas.measureText("H");
+      const m = meas.measureText("H"), ed = $(".ed", b);
       const fA = m.fontBoundingBoxAscent, fD = m.fontBoundingBoxDescent, cA = m.actualBoundingBoxAscent;
       if (!fA || !cA) return;
+      const iA = Math.max(cA, meas.measureText(ed.textContent.split("\n")[0] || "H").actualBoundingBoxAscent);   // tallest ink of the text itself
       const lh = (b.classList.contains("cols") ? 1.4 : b._lh) * b._px;
-      const off = (lh - (fA + fD)) / 2 + fA - cA;
-      $(".vl", b).style.marginTop = Math.max(0, Math.round(off)) + "px";
+      const above = (lh - (fA + fD)) / 2 + fA - iA;   // empty line space above the ink
+      ed.style.marginTop = -Math.max(0, Math.round(above)) + "px";   // ink starts where the block's padding ends
+      $(".vl", b).style.marginTop = Math.round(iA - cA) + "px";      // label still starts at cap height
     }
     function sync() {
       $("#sz").value = active._px; $("#szo").textContent = Math.round(active._px);
