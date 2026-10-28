@@ -246,7 +246,9 @@ def inventory(cat):
     for f in cat["fonts"]:
         good = []
         for x in f["files"]:
-            m = analyse(os.path.join(ROOT, x["path"]))
+            fp = os.path.join(ROOT, x["path"])
+            # a copy without the font folder (cloud session) reuses the metadata recorded by the last full build
+            m = analyse(fp) if os.path.exists(fp) or "cmap" not in x else {k: v for k, v in x.items() if k not in ("path", "orig", "sha1", "from")}
             if "error" in m:
                 x["error"] = m["error"]
                 continue
@@ -924,7 +926,7 @@ def load_files(cat):
     rep = {r["slug"]: r for r in json.load(open(os.path.join(DATA, "build-report.json"), encoding="utf-8"))}
     for f in cat["fonts"]:
         r = rep.get(f["slug"], {})
-        f["files"] = [{k: v for k, v in x.items() if k in ("path", "orig", "sha1", "from")} for x in r.get("files", [])]
+        f["files"] = [dict(x) for x in r.get("files", [])]   # paths plus the metadata of the last full build (used when a font file is absent)
         f["docs"], f["downloads"] = r.get("docs", []), r.get("downloads", [])
     log("extract: skipped (no raw archives), file lists from build-report.json")
 
