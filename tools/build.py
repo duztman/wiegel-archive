@@ -31,6 +31,17 @@ def flink(slug, up=""):
 WRITTEN = set()   # paths written this run (deletion is disabled in the target folder, so we overwrite instead)
 ESC = html.escape
 
+
+def URL(u):
+    """href for a URL from the data: escaped, and only http(s), mailto or relative; anything else becomes '#'."""
+    u = (u or "").strip()
+    return ESC(u) if not re.match(r"^[a-z][a-z0-9+.-]*:", u, re.I) or re.match(r"^(https?|mailto):", u, re.I) else "#"
+
+
+def JSON(o):
+    """JSON for an inline <script>: '</' cannot close the element early."""
+    return json.dumps(o).replace("</", "<\\/")
+
 # ── icon system: Wiegel's green feature buttons, redrawn ─────────────────────────
 ICONS = collections.OrderedDict([
     ("standard",     ("Aa",  "Standard layout",        "Full standard ANSI character set in the usual positions.")),
@@ -109,6 +120,8 @@ def walk_archive(data, depth=0):
     try:
         zf = zipfile.ZipFile(io.BytesIO(data))
     except zipfile.BadZipFile:
+        if depth == 0:
+            log("extract: not a zip archive, skipped")   # a nested .exe that is not a self-extractor is expected; a top-level one is not
         return
     for info, name in zip_names(zf):
         if info.is_dir() or "__MACOSX" in name or name.split("/")[-1].lower() in ("thumbs.db", ".ds_store"):
@@ -180,6 +193,23 @@ def analyse(path):
         "cmap": sorted(c for c in cps if c >= 0x20 and c not in PUA and not 0x7F <= c < 0xA0),
         "coverage": [k for k, _, t in COVERAGE if t(cps)],
     }
+
+
+def web_font(src, dst):
+    """Copy a font for the browser. A name table whose strings pass 64 KB (a licence text stored twice, Mac and
+    Windows) overflows its 16-bit offsets and browsers reject the file; the web copy then drops the Mac records,
+    which repeat the Windows ones. The original stays untouched in the downloads."""
+    try:
+        t = TTFont(src, fontNumber=0, lazy=True)
+        names = t["name"].names
+        if sum(len(r.toBytes()) for r in names) > 0xFFFF and any(r.platformID == 3 for r in names):
+            t["name"].names = [r for r in names if r.platformID != 1]
+            t.save(dst)
+            log(f"fonts: {os.path.basename(src)}: name table over 64 KB, web copy without Mac name records")
+            return
+    except Exception:
+        pass
+    shutil.copy2(src, dst)
 
 
 def created_year(f):
@@ -271,6 +301,9 @@ def inventory(cat):
             seenfs.add(k)
             uniq.append(x)
         f["faces"] = uniq
+        bad = [x for x in f["files"] if x.get("error")]
+        if bad:
+            log(f"fonts: {f['slug']}: {len(bad)} unreadable file(s) skipped, e.g. {os.path.basename(bad[0]['path'])}")
         canon = uniq[0] if uniq else None
         f["sample"] = sample_for(canon["cmap"]) if canon else ""
         f["glyphs"] = canon["chars"] if canon else 0
@@ -345,11 +378,11 @@ def icon_svgs(cat):
     pool = [os.path.join(ROOT, x["path"]) for s in (UI_DISPLAY, UI_DIN, UI_TEXT) for x in by.get(s, {}).get("faces", [])[:1]]
     pool += [os.path.join(ROOT, f["faces"][0]["path"]) for f in cat["fonts"] if f.get("faces") and set(f["coverage"]) >= {"greek", "cyr", "longs"}][:6]
     fonts = []
-    for p in pool:
+    for p in pool:   # the order decides which font a mark is cut from; a font missing here changes the sprite
         try:
             fonts.append(TTFont(p, fontNumber=0))
-        except Exception:
-            pass
+        except Exception as e:
+            log(f"icons: pool font unreadable, marks may be cut from another font: {os.path.relpath(p, ROOT)} ({e.__class__.__name__})")
     out = {}
     for code, (mark, label, _) in ICONS.items():
         for t in fonts:
@@ -407,7 +440,6 @@ PALETTE = collections.OrderedDict([
     ("rose",     ("#FF9EC4", "#2A0A3D", "Rose / aubergine")),
     ("blush",    ("#FFD1DC", "#5A0038", "Blush / plum")),
 ])
-NO_GREEN = set()
 USE_PAL = PALETTE
 FAM_PAL = {
     "Blackletter": ["tan", "pale", "blush"],
@@ -484,8 +516,6 @@ def icon(code, size=24):
     return f'<svg class="ic" width="{size}" height="{size}" aria-label="{ESC(ICONS[code][1])}" role="img"><title>{ESC(ICONS[code][1])}</title><use href="#i-{code}"/></svg>'
 
 
-NAVPAL = {"home": ("#00A3EA", "#000080"), "timeline": ("#FDFA00", "#D40051"), "catalogue": ("#05872C", "#FFFFFF"),
-          "legend": ("#687F12", "#FFFF80"), "about": ("#D3BFA4", "#800025"), "images": ("#7C00AD", "#FFFF80"), "fontpage": ("#00A3EA", "#000080")}
 NAV = [("index", "Fonts", "index.html"), ("timeline", "Timeline", "timeline.html"), ("images", "Images", "images.html"), ("about", "About", "about.html")]
 ABOUT = [("about", "Peter Wiegel", "about.html"), ("site", "This site", "site.html"), ("legend", "Legend", "legend.html"), ("catalogue", "Catalogue", "catalogue.html")]   # the About pages share the second row
 
@@ -519,7 +549,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
-<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
+<nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel" aria-label="Colours">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
 <nav class="nav2" id="subnav" aria-label="{"About" if sub else "This font"}">{row2}</nav>
 </header>
 <main>{body}
@@ -556,7 +586,7 @@ def index_html(cat, sprite):
     dys = [f["dy"] for f in fonts if f.get("dy")]
     body = f"""
 <div class="homegrid">
-  <section class="homelist" aria-label="Typefaces"><p class="fcount"><span class="info" id="count"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p><div id="grid" class="grid list" aria-live="polite"></div>
+  <section class="homelist" aria-label="Typefaces"><p class="fcount"><span class="info" id="count" aria-live="polite"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p><div id="grid" class="grid list"></div>
   <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
     <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
@@ -773,18 +803,18 @@ def font_html(f, by, sprite, up="../", fragment=False):
     styles = "".join(f'<option value="{i}">{ESC(x["style"])}</option>' for i, x in enumerate(faces))
     dl = "".join(
         f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub tnum">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
-        if d["local"] and not HOSTED else f'<li><a href="{ESC(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
+        if d["local"] and not HOSTED else f'<li><a href="{URL(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
         for d in f.get("downloads", []))
     docs = "" if HOSTED else "".join(f'<li><a href="{up}assets/docs/{f["slug"]}/{urllib.parse.quote(os.path.basename(d["path"]))}">{ESC(os.path.basename(d["path"]))}</a></li>' for d in f.get("docs", []))
     ph = f.get("photo")
     photo = ""
     if ph:
         photo = (f'<figure class="photo"><img src="{up}assets/photos/{f["slug"]}.jpg" alt="{ESC(ph.get("caption",""))}" loading="lazy" '
-                 f'onerror="this.onerror=null;this.src=\'{ESC(ph["src"])}\'"><figcaption><span>{ESC(ph.get("caption",""))}</span>'
-                 f'<span class="sub">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{ESC(ph.get("page",""))}">source</a></span></figcaption></figure>')
-    found = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" · " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
-    related = "".join(f'<li><a href="{ESC(x["u"])}">{ESC(x["t"])}</a></li>' for x in f.get("related", []))
-    maps = f'<p><a class="t" href="{ESC(f["maps"])}">Open in Google Maps</a></p>' if f.get("maps") else ""
+                 f'onerror="this.onerror=null;this.src={ESC(json.dumps(ph["src"]))}"><figcaption><span>{ESC(ph.get("caption",""))}</span>'
+                 f'<span class="sub">Photo: {ESC(ph.get("author",""))} · {ESC(ph.get("license",""))} · <a href="{URL(ph.get("page",""))}">source</a></span></figcaption></figure>')
+    found = "".join(f'<li><a href="{URL(x["u"])}">{ESC(x.get("t") or x.get("site",""))}</a><span class="sub">{ESC(x.get("site",""))}{" · " + ESC(x["note"]) if x.get("note") else ""}</span></li>' for x in f.get("found", []))
+    related = "".join(f'<li><a href="{URL(x["u"])}">{ESC(x["t"])}</a></li>' for x in f.get("related", []))
+    maps = f'<p><a class="t" href="{URL(f["maps"])}">Open in Google Maps</a></p>' if f.get("maps") else ""
     prev_, next_ = by.get(f.get("prev")), by.get(f.get("next"))
     plink = lambda g: flink(g["slug"], up) if HOSTED else g["slug"] + ".html"
     meta_rows = [("Number", nofmt(f["no"])), ("Family", f["family"]), ("Genre", f["genre"]), ("Original", str(f["oy"]) if f.get("oy") else None),
@@ -792,9 +822,9 @@ def font_html(f, by, sprite, up="../", fragment=False):
                  ("Designer field", f.get("designer")), ("Styles", str(len(faces))), ("Characters", f'{f.get("glyphs",0):,}'),
                  ("Licence (page)", f.get("license")), ("Licence (font file)", lic_name(f.get("font_license"))),
                  ("Wiegel's index", f'{f["section"]}, {f["pos"]} of {f["of"]}')]
-    meta = "".join(f'<div{" class=wide" if len(v) > 34 else ""}><dt>{ESC(k)}</dt><dd>{ESC(v)}</dd></div>' for k, v in meta_rows if v)
+    meta = "".join(f'<div{" class=wide" if len(v) > 34 else ""}><dt>{ESC(k)}</dt><dd>{xlink(v, f, up) if k == "Source" else ESC(v)}</dd></div>' for k, v in meta_rows if v)
     glyphs = json.dumps(canon["cmap"][:4000] if canon else [])
-    acc = "".join(f'<div class="acc"><h3>{h}</h3><p>{ESC(a[k])}</p></div>' for k, h in (("what", "The typeface"), ("history", "History"), ("use", "In use"), ("notes", "Notes")) if a.get(k))
+    acc = "".join(f'<div class="acc"><h3>{h}</h3><p>{xlink(a[k], f, up, k == "use")}</p></div>' for k, h in (("what", "The typeface"), ("history", "History"), ("use", "In use"), ("notes", "Notes")) if a.get(k))
     if not acc:
         acc = f'<div class="acc"><p>{ESC(f.get("summary",""))}</p></div>'
     tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
@@ -810,7 +840,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
 <template id="subnavtpl">{subnav}</template>
-<script type="application/json" id="faces">{json.dumps(faces)}</script>
+<script type="application/json" id="faces">{JSON(faces)}</script>
 <script type="application/json" id="glyphs">{glyphs}</script>
 <div class="sheet" id="specimen">
   {pnav}
@@ -829,7 +859,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
   </header>
 </div>
 {sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
-{sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{ESC(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{ESC(f["url"])}">Original German page</a></p>', "account")}
+{sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{URL(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{URL(f["url"])}">Original German page</a></p>', "account")}
 {sec("Facts", f'<dl class="facts">{meta}</dl>' + (f'<div class="tags">{tags}</div>' if tags else ''))}
 {sec("Place", photo + f'<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div>', "place") if has_place else ""}
 {sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}
@@ -840,6 +870,55 @@ def font_html(f, by, sprite, up="../", fragment=False):
     if fragment:
         return deco(body)
     return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index", f["pal"])
+
+
+# ── links inside the account texts ───────────────────────────────────────────────
+# "In use" names character sets and features in prose; each links to the font list filtered by Wiegel's matching button
+USE_TERMS = [   # (pattern, filter group, filter value as the index shows it)
+    (r"capital (?:sharp s|ß|ẞ)", "ic", "Capital sharp s"),
+    (r"polytonic(?: Greek)?", "ic", "Polytonic Greek"),
+    (r"Greek", "ic", "Greek"),
+    (r"Cyrillic", "ic", "Cyrillic"),
+    (r"[Ee]uro(?! ?\d)", "ic", "Euro sign"),
+    (r"(?:large )?extended (?:set|Latin)", "ic", "Extended Latin"),
+    (r"long s", "cv", "Long s"),
+    (r"UNZ-?1", "ic", "UNZ1 encoding"),
+    (r"OpenType", "ic", "OpenType features"),
+    (r"Kurrent", "ic", "Kurrent"),
+    (r"[Rr]unes?", "ic", "Runes"),
+]
+_XRX = None
+
+
+def xlink(text, f, up, use=False):
+    """Account text as HTML: other fonts of the archive named in it link to their page; in "In use", feature words
+    link to the font list filtered by that feature. First mention per paragraph; names quoted from crawled titles stay plain."""
+    global _XRX, _NAMES
+    if _XRX is None:   # one pattern for the whole build; longest names first, so "Erikas Büro" wins over "Erika"
+        _NAMES = sorted(((x["name"], x["slug"]) for x in json.load(open(os.path.join(DATA, "catalog.json"), encoding="utf-8"))["fonts"]), key=lambda t: -len(t[0]))
+        parts = [f"(?P<n{i}>{re.escape(n)})" for i, (n, _) in enumerate(_NAMES)] + [f"(?P<t{i}>{rx})" for i, (rx, _, _) in enumerate(USE_TERMS)]
+        _XRX = re.compile(r"(?<![\w'‘’-])(?:" + "|".join(parts) + r")(?![\w'’-])")
+    out, pos, seen = [], 0, set()
+    for m in _XRX.finditer(text):
+        g = m.lastgroup
+        if g in seen:
+            continue
+        if g[0] == "n":
+            name, slug = _NAMES[int(g[1:])]
+            if slug == f["slug"] or name == f["name"]:
+                continue
+            href = flink(slug, up)
+        else:
+            if not use:
+                continue
+            _, k, v = USE_TERMS[int(g[1:])]
+            href = f"{up}index.html#{k}={urllib.parse.quote(v)}"
+        seen.add(g)
+        words = ESC(m.group(0)).rsplit(" ", 1)   # the last word travels with the arrow, as in deco()
+        head = words[0] + " " if len(words) == 2 else ""
+        out.append(ESC(text[pos:m.start()]) + f'<a class="xl" href="{href}">{head}<span class="nw">{words[-1]}{CA("r")}</span></a>')
+        pos = m.end()
+    return "".join(out) + ESC(text[pos:])
 
 
 def legend_block():
@@ -948,13 +1027,15 @@ def main():
     for f in cat["fonts"]:
         for x in f.get("faces", []):
             d = os.path.join(SITE, "assets/fonts", f["slug"]); os.makedirs(d, exist_ok=True)
-            shutil.copy2(os.path.join(ROOT, x["path"]), d)
+            if os.path.exists(os.path.join(ROOT, x["path"])):   # absent in a copy without the font folder
+                web_font(os.path.join(ROOT, x["path"]), os.path.join(d, os.path.basename(x["path"])))
         for dd in f.get("downloads", []):
             if dd["local"] and os.path.exists(os.path.join(RAW, dd["local"])):
                 shutil.copy2(os.path.join(RAW, dd["local"]), os.path.join(SITE, "assets/dl", dd["local"]))
         for d in f.get("docs", []):
             dd = os.path.join(SITE, "assets/docs", f["slug"]); os.makedirs(dd, exist_ok=True)
-            shutil.copy2(os.path.join(ROOT, d["path"]), dd)
+            if os.path.exists(os.path.join(ROOT, d["path"])):
+                shutil.copy2(os.path.join(ROOT, d["path"]), dd)
     place_photos(cat)
     copy_people(SITE)
     sprite = icon_svgs(cat)

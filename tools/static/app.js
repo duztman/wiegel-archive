@@ -37,9 +37,9 @@
   function markModes() {
     const pick = root.dataset.mode === "random" ? window.WA_PICK : "";
     cbtn?.classList.toggle("on", !!pick);
-    $$(".mode[data-m=mono]").forEach((b) => b.classList.toggle("on", root.dataset.mode === "mono"));
-    $$("#cpanel .sw[data-p]").forEach((s) => s.classList.toggle("on", s.dataset.p === pick));
-    $("#cinv")?.classList.toggle("on", !!window.WA_INV);
+    $$(".mode[data-m=mono]").forEach((b) => { b.classList.toggle("on", root.dataset.mode === "mono"); b.setAttribute("aria-pressed", root.dataset.mode === "mono"); });
+    $$("#cpanel .sw[data-p]").forEach((s) => { s.classList.toggle("on", s.dataset.p === pick); s.setAttribute("aria-pressed", s.dataset.p === pick); });
+    $("#cinv")?.classList.toggle("on", !!window.WA_INV); $("#cinv")?.setAttribute("aria-pressed", !!window.WA_INV);
   }
   function applyColour() {
     const art = $("article.font");
@@ -87,6 +87,7 @@
     markModes(); redrawAll();
   });
   document.addEventListener("click", (e) => { if (cpanel && cbtn.closest(".cpick").classList.contains("open") && !e.target.closest(".cpick")) openPanel(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && cpanel && cbtn.closest(".cpick").classList.contains("open")) { openPanel(false); cbtn.focus(); } });
   $$(".mode[data-m=mono]").forEach((b) => (b.onclick = () => {
     const again = root.dataset.mode === "mono";
     root.dataset.mode = "mono"; store.set("wa-mode", "mono", true);
@@ -123,19 +124,7 @@
     loadSrc(el.dataset.src).then((id) => { el.style.fontFamily = `"${id}"`; el.classList.add("ok"); }).catch(() => el.classList.add("ok"));
   }), { rootMargin: "600px 0px" });
 
-  /* ink-centred fitting on canvas: scale by cap height, clamp to the ink box, centre the ink box */
-  const meas = document.createElement("canvas").getContext("2d");
-  function fit(ctx, W, H, family, text) {
-    meas.font = `100px "${family}"`;
-    const m = meas.measureText(text);
-    const L = m.actualBoundingBoxLeft, Rr = m.actualBoundingBoxRight, A = m.actualBoundingBoxAscent, D = m.actualBoundingBoxDescent;
-    const cap = meas.measureText("H").actualBoundingBoxAscent || A || 70;
-    const iw = Math.max(1, L + Rr), ih = Math.max(1, A + D);
-    let s = Math.min((H * 0.42) / cap, (W * 0.86) / iw, (H * 0.78) / ih);
-    if (!isFinite(s) || s <= 0) s = 0.2;
-    ctx.font = `${100 * s}px "${family}"`;
-    ctx.fillText(text, W / 2 - ((Rr - L) / 2) * s, H / 2 + ((A - D) / 2) * s);
-  }
+  const meas = document.createElement("canvas").getContext("2d");   // text measuring for fitting and cap alignment
   function prep(canvas) {
     const dpr = Math.max(1, Math.round(devicePixelRatio || 1));
     const W = canvas.clientWidth, H = canvas.clientHeight;
@@ -157,8 +146,8 @@
       ["fa", "Family", (f) => [f.fa]],
       ["oy", "Original", (f) => [bucket(f.y)]],
       ["dy", "Digitised", (f) => [f.dy ? String(f.dy) : "Unknown"]],
-      ["cv", "Script", (f) => f.cv.map((k) => SCRIPTS[k]).filter(Boolean)],
-      ["ic", "Features", (f) => f.ic.map((k) => (C.icons || {})[k]).filter(Boolean)],
+      ["cv", "Script", (f) => (f.cv || []).map((k) => SCRIPTS[k]).filter(Boolean)],
+      ["ic", "Features", (f) => (f.ic || []).map((k) => (C.icons || {})[k]).filter(Boolean)],
       ["pl", "Place", (f) => [f.ph ? "Photographed" : null, f.pl ? "Has a place" : "No place"].filter(Boolean)],
     ];
     const ORDERS = [["index", "Wiegel’s order"], ["name", "A to Z"], ["oy", "Original date"], ["dy", "Digitised"], ["glyphs", "Most glyphs"]];
@@ -172,15 +161,30 @@
       return e.sort((a, b) => b[1] - a[1]);
     };
     const state = { sel: {}, q: "", order: "index" };
-    try { const s = JSON.parse(store.get("wa-index2") || "{}"); Object.assign(state, s); } catch {}
+    try {   // saved state from an older build, or edited by hand, must not stop the page
+      const s = JSON.parse(store.get("wa-index2") || "{}");
+      if (s && typeof s === "object") {
+        if (s.sel && typeof s.sel === "object") Object.entries(s.sel).forEach(([k, v]) => { if (Array.isArray(v) && v.length) state.sel[k] = v; });
+        if (typeof s.q === "string") state.q = s.q;
+        if (typeof s.order === "string") state.order = s.order;
+      }
+    } catch {}
     Object.keys(state.sel).forEach((k) => (state.sel[k] = new Set(state.sel[k])));
+    /* a link from a font page (index.html#ic=Greek) opens the list filtered by exactly that */
+    const fromLink = [...new URLSearchParams(location.hash.slice(1))].filter(([k, v]) => vals[k]?.has(v));
+    if (fromLink.length) {
+      state.sel = {}; state.q = "";
+      fromLink.forEach(([k, v]) => (state.sel[k] = state.sel[k] || new Set()).add(v));
+      history.replaceState(null, "", location.pathname + location.search);
+    }
     const save = () => store.set("wa-index2", JSON.stringify({ ...state, sel: Object.fromEntries(Object.entries(state.sel).map(([k, v]) => [k, [...v]])) }));
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const ico = (c) => `<svg class="ic" width="18" height="18"><use href="#i-${c}"/></svg>`;
+    C.fonts.forEach((f) => (f._h = (f.n + " " + (f.pl || "") + " " + (f.tg || []).join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase()));   // search text, built once
     const rows = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span class="oy"></span><span class="dy"></span><span class="fa">${esc(f.fa)}</span><span class="ics">${f.ic.slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
+      a.innerHTML = `<span class="meta info tnum"><span class="oy"></span><span class="dy"></span><span class="fa">${esc(f.fa)}</span><span class="ics">${(f.ic || []).slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
         + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span>`;
       return a;
     });
@@ -205,7 +209,7 @@
       const q = state.q.toLowerCase();
       return (f) => {
         for (const [k, , fn] of CATS) { if (k === skip) continue; const s = state.sel[k]; if (s && s.size && !fn(f).some((v) => s.has(v))) return false; }
-        if (q && !(f.n + " " + (f.pl || "") + " " + f.tg.join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase().includes(q)) return false;
+        if (q && !f._h.includes(q)) return false;
         return true;
       };
     }
@@ -221,12 +225,14 @@
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
       list.forEach((r, i) => {   // OG / DG named on the first row only; columns stay aligned
-        const f = r._font;
-        r.querySelector(".oy").textContent = f.y ? (i ? "" : "OG ") + f.y : "";
-        r.querySelector(".dy").textContent = f.dy ? (i ? "" : "DG ") + f.dy : "";
+        const f = r._font, oy = r.querySelector(".oy"), dy = r.querySelector(".dy");
+        const toy = f.y ? (i ? "" : "OG ") + f.y : "", tdy = f.dy ? (i ? "" : "DG ") + f.dy : "";
+        if (oy.textContent !== toy) oy.textContent = toy;
+        if (dy.textContent !== tdy) dy.textContent = tdy;
       });
       const changed = grid.children.length !== list.length || grid.firstElementChild !== list[0];
-      grid.replaceChildren(...list);
+      const same = !changed && list.every((r, i) => grid.children[i] === r);
+      if (!same) grid.replaceChildren(...list);   // same rows in the same order: leave the list alone
       if (changed) {   // a new result set starts at its top, never inside empty space left by the old one
         const sc = grid.closest(".homelist");
         if (sc && sc.scrollHeight > sc.clientHeight) sc.scrollTop = 0;
@@ -241,7 +247,7 @@
     $("#q").value = state.q; $("#q").oninput = (e) => { state.q = e.target.value; apply(); };
     const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
     const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
-    let tm; rt.addEventListener("input", grow); $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
+    let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
     /* the rule above Search sits on the rule above the second font in the list */
@@ -290,9 +296,12 @@
 
   /* ── font page ─────────────────────────────────────────────────────── */
   const LEAD = { "Large Title": 1.0, Title: 1.05, Headline: 1.15, Body: 1.4, Caption: 1.4 };
+  let fontAC = null;   // the current font page's listeners and observers; the hosted shell replaces the page on hash change
   function initFont() {
     const art = $("article.font"), blocks = $("#blocks");
     if (!art || !blocks) return;
+    fontAC?.abort(); fontAC = new AbortController();
+    const signal = fontAC.signal;
     const sub = $("#subnav"), tpl = $("#subnavtpl");
     if (sub && tpl) { sub.innerHTML = tpl.innerHTML; setNavH(); }
     $$("[href^='#']", sub || document).forEach((a) => a.addEventListener("click", (e) => { const t = document.getElementById(a.getAttribute("href").slice(1)); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth" }); } }));
@@ -370,13 +379,15 @@
       });
     }
     $$(".feat input", art).forEach((i) => (i.onchange = applyFace));
-    $("#style")?.addEventListener("change", (e) => { cur = +e.target.value; load(F[cur]).then(() => { applyFace(); fitBlocks(); drawGlyphs(); }); });
+    $("#style")?.addEventListener("change", (e) => {
+      const n = +e.target.value;
+      load(F[n]).then(() => { cur = n; applyFace(); fitBlocks(); drawGlyphs(); }).catch(() => { e.target.value = cur; });   // a face that fails keeps the previous one
+    });
 
     /* colour */
     function setPal(k) {
       $$(".sw", art).forEach((s) => s.classList.toggle("on", s.dataset.p === k));
       window.WA_theme?.(k === "plain" || !P[k] ? null : P[k]);
-      if (k === "plain" && document.documentElement.dataset.mode === "random") { const r = document.documentElement.style; r.removeProperty("--paper"); r.removeProperty("--ink"); }
       art.dataset.cur = k; window._redrawFont?.();
     }
     window._setPal = setPal;
@@ -400,7 +411,8 @@
     F.slice(1).forEach((f) => load(f).catch(() => {}));
     load(F[0]).then(() => { blocks.classList.remove("waiting"); applyFace(); fitBlocks(); drawGlyphs(); sync(); })
       .catch(() => { blocks.classList.remove("waiting"); blocks.innerHTML = `<p class="msg">This font file can’t be shown in a browser. The original archives are under Files below.</p>`; });
-    let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(fitBlocks, 150); });
+    let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(fitBlocks, 150); }, { signal });
+    signal.addEventListener("abort", () => { clearTimeout(rz); gio?.disconnect(); });
     sync();
 
     /* glyph grid — shared baseline, each glyph centred on its own ink horizontally */
@@ -441,7 +453,6 @@
     }
     window._redrawFont = () => { $$(".gl .g", art).forEach((d) => d.querySelector("canvas").width && drawG(d)); };
   }
-  window.WA_initFont = initFont;
   initFont();
 
   /* pill labels: a lone letter in a circle sits on its ink box; words sit on their cap band (baseline to cap height) */
@@ -482,10 +493,10 @@
   }
   let inkQ = 0;
   const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };
-  new MutationObserver(inkAll).observe(document.body, { childList: true, subtree: true });
+  new MutationObserver((ms) => { if (ms.some((m) => !m.target.closest?.("#grid"))) inkAll(); }).observe(document.body, { childList: true, subtree: true });   // the font list holds no pills
   inkAll(); document.fonts?.ready?.then(() => { inkCache.clear(); inkAll(); });
 
-  /* UI faces (Wiegel's DIN 1451 + CAT Linz) via FontFace too, so they also work where CSS font URLs are blocked */
+  /* UI faces (Wiegel's Preussische IV 44 + Proletarsk) via FontFace too, so they also work where CSS font URLs are blocked */
   (window.UIFONTS || []).forEach((u) => {
     fetch(R + u.src).then((r) => r.arrayBuffer()).then((buf) => new FontFace(u.family, buf, { weight: String(u.weight), style: u.italic ? "italic" : "normal" }).load())
       .then((x) => { document.fonts.add(x); redrawAll(); inkCache.clear(); inkAll(); }).catch(() => {});
@@ -496,13 +507,24 @@
   if (shell) {
     const order = C.fonts.map((f) => f.s);
     const cache = {};
+    let showing = 0;   // a newer hash wins over a slower pack still loading
+    const missing = (slug) => {   // the slug is shown as text, never parsed as HTML
+      const p = document.createElement("p"); p.className = "lead";
+      const a = document.createElement("a"); a.href = "index.html"; a.textContent = "Back to the index";
+      p.append(`No font called “${slug}”. `, a, "."); shell.replaceChildren(p);
+    };
     async function show() {
-      const slug = decodeURIComponent(location.hash.slice(1)) || order[0];
+      const tok = ++showing;
+      let slug = location.hash.slice(1);
+      try { slug = decodeURIComponent(slug); } catch {}
+      slug = slug || order[0];
       const i = order.indexOf(slug);
-      if (i < 0) { if (document.getElementById(slug)) return; shell.innerHTML = `<p class="lead">No font called “${slug}”. <a href="index.html">Back to the index</a>.</p>`; return; }
+      if (i < 0) { if (document.getElementById(slug)) return; missing(slug); return; }
       const pk = Math.floor(i / (window.PACK || 20));
-      cache[pk] = cache[pk] || fetch(`pages/p${pk}.json`).then((r) => r.json());
-      const pack = await cache[pk];
+      cache[pk] = cache[pk] || fetch(`pages/p${pk}.json`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+      let pack;
+      try { pack = await cache[pk]; } catch { delete cache[pk]; if (tok === showing) missing(slug); return; }   // a failed pack is fetched again next time
+      if (tok !== showing) return;
       shell.innerHTML = pack[slug];
       document.title = C.fonts[i].n + " — Wiegel Archive";
       scrollTo(0, 0);

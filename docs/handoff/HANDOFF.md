@@ -1,6 +1,6 @@
 # Wiegel Archive: handoff for the next agent
 
-State at 28 Oct 2026, afternoon (Istanbul). Okay (the owner) directs the design closely; the site is signed off as **pixel-perfect**. Read in this order:
+State at 28 Oct 2026, afternoon (Istanbul), artifact v59. Okay (the owner) directs the design closely; the site is signed off as **pixel-perfect**. Read in this order:
 1. this file
 2. [../RULES.md](../RULES.md): the design system and how to work with Okay
 3. [../audits/2026-10-28.md](../audits/2026-10-28.md): open findings
@@ -26,7 +26,7 @@ There are three copies. They must stay in step: the same `tools/` builds byte-id
 |---|---|---|
 | **Mac** (full build) | `~/Sites/wiegel-archive` on Okay's Mac. Open with "Open Wiegel Archive.command" | Has all fonts, raw archives and photos. **Not a git repo.** |
 | **Repo** | `duztman/wiegel-archive` (GitHub), branch `main` | `tools/`, `data/`, `docs/`. Fonts, raw files, `site/` and `hosted/` are git-ignored. |
-| **Hosted** | private claude.ai artifact https://claude.ai/artifact/9XpQGH3LqFMUfXSGQkgQiG (v58 on 28 Oct) | One face per font. Its page is `main.html`. |
+| **Hosted** | private claude.ai artifact https://claude.ai/artifact/9XpQGH3LqFMUfXSGQkgQiG (v59 on 28 Oct) | One face per font. Its page is `main.html`. |
 
 ## Pages
 
@@ -38,6 +38,7 @@ There are three copies. They must stay in step: the same `tools/` builds byte-id
   - **This site** (`site.html`): one paragraph, colour, colophon
   - **Legend** (`legend.html`): the feature chips
   - **Catalogue** (`catalogue.html`): the sortable list
+- **Links inside the texts** (`xlink()` in `build.py`): a font of the archive named in an account paragraph or the Source fact links to its page; in "In use", feature words (Greek, Cyrillic, euro, capital ß, extended set, long s, UNZ1, OpenType, Kurrent, runes; `USE_TERMS`) link to the font list filtered by Wiegel's matching button, via `index.html#ic=<label>` (or `#cv=`), which `app.js` applies and then clears from the address. First mention per paragraph; names inside quotes stay plain. 455 links on 248 font pages.
 - Data for the About pages lives in `build.py`: `REFS`, `about_html()`, `site_html()`. The portrait is `tools/static/people/wiegel.png`, from his own site, made black and white and cut out. Its ground is `--dark`.
 
 ## Screenshots
@@ -94,7 +95,8 @@ The progression of 27–28 Oct (260 screenshots, indexed against Okay's messages
    1. Back up the old files first: `cp` them into `_to_delete/tools-before-<date>/`.
    2. Pull each changed file: `curl -sSf -o tools/<file> https://raw.githubusercontent.com/duztman/wiegel-archive/main/tools/<file>`.
    3. Run `python3 tools/build.py && python3 tools/hosted.py` there.
-7. **Verify the copies agree:** `shasum -a 256` of `hosted/*.html` and `hosted/assets/app.css` on the Mac must equal the cloud build.
+7. **Regression check before publishing:** deterministic screenshots of every page and 20 fonts at 1366 and 390 (`sun` pair), before and after, compared pixel by pixel. Lazy images and font loads make a few shots noisy: repeat a differing shot before believing it. Note that `goto` between `font.html#a` and `font.html#b` is a hash change in the same document, not a reload.
+8. **Verify the copies agree:** `shasum -a 256` of `hosted/*.html` and `hosted/assets/app.css` on the Mac must equal the cloud build.
 
 **Deleting files on the Mac is not permitted.** Move leftovers into `_to_delete/` and tell Okay.
 
@@ -108,7 +110,7 @@ The 28 Oct audit used three Goldfish subagents (CSS, JS, build and drift) plus d
 
 ## Open work
 
-1. **Audit fixes waiting for Okay's go.** See [../audits/2026-10-28.md](../audits/2026-10-28.md); the specimen clipping is the important one.
+1. **Audit decisions still open** (see the status table in [../audits/2026-10-28.md](../audits/2026-10-28.md)): ink-aligned fit lines for 30 swash fonts; ink crossing block rules in 19 fonts; C/M "on" state; pill re-centring after rotation; sticky hover on touch.
 2. **Families inside one download** (agreed): 114 entries hold several fonts.
    - Replace the Style menu with a Family block.
    - Show "12 fonts" on index rows.
@@ -120,5 +122,4 @@ The 28 Oct audit used three Goldfish subagents (CSS, JS, build and drift) plus d
    - "Licence (page)" notes cut to a name?
    - The Safari check of cap-band pill centring.
    - The 3% x-height gap in arrow sizing.
-5. **Peter Wiegel page:** no obituary found (searched 28 Oct, German and English). The Wayback Machine was unreachable from the cloud, so a forum check (Typophile/Typography.Guru era) is still open.
-6. **Another archive in the same shell:** brief in [../REUSE.md](../REUSE.md).
+5. **Another archive in the same shell:** brief in [../REUSE.md](../REUSE.md).

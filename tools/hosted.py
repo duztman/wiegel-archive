@@ -47,7 +47,7 @@ def main():
     for (slug, name), path in keep.items():
         d = os.path.join(OUT, "assets/fonts", slug)
         os.makedirs(d, exist_ok=True)
-        shutil.copy2(os.path.join(B.ROOT, path), os.path.join(d, name))
+        B.web_font(os.path.join(B.ROOT, path), os.path.join(d, name))
 
     # photos, smaller
     from PIL import Image

@@ -6,6 +6,7 @@ The design system Okay signed off, and the working rules for changing it. The si
 
 - **One interface size:** `--ui: 24px` (18 on phone), set in Wiegel's Preussische IV 44 (`UI_DISPLAY`). Running text in his Proletarsk (`UI_TEXT`, `--read: 28px`). DIN is not used for any label; it survives only as the source of two chip marks (ẞ, ſ), see [ICONS.md](ICONS.md).
 - **Smallest text** (`--info`, 14px): always caps, letter-spaced `.05em`, one tone (`--ink-3`). Vertical labels are the same text, rotated. One block at the end of `app.css` ("the smallest text") enforces this for every small-text selector, by source order. Do not add colour or opacity to those selectors elsewhere; it will be silently overridden.
+- **Specimen ink is never cut vertically:** fit lines and waterfall lines clip sideways only (`overflow-x: clip`).
 - **Specimens are live type**, never images. The page sizes each fit line with canvas `measureText` to 97% of the measure, floor `2 × --ui`; below the floor the line wraps instead (`.wrapped`).
 
 ## Line and spacing
@@ -41,6 +42,7 @@ The design system Okay signed off, and the working rules for changing it. The si
   - The ring is 7/6 of the x-height (cap height in caps lines), centred on that band.
   - Links out get `ne` and downloads get `d`, added by `deco()` in `build.py`.
   - The last word of a link always stays with its arrow.
+- Links inside running text (font names, "In use" features) carry the circled → (`r`): it goes somewhere inside the archive. Links out carry ↗ (`ne`).
 - No underlines anywhere.
 
 ## Pages
