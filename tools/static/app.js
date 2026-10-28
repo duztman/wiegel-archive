@@ -452,7 +452,7 @@
   }
   const NUDGE = 2;   // px: labels sit 2px right of their computed centre
   const RASTER = 0.029;   // measured: rendered glyphs sit 0.029em lower than canvas metrics place them (8× screenshots of C, M and the nav pills)
-  const PILLS = ".pill, .top a:not(.home), .top button, .top .crumb, .pnav a";
+  const PILLS = ".pill:not(.small), .top a:not(.home), .top button, .top .crumb, .pnav a";
   function inkCenter(el) {
     const cs = getComputedStyle(el);
     if (!el._pad) el._pad = [parseFloat(cs.paddingTop), parseFloat(cs.paddingBottom), parseFloat(cs.paddingLeft), parseFloat(cs.paddingRight)];
