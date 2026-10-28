@@ -21,7 +21,10 @@ ROUND = "acdegoqs"   # lowercase with a round (or s-shaped) left side
 # Okay, 28 Oct 2026, on proof 1: "r with round shapes need to be a little closer, with Ys and Ts as well".
 # "A little" is 15% (RULES.md): each listed pair's narrowest ink gap shrinks by 15%.
 ADJUST = [("proletarsk", "r", ROUND, 0.15), ("preussische", "r", ROUND, 0.15),   # proof 2: "rs also too far apart" (Preussische)
-           ("proletarsk", "TY", ROUND, 0.15), ("preussische", "TY", ROUND, 0.15)]
+           ("proletarsk", "TY", ROUND, 0.15), ("preussische", "TY", ROUND, 0.15),
+           ("preussische", "TVWY", "TVWYA", 0.15, "mean")]   # 28 Oct, 19:27: "TY TA VY too far apart, get them closer" (capitals,
+# Preussische). Between these capitals the narrowest gap is at the top, where arms meet, while the white below is
+# wide (TY: 85 at the top, 272 on average, against 102 between two H's): the average gap is what reads, so it is measured.
 
 
 DRAFT = r"""
@@ -114,13 +117,14 @@ def extents(font):
     return of
 
 
-def gap(font, of, l, r, k):
+def gap(font, of, l, r, k, how="min"):
     cm = font.getBestCmap()
     nl, nr = cm[ord(l)], cm[ord(r)]
     adv = font["hmtx"][nl][0]
     el, er = of(nl), of(nr)
     ys = set(el) & set(er)
-    return min(adv - el[y][1] + k + er[y][0] for y in ys) if ys else None
+    g = [adv - el[y][1] + k + er[y][0] for y in ys]
+    return (min(g) if how == "min" else sum(g) / len(g)) if g else None
 
 
 def main(fonts, halfkern, fuchs):
@@ -147,16 +151,16 @@ def main(fonts, halfkern, fuchs):
         cm = font.getBestCmap()
         of = extents(font)
         base = lambda c: unicodedata.normalize("NFD", c)[0]
-        for face, lefts, rights, share in ADJUST:
+        for face, lefts, rights, share, *how in ADJUST:
             if face != slug:
                 continue
             for u in cm:
                 for l in lefts:
                     r = chr(u)
-                    if not r.islower() or base(r) not in rights:
+                    if base(r) not in rights:
                         continue
                     k = values.get(l + r, 0)
-                    g = gap(font, of, l, r, k)
+                    g = gap(font, of, l, r, k, *how)
                     if g and g > 0:
                         values[l + r] = round(k - share * g)
         out[slug] = dict(sorted(values.items()))
