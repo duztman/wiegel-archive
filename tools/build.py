@@ -561,7 +561,7 @@ var k;try{k=localStorage.getItem("wa-pair")}catch(e){}window.WA_PICK=P[k]?k:"";
 window.WA_theme(r.dataset.mode!=="random"?null:P[k]||(window.WA_FONTPAL?P[window.WA_FONTPAL]:null))})();"""
 
 
-SWATCHES = '<button type="button" class="sw cinv" id="cinv" title="Invert: dark grounds, light ink" aria-label="Invert colours">I</button><button type="button" class="sw cinv cmono" data-m="mono" title="Mono: black and white with one bright accent" aria-label="Mono colours">M</button>' + "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
+SWATCHES = '<button type="button" class="sw cinv" id="cinv" title="Invert: dark grounds, light ink" aria-label="Invert colours">I</button><button type="button" class="sw cmono" data-m="mono" style="--b:#f4f2ec;--f:#12110f" title="Mono: black and white with one bright accent" aria-label="Mono colours"></button>' + "".join(f'<button type="button" class="sw" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
 
 
 def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):

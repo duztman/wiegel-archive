@@ -25,7 +25,7 @@ The design system Okay signed off, and the working rules for changing it. The si
 
 ## Navigation
 
-- **Top bar:** Wiegel Archive · **Fonts** · Timeline · Images · About · search field (fills the gap; Enter searches the font list) · **C** (colour picker that grows left out of the circle; its first swatches are I, invert, and M, black and white with one accent) · **Random**. The search takes 85% of the free width; C and Random sit flush right.
+- **Top bar:** Wiegel Archive · **Fonts** · Timeline · Images · About · search field (fills the gap; Enter searches the font list) · **C** (colour picker that grows left out of the circle; its first swatches are I, invert, and M, a paper/ink swatch for black and white with one accent) · **Random**. The search takes 85% of the free width; C and Random sit flush right.
 - **Second row, same pill style:**
   - On font pages: the font name, its family pill, then section pills.
 - **Phone bar** (≤ 800px): row 1 keeps the name, then the current page's pill flush right beside a menu button that replaces every other pill and opens a full-screen centred menu: the pages at twice the size and padding, outlines at twice the line too, a short search, Random, and I, M and the colour pairs at the foot as swatches twice as large (the search and colour controls move into it while it is open). No prev/next on phone. Row 2: 8px between pills; the name stays put while its pills scroll under it, fading in at the left once scrolled, and run on past the right margin to the screen's edge; a name wider than half the row takes a row of its own. The About row scrolls the same way.
