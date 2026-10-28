@@ -433,9 +433,10 @@
     inkCv.width = w; inkCv.height = h; inkCx.font = `${font.replace(/[\d.]+px/, "100px")}`; inkCx.fillText(text, 20, 200);
     const d = inkCx.getImageData(0, 0, w, h).data; let sx = 0, sy = 0, sw = 0;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const a = d[(y * w + x) * 4 + 3]; if (a) { sx += a * x; sy += a * y; sw += a; } }
-    const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
+    const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, bx: (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 200, by: (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
     inkCache.set(k, r); return r;
   }
+  const RASTER = 0.029;   // measured: rendered glyphs sit 0.029em lower than canvas metrics place them (8× screenshots of C, M and the nav pills)
   const PILLS = ".pill, .top a:not(.home), .top button, .top .crumb, .pnav a";
   function inkCenter(el) {
     const cs = getComputedStyle(el);
@@ -445,12 +446,14 @@
     if (cs.textTransform === "uppercase") t = t.toUpperCase();
     const size = parseFloat(cs.fontSize), ink = inkOf(t, `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`);
     if (!ink || !ink.fA) return;
+    const circle = el.classList.contains("mode") || el.classList.contains("cinv");   // a lone letter in a circle sits on its ink box, which reads as centred; words sit on their weight
+    const cx = circle ? ink.bx : ink.cx, cy = circle ? ink.by : ink.cy;
     const [pt, pb] = el._pad, L = parseFloat(cs.lineHeight) || size * 1.2;
     const baseline = pt + (L - (ink.fA + ink.fD) * size) / 2 + ink.fA * size;
-    const shift = (pt + L + pb) / 2 - (baseline - ink.cy * size);   // + moves the text down
+    const shift = (pt + L + pb) / 2 - (baseline - cy * size) - RASTER * size;   // + moves the text down
     const dy = Math.max(-pt, Math.min(pb, shift));
     el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
-    if (el.classList.contains("mode") || el.classList.contains("cinv")) el.style.textIndent = 2 * (ink.adv / 2 - ink.cx) * size + "px";   // circles: centre sideways too
+    if (circle) el.style.textIndent = 2 * (ink.adv / 2 - cx) * size + "px";   // circles: centre sideways too
   }
   let inkQ = 0;
   const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };
