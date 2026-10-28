@@ -564,8 +564,17 @@ def fonts_css_entry(f, i, x, up):
     return {"id": f"wa-{f['slug']}-{i}", "src": src, "style": x["style"], "weight": x["weight"], "italic": x["italic"], "glyphs": x["chars"], "feats": x["feats"], "full": x["full"]}
 
 
+DIN_RX = re.compile(r"\bDIN ?(?:1451|16)\b")   # cites the DIN 1451 or DIN 16/17 standard; "pre-DIN" ancestors do not match
+
+
+def is_din(f):
+    """In the DIN family pill as well as its own family: the standard is named in its name, origin or tags."""
+    return bool(DIN_RX.search(" ".join([f["name"], f.get("origin") or ""] + f.get("tags", []))))
+
+
 def write_catalog_js(cat):
     rows = []
+    log("din: " + ", ".join(f["slug"] for f in cat["fonts"] if is_din(f)))
     for f in cat["fonts"]:
         faces = [fonts_css_entry(f, i, x, "") for i, x in enumerate(f.get("faces", []))]
         rows.append({
@@ -573,7 +582,7 @@ def write_catalog_js(cat):
             "y": f.get("oy"), "dy": f.get("dy"), "sec": f["section"], "p": f["pos"], "of": f["of"],
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
-            "tg": f.get("tags", []), "pal": f["pal"],
+            "tg": f.get("tags", []), "pal": f["pal"], **({"din": 1} if is_din(f) else {}),
         })
     js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in USE_PAL.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
@@ -589,10 +598,9 @@ def index_html(cat, sprite):
   <section class="homelist" aria-label="Typefaces"><p class="fcount"><span class="info" id="count" aria-live="polite"></span><button type="button" class="pill small" id="fclear" hidden>Clear</button></p><div id="grid" class="grid list"></div>
   <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer></section>
   <aside class="side" aria-label="Filter">
-    <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
+    <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Preview text" aria-label="Type text to set every name"></textarea>
     <div class="picked" id="picked" aria-label="Selected filters"></div></div>
     <details id="fdet" open><summary class="fsum">Filters <svg class="ca pm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/><path d="M5.6 10H14.4" vector-effect="non-scaling-stroke"/><path class="v" d="M10 5.6V14.4" vector-effect="non-scaling-stroke"/></svg></summary>
-    <div class="frow2"><input class="fin" id="q" type="search" autocomplete="off" placeholder="Search" aria-label="Search names, places, tags"><label for="q" class="sic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10" cy="10" r="6.5" vector-effect="non-scaling-stroke"/><path d="M15 15l5.5 5.5" vector-effect="non-scaling-stroke"/></svg></label></div>
     <div id="fside"></div>
     </details>
     <p class="info about-l">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)} to {max(dys)} from type, signs and handwriting dated {min(oys)} to {max(oys)}.</p>

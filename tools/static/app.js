@@ -23,8 +23,8 @@
   const ns = $(".nsearch");
   ns?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const q = $("#nq").value.trim(), side = $("#q");
-    if (side) { side.value = q; side.dispatchEvent(new Event("input")); return; }
+    const q = $("#nq").value.trim();
+    if ($("#grid")) return;   // on the font list the bar's search already filters as you type
     let st = {}; try { st = JSON.parse(store.get("wa-index2") || "{}"); } catch {}
     store.set("wa-index2", JSON.stringify({ ...st, sel: {}, q }));
     location.href = R + "index.html";
@@ -143,9 +143,8 @@
     const SCRIPTS = { latin1: "Latin-1", ext: "Extended Latin", greek: "Greek", cyr: "Cyrillic", longs: "Long s", capsz: "Capital ẞ", euro: "Euro sign" };
     const bucket = (y) => (!y ? "Undated" : y < 1800 ? "Before 1800" : `${Math.floor(y / 10) * 10}s`);
     const CATS = [
-      ["fa", "Family", (f) => [f.fa]],
+      ["fa", "Family", (f) => (f.din ? [f.fa, "DIN"] : [f.fa])],   // DIN fonts show under their own family and under DIN
       ["oy", "Original", (f) => [bucket(f.y)]],
-      ["dy", "Digitised", (f) => [f.dy ? String(f.dy) : "Unknown"]],
       ["cv", "Script", (f) => (f.cv || []).map((k) => SCRIPTS[k]).filter(Boolean)],
       ["ic", "Features", (f) => (f.ic || []).map((k) => (C.icons || {})[k]).filter(Boolean)],
       ["pl", "Place", (f) => [f.ph ? "Photographed" : null, f.pl ? "Has a place" : "No place"].filter(Boolean)],
@@ -156,7 +155,7 @@
     const num = (v) => parseInt(v) || (v === "Before 1800" ? 0 : 9999);
     const sortVals = (k, m) => {
       const e = [...m.entries()];
-      if (k === "fa") return e.sort((a, b) => C.families.indexOf(a[0]) - C.families.indexOf(b[0]));
+      if (k === "fa") { const fam = [...C.families]; fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); return e.sort((a, b) => fam.indexOf(a[0]) - fam.indexOf(b[0])); }
       if (k === "oy" || k === "dy") return e.sort((a, b) => num(a[0]) - num(b[0]));
       return e.sort((a, b) => b[1] - a[1]);
     };
@@ -164,7 +163,7 @@
     try {   // saved state from an older build, or edited by hand, must not stop the page
       const s = JSON.parse(store.get("wa-index2") || "{}");
       if (s && typeof s === "object") {
-        if (s.sel && typeof s.sel === "object") Object.entries(s.sel).forEach(([k, v]) => { if (Array.isArray(v) && v.length) state.sel[k] = v; });
+        if (s.sel && typeof s.sel === "object") Object.entries(s.sel).forEach(([k, v]) => { if (Array.isArray(v) && v.length && CATS.some(([c]) => c === k)) state.sel[k] = v; });
         if (typeof s.q === "string") state.q = s.q;
         if (typeof s.order === "string") state.order = s.order;
       }
@@ -243,14 +242,15 @@
       $("#fclear").hidden = !any;
       renderSide(); save();
     }
-    $("#fclear").addEventListener("click", () => { state.sel = {}; state.q = ""; $("#q").value = ""; apply(); });
-    $("#q").value = state.q; $("#q").oninput = (e) => { state.q = e.target.value; apply(); };
+    const nq = $("#nq");   // the bar's search is the list's search
+    $("#fclear").addEventListener("click", () => { state.sel = {}; state.q = ""; nq.value = ""; apply(); });
+    nq.value = state.q; nq.addEventListener("input", (e) => { state.q = e.target.value.trim(); apply(); });
     const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
     const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
     let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
-    /* the rule above Search sits on the rule above the second font in the list */
+    /* the rule above the first filter group sits on the rule above the second font in the list */
     function alignSide() {
       const r2 = grid.children[1];
       const pk = $("#picked");

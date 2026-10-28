@@ -23,6 +23,7 @@
   --st: 24px; --sbt: 48px;   /* sections: same ratio */
   --gut: 96px;
   --navh: 0px;               /* set from the header's height by app.js */
+  --pagew: 1366px;           /* the page never grows past an iPad Pro 12.9" in landscape; wider screens get paper either side */
 
   --uiface: "WA UI", "DIN Alternate", "Helvetica Neue", Arial, sans-serif;
   --text: "WA Text", Georgia, serif;
@@ -39,7 +40,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; scroll-padding-top: calc(var(--navh) + 24px); }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 400 var(--ui)/var(--lh) var(--uiface); font-kerning: normal; -webkit-font-smoothing: antialiased; }
+body { margin: 0 auto; max-width: var(--pagew); background: var(--paper); color: var(--ink); font: 400 var(--ui)/var(--lh) var(--uiface); font-kerning: normal; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: none; }   /* no underlines anywhere; links out carry the circled arrow */
 .tnum { font-variant-numeric: tabular-nums lining-nums; }
@@ -142,15 +143,11 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .pill.zero { opacity: .35; cursor: default; pointer-events: none; } /* nothing left to show next to the active filters */
 .fcount .info { text-transform: uppercase; letter-spacing: .05em; }
 .pill.small { font: var(--info)/1.2 var(--uiface); text-transform: uppercase; letter-spacing: .05em; }
-.frow2 { display: flex; gap: 8px; align-items: center; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); }
 .fin { flex: 1; min-width: 0; width: 100%; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 var(--line) var(--rule); background: none; padding: 3px 16px 2px; outline: none; color: var(--ink); font: var(--ui)/1.2 var(--uiface); }
 .fin:focus { box-shadow: inset 0 0 0 var(--line) var(--ink-3); }
 .fin::placeholder { color: var(--ink-3); }
 .fin::-webkit-search-cancel-button { display: none; }
 #retype { font-family: var(--text); }
-.sic { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; box-shadow: inset 0 0 0 var(--line) var(--rule); cursor: pointer; color: var(--ink-3); }
-.sic svg { fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; }
-.sic:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--ink-3); }
 .fg { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 14px; gap: 0 12px; align-items: start; border-top: var(--line) solid var(--rule); padding: var(--pt) 0 var(--pb); }
 .vlab { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font: var(--info)/1 var(--uiface); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); justify-self: end; padding-top: 4px; }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
