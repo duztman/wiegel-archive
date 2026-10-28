@@ -172,7 +172,7 @@ def respace(f, rules):
     for c, (l, r) in rules.items():
         n = cm[ord(c)]
         ol, orr = side(c, "L"), side(c, "R")
-        nl = side(*l) if l else ol
+        nl = side(*l[:2]) + (round(l[2] * (side("n", "R") + side(*l[:2]))) if len(l) > 2 else 0) if l else ol
         nr = side(*r) if r else orr
         plan[n] = (nl - ol, (nl - ol) + (nr - orr))   # (shift of the ink, change of the advance)
         report[c] = ((ol, orr), (nl, nr))
@@ -193,28 +193,44 @@ def respace(f, rules):
     return report
 
 
+def _put(f, name, contours):
+    """Store recorded contours (lists from ui-marks.json) as the outline of glyph name, adding the glyph if new."""
+    pen = TTGlyphPen(None)
+    for c in contours:
+        for op, args in c:
+            getattr(pen, op)(*[tuple(pt) for pt in args])
+    g = pen.glyph()
+    if name not in f["glyf"].glyphs:
+        f.setGlyphOrder(f.getGlyphOrder() + [name])
+    f["glyf"][name] = g
+    g.recalcBounds(f["glyf"])
+    return g
+
+
+def comma(f):
+    """Preussische: comma and the comma of the semicolon take the shape of his ‚ (his comma points the other way)."""
+    marks = json.load(open(MARKS, encoding="utf-8"))
+    cm, gs = f.getBestCmap(), f.getGlyphSet()
+    hm = f["hmtx"]
+    dots = [c for c in _contours(gs, cm[ord(";")]) if _ybox([c])[0] >= 0]   # the semicolon's upper dot
+    for ch, keep in ((",", []), (";", dots)):
+        n = cm[ord(ch)]
+        g = _put(f, n, [[[op, [list(p) for p in args]] for op, args in c] for c in keep] + marks["comma"])
+        hm[n] = (hm[n][0], g.xMin)
+
+
 def ligatures(f, keys):
-    """f_i, f_l from data/ui-marks.json (drawn by tools/uidraw.py). Advance: the right letter's ink end plus its own
-    right sidebearing, so the ligature takes the respaced ı or l with it. Returns the GSUB rules."""
+    """ff fi fl ffi ffl from data/ui-marks.json (drawn by tools/uidraw.py). Advance: the sum of its letters' advances
+    (after respacing), so a ligature sets exactly as wide as the letters it replaces. Returns the GSUB rules."""
     marks = json.load(open(MARKS, encoding="utf-8"))
     cm = f.getBestCmap()
-    glyf, hm = f["glyf"], f["hmtx"]
+    hm = f["hmtx"]
     subs = []
     for key in keys:
         m = marks[key]
-        pen = TTGlyphPen(None)
-        for c in m["contours"]:
-            for op, args in c:
-                getattr(pen, op)(*[tuple(pt) for pt in args])
-        g = pen.glyph()
-        r = cm[ord(m["right"])]
-        f.setGlyphOrder(f.getGlyphOrder() + [key])
-        glyf[key] = g
-        g.recalcBounds(glyf)
-        rsb = hm[r][0] - glyf[r].xMax
-        hm[key] = (g.xMax + rsb, g.xMin)
-        typed = key.split("_")[1]   # what is typed: f then i (the drawing uses ı, the i without its dot) or f then l
-        subs.append(f"sub {cm[ord('f')]} {cm[ord(typed)]} by {key};")
+        g = _put(f, key, m["contours"])
+        hm[key] = (sum(hm[cm[ord(c)]][0] for c in m["letters"]), g.xMin)
+        subs.append(f"sub {' '.join(cm[ord(c)] for c in m['letters'])} by {key};")
     return subs
 
 
@@ -233,7 +249,7 @@ def kern(f, pairs, subs=()):
         fea = fea.replace("languagesystem cyrl dflt;", "languagesystem latn TRK;\nlanguagesystem cyrl dflt;")
         names = []
         for i, rule in enumerate(subs):
-            names.append((f"L{i}", " f_i;" in rule))
+            names.append((f"L{i}", rule.rstrip(";").endswith("_i")))   # the ligatures ending in i lose its dot
             fea += f"lookup L{i} {{ {rule} }} L{i};\n"
         use = lambda tr: " ".join(f"lookup {n};" for n, dotless in names if not (tr and dotless))
         fea += f"feature liga {{\n script DFLT; language dflt; {use(False)}\n script latn; language dflt; {use(False)}\n language TRK exclude_dflt; {use(True)}\n}} liga;\n"
@@ -255,11 +271,11 @@ def rename(f, family):
 
 
 # Proletarsk's uneven sides, set from his own n, o, x, t and f (Okay, 28 Oct: "hd, kt too close; k trips up the system").
-# Straight stems as n, bowls as o; k's leg as x's; l's tail as t's; t's crossbar as f's; quotes as o's round side.
+# Straight stems as n, bowls as o (d and q a bit wider: their bowl against a stem read too close); k's leg as x's; l's tail as t's; t's crossbar as f's; quotes as o's round side.
 TEXT_SPACING = {
     "h": (None, ("n", "R")),
     "b": (None, ("o", "R")), "p": (None, ("o", "R")),
-    "d": (("o", "L"), None), "q": (("o", "L"), None),
+    "d": (("o", "L", 0.15), None), "q": (("o", "L", 0.15), None),   # Okay, proof 2: "hd too close": a bit (15% of the h–d gap) more
     "k": (None, ("x", "R")),
     "l": (None, ("t", "R")),
     "t": (("f", "L"), None),
@@ -281,8 +297,9 @@ def make(srcs, out_dir, kerning=True):
         if slug == "proletarsk":
             turkish(f, redraw="İ")   # Wiegel's İ carries its dot under the I
             respace(f, TEXT_SPACING)
-            subs = ligatures(f, ("f_i", "f_l"))
+            subs = ligatures(f, ("f_f_i", "f_f_l", "f_f", "f_i", "f_l"))
         if slug == "preussische":
+            comma(f)
             turkish(f)
             quotes(f)
             centre(f)

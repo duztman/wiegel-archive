@@ -20,7 +20,8 @@ import uifonts
 ROUND = "acdegoqs"   # lowercase with a round (or s-shaped) left side
 # Okay, 28 Oct 2026, on proof 1: "r with round shapes need to be a little closer, with Ys and Ts as well".
 # "A little" is 15% (RULES.md): each listed pair's narrowest ink gap shrinks by 15%.
-ADJUST = [("proletarsk", "r", ROUND, 0.15), ("proletarsk", "TY", ROUND, 0.15), ("preussische", "TY", ROUND, 0.15)]
+ADJUST = [("proletarsk", "r", ROUND, 0.15), ("preussische", "r", ROUND, 0.15),   # proof 2: "rs also too far apart" (Preussische)
+           ("proletarsk", "TY", ROUND, 0.15), ("preussische", "TY", ROUND, 0.15)]
 
 
 DRAFT = r"""
