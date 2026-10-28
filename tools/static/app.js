@@ -448,11 +448,12 @@
     const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, bx: (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 200, cap: inkCx.measureText("H").actualBoundingBoxAscent / 100, by: (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
     inkCache.set(k, r); return r;
   }
+  const NUDGE = 2;   // px: labels sit 2px right of their computed centre
   const RASTER = 0.029;   // measured: rendered glyphs sit 0.029em lower than canvas metrics place them (8× screenshots of C, M and the nav pills)
   const PILLS = ".pill, .top a:not(.home), .top button, .top .crumb, .pnav a";
   function inkCenter(el) {
     const cs = getComputedStyle(el);
-    if (!el._pad) el._pad = [parseFloat(cs.paddingTop), parseFloat(cs.paddingBottom)];
+    if (!el._pad) el._pad = [parseFloat(cs.paddingTop), parseFloat(cs.paddingBottom), parseFloat(cs.paddingLeft), parseFloat(cs.paddingRight)];
     let t = [...el.childNodes].map((n) => (n.nodeType === 3 || n.tagName === "SPAN" ? n.textContent : "")).join("").replace(/\s+/g, " ").trim();
     if (!t) return;
     if (cs.textTransform === "uppercase") t = t.toUpperCase();
@@ -465,7 +466,10 @@
     const shift = (pt + L + pb) / 2 - (baseline - cy * size) - RASTER * size;   // + moves the text down
     const dy = Math.max(-pt, Math.min(pb, shift));
     el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
-    if (circle) { const sx = (ink.adv / 2 - cx) * size; el.style.paddingLeft = Math.max(0, 2 * sx) + "px"; el.style.paddingRight = Math.max(0, -2 * sx) + "px"; }   // asymmetric padding, not text-indent: Safari centres an indented line differently   // circles: centre sideways too
+    // sideways: circles centre their letter's ink box; every label then sits NUDGE px right (tuned by eye on Okay's iPad)
+    const sx = (circle ? (ink.adv / 2 - cx) * size : 0) + NUDGE, [, , pl, pr] = el._pad;
+    if (circle) { el.style.paddingLeft = Math.max(0, 2 * sx) + "px"; el.style.paddingRight = Math.max(0, -2 * sx) + "px"; }   // asymmetric padding, not text-indent: Safari centres an indented line differently
+    else { el.style.paddingLeft = pl + sx + "px"; el.style.paddingRight = Math.max(0, pr - sx) + "px"; }
   }
   let inkQ = 0;
   const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };
