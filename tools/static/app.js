@@ -376,10 +376,44 @@
   window.WA_initFont = initFont;
   initFont();
 
+  /* pill labels sit on their ink's centre of weight, not on the font's line box */
+  const inkCache = new Map(), inkCv = document.createElement("canvas"), inkCx = inkCv.getContext("2d", { willReadFrequently: true });
+  function inkOf(text, font) {   // centroid of the ink in em: x from the pen start, y above the baseline; plus advance and font box
+    const k = font + "|" + text;
+    if (inkCache.has(k)) return inkCache.get(k);
+    inkCx.font = `${font.replace(/[\d.]+px/, "100px")}`;
+    const m = inkCx.measureText(text), w = Math.ceil(m.width) + 40, h = 300;
+    inkCv.width = w; inkCv.height = h; inkCx.font = `${font.replace(/[\d.]+px/, "100px")}`; inkCx.fillText(text, 20, 200);
+    const d = inkCx.getImageData(0, 0, w, h).data; let sx = 0, sy = 0, sw = 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const a = d[(y * w + x) * 4 + 3]; if (a) { sx += a * x; sy += a * y; sw += a; } }
+    const r = sw ? { cx: (sx / sw - 20) / 100, cy: (200 - sy / sw) / 100, adv: m.width / 100, fA: m.fontBoundingBoxAscent / 100, fD: m.fontBoundingBoxDescent / 100 } : null;
+    inkCache.set(k, r); return r;
+  }
+  const PILLS = ".pill, .top a:not(.home), .top button, .top .crumb, .pnav a";
+  function inkCenter(el) {
+    const cs = getComputedStyle(el);
+    if (!el._pad) el._pad = [parseFloat(cs.paddingTop), parseFloat(cs.paddingBottom)];
+    let t = [...el.childNodes].map((n) => (n.nodeType === 3 || n.tagName === "SPAN" ? n.textContent : "")).join("").replace(/\s+/g, " ").trim();
+    if (!t) return;
+    if (cs.textTransform === "uppercase") t = t.toUpperCase();
+    const size = parseFloat(cs.fontSize), ink = inkOf(t, `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`);
+    if (!ink || !ink.fA) return;
+    const [pt, pb] = el._pad, L = parseFloat(cs.lineHeight) || size * 1.2;
+    const baseline = pt + (L - (ink.fA + ink.fD) * size) / 2 + ink.fA * size;
+    const shift = (pt + L + pb) / 2 - (baseline - ink.cy * size);   // + moves the text down
+    const dy = Math.max(-pt, Math.min(pb, shift));
+    el.style.paddingTop = pt + dy + "px"; el.style.paddingBottom = pb - dy + "px";
+    if (el.classList.contains("mode")) el.style.textIndent = 2 * (ink.adv / 2 - ink.cx) * size + "px";   // circles: centre sideways too
+  }
+  let inkQ = 0;
+  const inkAll = () => { if (inkQ) return; inkQ = requestAnimationFrame(() => { inkQ = 0; $$(PILLS).forEach(inkCenter); }); };
+  new MutationObserver(inkAll).observe(document.body, { childList: true, subtree: true });
+  inkAll(); document.fonts?.ready?.then(() => { inkCache.clear(); inkAll(); });
+
   /* UI faces (Wiegel's DIN 1451 + CAT Linz) via FontFace too, so they also work where CSS font URLs are blocked */
   (window.UIFONTS || []).forEach((u) => {
     fetch(R + u.src).then((r) => r.arrayBuffer()).then((buf) => new FontFace(u.family, buf, { weight: String(u.weight), style: u.italic ? "italic" : "normal" }).load())
-      .then((x) => { document.fonts.add(x); redrawAll(); }).catch(() => {});
+      .then((x) => { document.fonts.add(x); redrawAll(); inkCache.clear(); inkAll(); }).catch(() => {});
   });
 
   /* hosted shell: font.html#slug pulls the page body from a pack */
