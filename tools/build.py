@@ -311,7 +311,7 @@ def inventory(cat):
         if bad:
             log(f"fonts: {f['slug']}: {len(bad)} unreadable file(s) skipped, e.g. {os.path.basename(bad[0]['path'])}")
         canon = uniq[0] if uniq else None
-        f["sample"] = sample_for(canon["cmap"]) if canon else ""
+        f["sample"] = CLOCKS[f["slug"]][0] if f["slug"] in CLOCKS else sample_for(canon["cmap"]) if canon else ""
         f["glyphs"] = canon["chars"] if canon else 0
         f["coverage"] = canon["coverage"] if canon else []
         f["feats"] = sorted({t for x in uniq for t in x["feats"]})
@@ -637,8 +637,15 @@ def members_of(f):
     return out if len([1 for _, x in out if not x.get("other")]) > 1 else None
 
 
+# fonts whose pictures come from typing times: OpenType ligatures turn h:mm (five-minute steps) into a clock face
+CLOCKS = {"stefansuhr": ("8:45 12:00 3:30", "1:05 2:10 4:20 5:25 6:35 7:40 9:50 10:55 11:15")}
+
+
 def figures_only(f):
-    """Digits but no Latin letters (or Wiegel's 'Figures only' button): set in figures everywhere, never in its name."""
+    """Digits but no Latin letters (or Wiegel's 'Figures only' button): set in figures everywhere, never in its name.
+    Clock fonts count too: their letters are a plain stand-in, the clocks come from typed times."""
+    if f["slug"] in CLOCKS:
+        return True
     c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
     letters = any(x in c for x in list(range(0x41, 0x5B)) + list(range(0x61, 0x7B)))
     return "ziffern" in f["icons"] or (not letters and any(x in c for x in range(0x30, 0x3A)))
@@ -713,6 +720,8 @@ def index_html(cat, sprite):
 def aa(f):
     """What a font card shows, as Font Book does: 'Aa', or figures for figures-only fonts, or the first two characters it has."""
     c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
+    if f["slug"] in CLOCKS:
+        return "3:00"
     if figures_only(f):
         return "12"
     if 0x41 in c:
@@ -878,7 +887,10 @@ def specimen_blocks(f, faces):
         lo_ = "".join(chr(x) for x in range(0x61, 0x7B) if x in c)
         dg_ = "".join(chr(x) for x in range(0x30, 0x3A) if x in c)
         blocks = [("Name", 200, f["name"], "fit")]
-        if figures_only(f):   # no letters to set its name in: figures, then the sample (times, prices)
+        if f["slug"] in CLOCKS:   # only typed times show what the font is: clocks
+            blocks = [("Clocks", 200, CLOCKS[f["slug"]][0], "fit"), ("Times", 160, CLOCKS[f["slug"]][1], "fit")]
+            up_ = lo_ = dg_ = ""
+        elif figures_only(f):   # no letters to set its name in: figures, then the sample (times, prices)
             blocks = [("Figures", 200, dg_, "fit")]
             if "".join(ch for ch in ".,:;" if ord(ch) in c): blocks.append(("Sample", 160, " ".join(x for x in ("12:45", "3,50", "19.03.") if all(ord(ch) in c for ch in x)), "fit"))
             dg_ = ""
