@@ -374,10 +374,10 @@ def icon_svgs(cat):
             # ink-centred, y flipped; translate snapped to 1/2 px so straight stems land on the grid
             tx = round((12 - cx * s) * 2) / 2
             ty = round((12 + cy * s) * 2) / 2
-            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="5" class="chip"/><path class="mark" transform="translate({tx} {ty}) scale({s:.5f} {-s:.5f})" d="{" ".join(paths)}"/></symbol>'
+            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="1.3" y="1.3" width="21.4" height="21.4" rx="5" class="chip" vector-effect="non-scaling-stroke"/><path class="mark" transform="translate({tx} {ty}) scale({s:.5f} {-s:.5f})" d="{" ".join(paths)}"/></symbol>'
             break
         else:
-            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="5" class="chip"/><text x="12" y="16" text-anchor="middle" class="mark-t">{ESC(mark[:2])}</text></symbol>'
+            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="1.3" y="1.3" width="21.4" height="21.4" rx="5" class="chip" vector-effect="non-scaling-stroke"/><text x="12" y="16" text-anchor="middle" class="mark-t">{ESC(mark[:2])}</text></symbol>'
     return '<svg xmlns="http://www.w3.org/2000/svg" style="display:none">' + "".join(out.values()) + "</svg>"
 
 
@@ -491,7 +491,7 @@ window.WA_theme(window.WA_FONTPAL&&r.dataset.mode==="random"?P[window.WA_FONTPAL
 def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
     up = "../" * depth
     links = "".join(f'<a class="{"on" if k == cur else ""}" href="{up}{href}"{" aria-current=page" if k == cur else ""}>{label}</a>' for k, label, href in NAV)
-    return f"""<!doctype html>
+    return deco(f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>{ESC(title)}</title>
@@ -507,7 +507,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
 </main>
 <script src="{up}assets/catalog.js"></script><script src="{up}assets/app.js"></script>
-</body></html>"""
+</body></html>""")
 
 
 def fonts_css_entry(f, i, x, up):
@@ -542,8 +542,8 @@ def index_html(cat, sprite):
   <aside class="side" aria-label="Filter">
     <div class="sidehead"><textarea class="fin settext" id="retype" rows="2" autocomplete="off" spellcheck="false" placeholder="Write here to change texts" aria-label="Type text to set every name"></textarea>
     <div class="picked" id="picked" aria-label="Selected filters"></div></div>
-    <details id="fdet" open><summary class="fsum">Filters</summary>
-    <div class="frow2"><input class="fin" id="q" type="search" autocomplete="off" placeholder="Search" aria-label="Search names, places, tags"><label for="q" class="sic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10" cy="10" r="6.5"/><path d="M15 15l5.5 5.5"/></svg></label></div>
+    <details id="fdet" open><summary class="fsum">Filters <svg class="ca pm" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/><path d="M5.6 10H14.4" vector-effect="non-scaling-stroke"/><path class="v" d="M10 5.6V14.4" vector-effect="non-scaling-stroke"/></svg></summary>
+    <div class="frow2"><input class="fin" id="q" type="search" autocomplete="off" placeholder="Search" aria-label="Search names, places, tags"><label for="q" class="sic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10" cy="10" r="6.5" vector-effect="non-scaling-stroke"/><path d="M15 15l5.5 5.5" vector-effect="non-scaling-stroke"/></svg></label></div>
     <div id="fside"></div>
     </details>
     <p class="info about-l">{len(fonts)} typefaces and {n_faces} styles by Peter Wiegel, digitised {min(dys)} to {max(dys)} from type, signs and handwriting dated {min(oys)} to {max(oys)}.</p>
@@ -649,10 +649,22 @@ def images_html(cat, sprite, photo_dir):
 PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich"
 
 
-# drawn arrows: stroke = the one line thickness, centred on the pill
-_ARW = '<svg class="arw" viewBox="0 0 18 12" aria-hidden="true"><path d="{}" vector-effect="non-scaling-stroke"/></svg>'
-ARROW_L = _ARW.format("M17 6H1M6 1L1 6L6 11")
-ARROW_R = _ARW.format("M1 6H17M12 1L17 6L12 11")
+# the one arrow: a circle with an arrow, stroke = the one line thickness; class sets the direction (r l u d ne)
+def CA(d="r"):
+    return (f'<svg class="ca {d}" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/>'
+            '<path d="M5.6 10H14M10.6 6.6L14 10L10.6 13.4" vector-effect="non-scaling-stroke"/></svg>')
+ARROW_L, ARROW_R = CA("l"), CA("r")
+_LINK = re.compile(r'<a\b([^>]*)>(.*?)</a>', re.S)
+def deco(html):
+    """links out end in the up-right arrow, downloads in the down arrow"""
+    def one(m):
+        a, inner = m.group(1), m.group(2)
+        if 'class="ca' in inner: return m.group(0)
+        if re.search(r'href="https?:', a): d = "ne"
+        elif " download" in a or "assets/docs/" in a: d = "d"
+        else: return m.group(0)
+        return f'<a{a}>{inner}{CA(d)}</a>'
+    return _LINK.sub(one, html)
 
 
 def specimen_blocks(f, faces):
@@ -754,7 +766,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     pnav = ('<nav class="pnav" aria-label="Previous and next font">'
             + (f'<a href="{plink(prev_)}">{ARROW_L}{ESC(prev_["name"])}</a>' if prev_ else "")
             + (f'<a href="{plink(next_)}">{ESC(next_["name"])}{ARROW_R}</a>' if next_ else "") + '</nav>')
-    years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
+    years_lbl = f" {CA()} ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
 <template id="subnavtpl">{subnav}</template>
@@ -789,16 +801,16 @@ def font_html(f, by, sprite, up="../", fragment=False):
 {sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}
 {sec('Characters <span class="tnum" id="gcount"></span>', '<div id="gl" class="gl"></div>', "characters")}
 {sec("Files", f'<ul class="dl">{dl}</ul>' + (f'<h3>Bundled documents</h3><ul class="dl">{docs}</ul>' if docs else '') + f'<p class="sub">{ESC(f.get("copyright") or "")}</p>', "files")}
-<nav class="pn"><a href="{plink(prev_) if prev_ else '#'}" class="{'' if prev_ else 'off'}">← {ESC(prev_['name'] if prev_ else '')}</a><a href="{plink(next_) if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')} →</a></nav>
+<nav class="pn"><a href="{plink(prev_) if prev_ else '#'}" class="{'' if prev_ else 'off'}">{ARROW_L}{ESC(prev_['name'] if prev_ else '')}</a><a href="{plink(next_) if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')}{ARROW_R}</a></nav>
 </article>"""
     if fragment:
-        return body
+        return deco(body)
     return page(f"{f['name']} — Wiegel Archive", body, 1, sprite, "fontpage", "index", f["pal"])
 
 
 def legend_html(sprite):
     items = "".join(f'<li>{icon(c, 48)}<div><h3>{ESC(l)}</h3><p>{ESC(d)}</p></div></li>' for c, (_, l, d) in ICONS.items())
-    body = f"""<section class="intro"><p class="lead">Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn in his download green: square chips with the mark cut from the archive’s own type and centred on its ink.</p></section>
+    body = f"""<section class="intro"><p class="lead">Wiegel marked every font with small green buttons for its character set and features. Here they are redrawn as line chips in the page’s own colour, at the one line thickness, with the mark cut from the archive’s own type and centred on its ink.</p></section>
 <ul class="legend">{items}</ul>"""
     return page("Legend — Wiegel Archive", body, 0, sprite, "legend", "legend")
 

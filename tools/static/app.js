@@ -209,7 +209,7 @@
     let key = "no", asc = true;
     function sortBy(k) {
       asc = k === key ? !asc : true; key = k;
-      $$(".sortb", lst).forEach((b) => { b.classList.toggle("on", b.dataset.k === k); b.dataset.dir = b.dataset.k === k ? (asc ? "↑" : "↓") : ""; });
+      $$(".sortb", lst).forEach((b) => { b.classList.toggle("on", b.dataset.k === k); b.querySelector(".ca")?.remove(); if (b.dataset.k === k) b.insertAdjacentHTML("beforeend", `<svg class="ca ${asc ? "u" : "d"}" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/><path d="M5.6 10H14M10.6 6.6L14 10L10.6 13.4" vector-effect="non-scaling-stroke"/></svg>`); });
       const v = (r) => (k === "name" ? r.dataset.name : +r.dataset[k]);
       rws.sort((a, b) => { const x = v(a), y = v(b); return (x > y ? 1 : x < y ? -1 : (+a.dataset.no - +b.dataset.no)) * (asc ? 1 : -1); });
       body.replaceChildren(...rws);
