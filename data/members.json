@@ -1,0 +1,2462 @@
+{
+ "18thcentury": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "18thCtrKurTxt.ttf",
+    "name": "18th Century Kurrent Text",
+    "short": "Text"
+   },
+   {
+    "file": "18thCtrInit.ttf",
+    "name": "18th Century Initials",
+    "short": "Initials"
+   },
+   {
+    "file": "18thCtrKurStart.ttf",
+    "name": "18th Century Kurrent Start",
+    "short": "Start"
+   }
+  ]
+ },
+ "5by7": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "5by7.ttf",
+    "name": "5by7",
+    "short": "5by7"
+   },
+   {
+    "file": "5by7_b.ttf",
+    "name": "5by7 Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "5by7Light.ttf",
+    "name": "5by7 Light",
+    "short": "Light"
+   }
+  ]
+ },
+ "alpha54": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Alpha54.ttf",
+    "name": "Alpha54",
+    "short": "Alpha54"
+   },
+   {
+    "file": "Beta54.ttf",
+    "name": "Beta54",
+    "short": "Beta54",
+    "other": true
+   }
+  ]
+ },
+ "altedin1451": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "din1451alt.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "din1451alt_g.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "aurach-tri": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Aurach_Heavy.ttf",
+    "name": "Aurach Heavy",
+    "short": "Heavy"
+   },
+   {
+    "file": "Aurach_Bi.ttf",
+    "name": "Aurach Bi",
+    "short": "Bi"
+   },
+   {
+    "file": "Aurach_Tri.ttf",
+    "name": "Aurach Tri",
+    "short": "Aurach Tri"
+   }
+  ]
+ },
+ "ballade": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "BalladeUNZ1-Bold.ttf",
+    "name": "Ballade UNZ1 Bold",
+    "short": "UNZ1 Bold"
+   },
+   {
+    "file": "BalladeUNZ1-AltBold.ttf",
+    "name": "Ballade UNZ1 Alt Bold",
+    "short": "UNZ1 Alt Bold"
+   }
+  ]
+ },
+ "baltic": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Baltic_Belt.ttf",
+    "name": "Fehmarn Belt",
+    "short": "Fehmarn Belt"
+   },
+   {
+    "file": "Baltic_Beach.ttf",
+    "name": "Baltic Beach",
+    "short": "Beach"
+   },
+   {
+    "file": "Baltic_Bodden.ttf",
+    "name": "Baltic Bodden",
+    "short": "Bodden"
+   },
+   {
+    "file": "Baltic_Bubbles.ttf",
+    "name": "Baltic Bubbles",
+    "short": "Bubbles"
+   },
+   {
+    "file": "Baltic_Coast.ttf",
+    "name": "Baltic Coast",
+    "short": "Coast"
+   },
+   {
+    "file": "Baltic_Dune.ttf",
+    "name": "Baltic Dune",
+    "short": "Dune"
+   },
+   {
+    "file": "Baltic_Hafft.ttf",
+    "name": "Baltic Haff",
+    "short": "Haff"
+   },
+   {
+    "file": "Baltic_Nehrung.ttf",
+    "name": "Baltic Nehrung",
+    "short": "Nehrung"
+   },
+   {
+    "file": "Baltic_Sky.ttf",
+    "name": "Baltic Sky",
+    "short": "Sky"
+   },
+   {
+    "file": "Baltic_Storm.ttf",
+    "name": "Baltic Storm",
+    "short": "Storm"
+   },
+   {
+    "file": "Baltic_Sund.ttf",
+    "name": "Baltic Sund",
+    "short": "Sund"
+   },
+   {
+    "file": "Baltic_Wave.ttf",
+    "name": "Baltic Wave",
+    "short": "Wave"
+   }
+  ]
+ },
+ "berlinemail": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Berlin_Email_Serif_Semibold.ttf",
+    "name": "Berlin Email Serif Semibold",
+    "short": "Serif Semibold"
+   },
+   {
+    "file": "Berlin_Email.ttf",
+    "name": "Berlin Email",
+    "short": "Berlin Email"
+   },
+   {
+    "file": "Berlin_Email_2.ttf",
+    "name": "Berlin Email 2",
+    "short": "2"
+   },
+   {
+    "file": "Berlin_Email_Bold.ttf",
+    "name": "Berlin Email Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Berlin_Email_Heavy.ttf",
+    "name": "Berlin Email Heavy",
+    "short": "Heavy"
+   },
+   {
+    "file": "Berlin_Email_Linie.ttf",
+    "name": "Berlin Email Linie",
+    "short": "Linie"
+   },
+   {
+    "file": "Berlin_Email_Outline.ttf",
+    "name": "Berlin Email Outline",
+    "short": "Outline"
+   },
+   {
+    "file": "Berlin_Email_Schadow.ttf",
+    "name": "Berlin Email Schaddow",
+    "short": "Schaddow"
+   },
+   {
+    "file": "Berlin_Email_SemiBold.ttf",
+    "name": "Berlin Email Semibold",
+    "short": "Semibold"
+   },
+   {
+    "file": "Berlin_Email_Serif.ttf",
+    "name": "Berlin Email Serif",
+    "short": "Serif"
+   },
+   {
+    "file": "Berlin_Email_Serif_Shadow.ttf",
+    "name": "Berlin Email Serif Shadow",
+    "short": "Serif Shadow"
+   },
+   {
+    "file": "Berlin_Email_Wide_Semibold.ttf",
+    "name": "Berlin Email Wide Semibold",
+    "short": "Wide Semibold"
+   }
+  ]
+ },
+ "bernardo": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Bernardo_Moda.ttf",
+    "name": "Bernardo Moda",
+    "short": "Bernardo Moda"
+   },
+   {
+    "file": "Bernardo_Moda_Bold.ttf",
+    "name": "Bernardo Moda Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Bernardo_Moda_Semibold.ttf",
+    "name": "Bernardo Moda Semibold",
+    "short": "Semibold"
+   }
+  ]
+ },
+ "bernerbasisschrift": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "BernerBasisschrift1.ttf",
+    "name": "Berner Basisschrift 1",
+    "short": "1"
+   },
+   {
+    "file": "BernerBasisschrift2.ttf",
+    "name": "Berner Basisschrift 2",
+    "short": "2"
+   }
+  ]
+ },
+ "beroga": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Beroga.ttf",
+    "name": "Beroga",
+    "short": "Beroga"
+   },
+   {
+    "file": "BerogaFettig.ttf",
+    "name": "Beroga Fettig",
+    "short": "Fettig"
+   }
+  ]
+ },
+ "bienchen": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Bienchen_SAS_OpenType.ttf",
+    "name": "Bienchen SAS OpenType",
+    "short": "SAS OpenType"
+   },
+   {
+    "file": "Bienchen_a.ttf",
+    "name": "Bienchen SAS",
+    "short": "SAS"
+   },
+   {
+    "file": "Bienchen_b.ttf",
+    "name": "Bienchen SAS Italic",
+    "short": "SAS Italic"
+   }
+  ]
+ },
+ "blankenburg": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Blankenburg_UNZ1A.ttf",
+    "name": "Blankenburg UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "Blankenburg.ttf",
+    "name": "Blankenburg",
+    "short": "Blankenburg"
+   },
+   {
+    "file": "Blankenburg_gesperrt_UNZ1A.ttf",
+    "name": "Blankenburg UNZ1A Italic",
+    "short": "UNZ1A Italic"
+   }
+  ]
+ },
+ "bordercontrol": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "BorderControl.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "BorderControlUnten.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "breitkopf": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "BreitkopfFrakturUNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "BreitkopfFrakturGesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "casasans": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "casa_sans.ttf",
+    "name": "Casa Sans",
+    "short": "Casa Sans"
+   },
+   {
+    "file": "casa_sans_fettig.ttf",
+    "name": "Casa Sans Fettig",
+    "short": "Fettig"
+   }
+  ]
+ },
+ "cat-dyfa": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "CAT_DyFa.ttf",
+    "name": "CAT DyFa",
+    "short": "CAT DyFa"
+   },
+   {
+    "file": "CAT_DyFa_invers.ttf",
+    "name": "CAT DyFa invers",
+    "short": "invers"
+   },
+   {
+    "file": "CAT_DyFa_tanned.ttf",
+    "name": "CAT DyFa Tanned",
+    "short": "Tanned"
+   }
+  ]
+ },
+ "cat-neuzeit": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "CATNeuzeit.ttf",
+    "name": "CAT Neuzeit",
+    "short": "CAT Neuzeit"
+   },
+   {
+    "file": "CATNeuzeit_Schatten.ttf",
+    "name": "CAT Neuzeit Schatten",
+    "short": "Schatten"
+   }
+  ]
+ },
+ "catnorth": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "CAT_North.ttf",
+    "name": "CAT North",
+    "short": "CAT North"
+   },
+   {
+    "file": "CAT_North_Licht.ttf",
+    "name": "CAT North Licht",
+    "short": "Licht"
+   },
+   {
+    "file": "CAT_North_Shadow.ttf",
+    "name": "CAT North Shadow",
+    "short": "Shadow"
+   }
+  ]
+ },
+ "catprofessorkrause": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "CATProfessorKrauseFraktur.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "CAT_Professor_Krause_Fraktur_Bold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "CATProfessorKrauseFraktur-Bold_I.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "cbe": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "cbeNormal.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "cbeNormal_b.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "cbeNormal_i.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "centreclaws": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "CentreClaws.ttf",
+    "name": "Centre Claws",
+    "short": "Centre Claws"
+   },
+   {
+    "file": "CentreClawsBeam.ttf",
+    "name": "Centre Claws Beam 1",
+    "short": "Beam 1"
+   },
+   {
+    "file": "CentreClawsSlant.ttf",
+    "name": "Centre Claws Slant",
+    "short": "Slant"
+   }
+  ]
+ },
+ "coelnische": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "CoelnischeCurrentFrakturOsFUNZ1.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "CoelnischeCurrentFrakturOsFUNZ1Gesperrt.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "coentgen": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Coentgen_Kanzley_Aufrecht.ttf",
+    "name": "Cöntgen Kanzley Aufrecht",
+    "short": "Kanzley Aufrecht"
+   },
+   {
+    "file": "Coentgen_Kanzley.ttf",
+    "name": "Cöntgen Kanzley",
+    "short": "Kanzley"
+   }
+  ]
+ },
+ "cutmeout": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "CutMeOut.ttf",
+    "name": "Cut Me Out",
+    "short": "Cut Me Out"
+   },
+   {
+    "file": "CutMeOut2.ttf",
+    "name": "Cut Me Out 2",
+    "short": "2"
+   },
+   {
+    "file": "CutMeOut3.ttf",
+    "name": "Cut Me Out 3",
+    "short": "3"
+   }
+  ]
+ },
+ "discipulibritannica": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Discipuli_Britannica.ttf",
+    "name": "Discipuli Britannica",
+    "short": "Discipuli Britannica"
+   },
+   {
+    "file": "Discipuli_Britannica_Bold.ttf",
+    "name": "Discipuli Britannica Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "doergon": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Doergon.ttf",
+    "name": "Doergon",
+    "short": "Doergon"
+   },
+   {
+    "file": "DoergonBackshift.ttf",
+    "name": "Doergon Backshift",
+    "short": "Backshift"
+   },
+   {
+    "file": "DoergonShift.ttf",
+    "name": "Doergon Shift",
+    "short": "Shift"
+   }
+  ]
+ },
+ "elabris": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Elbaris.ttf",
+    "name": "Elbaris",
+    "short": "Elbaris"
+   },
+   {
+    "file": "Elbaris_Outline.ttf",
+    "name": "Elbaris Outline",
+    "short": "Elbaris Outline"
+   }
+  ]
+ },
+ "elbtunnel": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Elb-Tunnel.ttf",
+    "name": "Elb-Tunnel",
+    "short": "Elb-Tunnel"
+   },
+   {
+    "file": "Elb-Tunnel_Schatten.ttf",
+    "name": "Elb-Tunnel Schatten",
+    "short": "Schatten"
+   }
+  ]
+ },
+ "erikasbuero": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "ErikasBuero.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "ErikasBueroBold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "ErikasBuero_I.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "ErikasBuero_B_I.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "erikasfarbband": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "ErikasFarbband.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "ErikasFarbbandBold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "erikatype": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Erika_Type.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "erika_type_b-webfont.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Erika_Type_I.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "erika_type_bi-webfont.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "euroscript": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "EuroScript.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "EuroScriptBold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "fettedeutsche": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "FetteDeutscheSchriftUNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "FetteDeutscheSchriftGesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "fetteunz": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "FetteClassicUNZFraktur.ttf",
+    "name": "Fette Classic UNZ Fraktur",
+    "short": "Classic UNZ Fraktur"
+   },
+   {
+    "file": "FetteUNZFraktur.ttf",
+    "name": "Fette UNZ Fraktur",
+    "short": "Fette UNZ Fraktur"
+   }
+  ]
+ },
+ "fibel": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Fibel_Nord.ttf",
+    "name": "Fibel Nord",
+    "short": "Fibel Nord"
+   },
+   {
+    "file": "Fibel_Nord_Bold.ttf",
+    "name": "Fibel Nord Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Fibel_Nord_Bold_Italic.ttf",
+    "name": "Fibel Nord Bold Italic",
+    "short": "Bold Italic"
+   },
+   {
+    "file": "Fibel_Nord_Italic.ttf",
+    "name": "Fibel Nord Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Fibel_Nord_Kontur.ttf",
+    "name": "Fibel Nord Kontur",
+    "short": "Kontur"
+   },
+   {
+    "file": "Fibel_Sued.ttf",
+    "name": "Fibel Sued",
+    "short": "Sued"
+   },
+   {
+    "file": "Fibel_Sued_Bold.ttf",
+    "name": "Fibel Sued Bold",
+    "short": "Sued Bold"
+   },
+   {
+    "file": "Fibel_Sued_Bold_Italic.ttf",
+    "name": "Fibel Sued Bold Italic",
+    "short": "Sued Bold Italic"
+   },
+   {
+    "file": "Fibel_Sued_Italic.ttf",
+    "name": "Fibel Sued Italic",
+    "short": "Sued Italic"
+   },
+   {
+    "file": "Fibel_Sued_Kontur.ttf",
+    "name": "Fibel Sued Kontur",
+    "short": "Sued Kontur"
+   }
+  ]
+ },
+ "fundamental": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Fundamental_Brigade.ttf",
+    "name": "Fundamental Brigade",
+    "short": "Fundamental Brigade"
+   },
+   {
+    "file": "Fundamental_3D_Brigade.ttf",
+    "name": "Fundamental 3D Brigade",
+    "short": "3D Brigade"
+   },
+   {
+    "file": "Fundamental_Brigade_Condensed.ttf",
+    "name": "Fundamental Brigade Condensed",
+    "short": "Condensed"
+   },
+   {
+    "file": "Fundamental_Brigade_Schlank.ttf",
+    "name": "Fundamental Brigade Schlank",
+    "short": "Schlank"
+   },
+   {
+    "file": "Fundamental_Brigade_Schwer.ttf",
+    "name": "Fundamental Brigade Schwer",
+    "short": "Schwer"
+   }
+  ]
+ },
+ "gl-nummernschild": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "GL-Nummernschild-Eng.ttf",
+    "name": "GL Nummernschild Eng",
+    "short": "Eng"
+   },
+   {
+    "file": "GL-Nummernschild-B-Eng.ttf",
+    "name": "GL Nummernschild Eng Italic",
+    "short": "Eng Italic"
+   },
+   {
+    "file": "GL-Nummernschild-Mtl.ttf",
+    "name": "GL Nummernschild Mtl",
+    "short": "Mtl"
+   },
+   {
+    "file": "GL-Nummernschild-B_Mtl.ttf",
+    "name": "GL Nummernschild Mtl Italic",
+    "short": "Mtl Italic"
+   }
+  ]
+ },
+ "goeschenfraktur": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Goeschen_UNZ1A.ttf",
+    "name": "Goeschen Fraktur UNZ1A",
+    "short": "Goeschen Fraktur UNZ1A"
+   },
+   {
+    "file": "Goeschen.ttf",
+    "name": "Goeschen Fraktur",
+    "short": "Goeschen Fraktur"
+   },
+   {
+    "file": "Goeschen_gesperrt_UNZ1A.ttf",
+    "name": "Goeschen Fraktur UNZ1A Italic",
+    "short": "Goeschen Fraktur UNZ1A Italic"
+   }
+  ]
+ },
+ "gothenburgb": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Gotenburg-B_UNZ1L.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Gotenburg-B_Gesperrt_UNZ1L.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "gothenfrak": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "GothenburgFrakturUMZ1.ttf",
+    "name": "Gothenburg Fraktur UMZ1",
+    "short": "UMZ1"
+   },
+   {
+    "file": "GothenburgFrakturUNZ1Alt.ttf",
+    "name": "Gothenburg Fraktur Alt",
+    "short": "Alt"
+   }
+  ]
+ },
+ "gotischweiss": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Gotisch_Weiss_a.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Gotisch_Weiss_b.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "graphiccat": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "GraphicCAT.ttf",
+    "name": "Graphic CAT",
+    "short": "Graphic CAT"
+   },
+   {
+    "file": "Lichte_Graphic_CAT.ttf",
+    "name": "Lichte Graphic CAT",
+    "short": "Lichte Graphic CAT"
+   }
+  ]
+ },
+ "gruenewald": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Gruenewald_VA_1K.ttf",
+    "name": "Gruenewald VA 1. Klasse",
+    "short": "1. Klasse"
+   },
+   {
+    "file": "Gruenewald_VA_normal.ttf",
+    "name": "Gruenewald VA",
+    "short": "Gruenewald VA"
+   },
+   {
+    "file": "Gruenewald_VA_3K.ttf",
+    "name": "Gruenewald VA 3. Klasse",
+    "short": "3. Klasse"
+   }
+  ]
+ },
+ "hansagoth": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "HansagotischUNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "HansagotischGesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "headline": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "HeadlinetextUNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "HeadlinetextGesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "humboldt": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "HumboldtFrakturUNZ1A.ttf",
+    "name": "Humboldt Fraktur UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "HumboldtFrakturUNZ1L.ttf",
+    "name": "Humboldt Fraktur UNZ1L",
+    "short": "UNZ1L"
+   },
+   {
+    "file": "HumboldtFrakturGesperrtUNZ1L.ttf",
+    "name": "Humboldt Fraktur UNZ1L Italic",
+    "short": "UNZ1L Italic"
+   }
+  ]
+ },
+ "imran": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Imrans_School_a.ttf",
+    "name": "Imrans School",
+    "short": "Imrans School"
+   },
+   {
+    "file": "Imrans_School2_a.ttf",
+    "name": "Imrans School 2",
+    "short": "2"
+   },
+   {
+    "file": "Imrans_School2_b.ttf",
+    "name": "Imrans School 2 Italic",
+    "short": "2 Italic"
+   },
+   {
+    "file": "Imrans_School_b.ttf",
+    "name": "Imrans School Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Simple_Print.ttf",
+    "name": "Simple Print",
+    "short": "Simple Print",
+    "other": true
+   }
+  ]
+ },
+ "imranot": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Imrans_School_OT.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Imrans_School_Bold_OT.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "inkopins": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Incopins_Clusters.ttf",
+    "name": "Incopins Clusters",
+    "short": "Incopins Clusters"
+   },
+   {
+    "file": "Incopins_Clusters_b.ttf",
+    "name": "Incopins Clusters B",
+    "short": "B"
+   }
+  ]
+ },
+ "kabinettfraktur": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "KabinettFraktur.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "FetteKabinettFraktur.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "kaufhalle": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "kaufhalle_blech.ttf",
+    "name": "Kaufhalle Blech",
+    "short": "Kaufhalle Blech"
+   },
+   {
+    "file": "kaufhalle.ttf",
+    "name": "Kaufhalle",
+    "short": "Kaufhalle"
+   }
+  ]
+ },
+ "kleinsemmeringhofstaetten": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Kleinsemmering.ttf",
+    "name": "Kleinsemmering",
+    "short": "Kleinsemmering"
+   },
+   {
+    "file": "Hofstaetten.ttf",
+    "name": "Hofstaetten",
+    "short": "Hofstaetten"
+   }
+  ]
+ },
+ "kochfraktur": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Koch_Fraktur_UNZ1A.ttf",
+    "name": "Koch Fette Deutsche Schrift UNZ1A",
+    "short": "Fette Deutsche Schrift UNZ1A"
+   },
+   {
+    "file": "Koch_Fraktur_gesperrt_UNZ1A.ttf",
+    "name": "Koch Fette Deutsche Schrift UNZ Italic",
+    "short": "Fette Deutsche Schrift UNZ Italic"
+   }
+  ]
+ },
+ "leipzig": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Leipzig_Fraktur_Normal.ttf",
+    "name": "Leipzig Fraktur",
+    "short": "Leipzig Fraktur"
+   },
+   {
+    "file": "Leipzig_Fraktur_Bold.ttf",
+    "name": "Leipzig Fraktur Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Leipzig_Fraktur_Heavy.ttf",
+    "name": "Leipzig Fraktur Heavy",
+    "short": "Heavy"
+   },
+   {
+    "file": "Leipzig_Fraktur_Normal_UNZ1A.ttf",
+    "name": "Leipzig Fraktur UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "Leipzig_Fraktur_Fett_UNZ1A.ttf",
+    "name": "Leipzig Fraktur UNZ1A Bold",
+    "short": "UNZ1A Bold"
+   },
+   {
+    "file": "Leipzig_Fraktur_Fett_Kursiv_UNZ1A.ttf",
+    "name": "Leipzig Fraktur UNZ1A Bold Italic",
+    "short": "UNZ1A Bold Italic"
+   },
+   {
+    "file": "Leipzig_Fraktur_Kursiv_UNZ1A.ttf",
+    "name": "Leipzig Fraktur UNZ1A Italic",
+    "short": "UNZ1A Italic"
+   }
+  ]
+ },
+ "luxembourg": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Luxembourg_1910_Ombre.ttf",
+    "name": "Luxembourg 1910 Ombre",
+    "short": "Ombre"
+   },
+   {
+    "file": "Luxembourg_1910.ttf",
+    "name": "Luxembourg 1910",
+    "short": "Luxembourg 1910"
+   },
+   {
+    "file": "Luxembourg_1910_Contur.ttf",
+    "name": "Luxembourg 1910 Contur",
+    "short": "Contur"
+   }
+  ]
+ },
+ "maass": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "maass_slicer_Italic.ttf",
+    "name": "Maass Slicer",
+    "short": "Slicer"
+   },
+   {
+    "file": "maass_slicer_Italic_3D.ttf",
+    "name": "Maass Slicer 3D",
+    "short": "Slicer 3D"
+   }
+  ]
+ },
+ "mainzerfraktur": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Berthold_Mainzer_Fraktur_UNZ1A.ttf",
+    "name": "Berthold Mainzer Fraktur UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "Bertholdr_Mainzer_Fraktur.ttf",
+    "name": "Berthold Mainzer Fraktur",
+    "short": "Berthold Mainzer Fraktur"
+   },
+   {
+    "file": "Berthold_Mainzer_Fraktur_gesperrt_UNZ1A.ttf",
+    "name": "Berthold Mainzer Fraktur UNZ1A Italic",
+    "short": "UNZ1A Italic"
+   }
+  ]
+ },
+ "makushka": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "makushka.ttf",
+    "name": "Makushka",
+    "short": "Makushka"
+   },
+   {
+    "file": "makushkaKontura.ttf",
+    "name": "Makushka Kontura",
+    "short": "Kontura"
+   },
+   {
+    "file": "makushkaQuadriga.ttf",
+    "name": "Makushka Quadriga",
+    "short": "Quadriga"
+   }
+  ]
+ },
+ "men-nefer": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Men_Nefer.ttf",
+    "name": "Men Nefer",
+    "short": "Men Nefer"
+   },
+   {
+    "file": "Men_Nefer_Black.ttf",
+    "name": "Men Nefer Black",
+    "short": "Black"
+   }
+  ]
+ },
+ "meynetextur": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "meyne_textur_UNZ1A.ttf",
+    "name": "Meyne Textur UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "meyne_textur.ttf",
+    "name": "Meyne Textur",
+    "short": "Meyne Textur"
+   },
+   {
+    "file": "meyne_textur_gesperrt_UNZ1A.ttf",
+    "name": "Meyne Textur UNZ1A Italic",
+    "short": "UNZ1A Italic"
+   }
+  ]
+ },
+ "midroba": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Midroba.ttf",
+    "name": "Midroba",
+    "short": "Midroba"
+   },
+   {
+    "file": "MidrobaSchatten.ttf",
+    "name": "Midroba Schatten",
+    "short": "Schatten"
+   }
+  ]
+ },
+ "moderneschwabacher": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Moderne_Fette_Schwabache_UNZ1Ar.ttf",
+    "name": "Moderne Fette Schwabacher UNZ1A",
+    "short": "Fette Schwabacher UNZ1A"
+   },
+   {
+    "file": "Moderne_3D_Schwabacher.ttf",
+    "name": "Moderne 3D Schwabacher",
+    "short": "3D Schwabacher"
+   },
+   {
+    "file": "Moderne_Fette_Schwabacher.ttf",
+    "name": "Moderne Fette Schwabacher",
+    "short": "Fette Schwabacher"
+   },
+   {
+    "file": "Moderne_Fette_Schwabache_gesperrt_UNZ1Ar.ttf",
+    "name": "Moderne Fette Schwabacher UNZ1A Italic",
+    "short": "Fette Schwabacher UNZ1A Italic"
+   },
+   {
+    "file": "Moderne_Gekippte_Schwabacher.ttf",
+    "name": "Moderne Gekippte Schwabacher",
+    "short": "Gekippte Schwabacher"
+   }
+  ]
+ },
+ "morado": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "morado_felt.ttf",
+    "name": "Morado Felt",
+    "short": "Felt"
+   },
+   {
+    "file": "morado_marker.ttf",
+    "name": "Morado Marker",
+    "short": "Marker"
+   },
+   {
+    "file": "morado_nib.ttf",
+    "name": "Morado Nib",
+    "short": "Nib"
+   },
+   {
+    "file": "morado_sharp.ttf",
+    "name": "Morado Sharp",
+    "short": "Sharp"
+   }
+  ]
+ },
+ "mutterkrause": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "MutterKrauseNormal.ttf",
+    "name": "Mutter Krause",
+    "short": "Mutter Krause"
+   },
+   {
+    "file": "MutterKrauseBuch.ttf",
+    "name": "Mutter Krause Buch",
+    "short": "Buch"
+   },
+   {
+    "file": "MutterKrauseHalbfett.ttf",
+    "name": "Mutter Krause Halbfett",
+    "short": "Halbfett"
+   }
+  ]
+ },
+ "nathan": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Nathan_Alternates.ttf",
+    "name": "Nathan Alternates",
+    "short": "Alternates"
+   },
+   {
+    "file": "Nathan.ttf",
+    "name": "Nathan",
+    "short": "Nathan"
+   },
+   {
+    "file": "Nathan_AlternatesC.ttf",
+    "name": "Nathan Alternates Condensed",
+    "short": "Alternates Condensed"
+   },
+   {
+    "file": "Nathan_AlternatesE.ttf",
+    "name": "Nathan Alternates Expanded",
+    "short": "Alternates Expanded"
+   },
+   {
+    "file": "Nathan_AlternatesSE.ttf",
+    "name": "Nathan Alternates Semi-expanded",
+    "short": "Alternates Semi expanded"
+   },
+   {
+    "file": "NathanC.ttf",
+    "name": "Nathan Condensed",
+    "short": "Condensed"
+   },
+   {
+    "file": "NathanE.ttf",
+    "name": "Nathan Expanded",
+    "short": "Expanded"
+   },
+   {
+    "file": "NathanSE.ttf",
+    "name": "Nathan Semi-expanded",
+    "short": "Semi expanded"
+   }
+  ]
+ },
+ "neuerudelskopf": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Neue_Rudelskopf_Verbunden.ttf",
+    "name": "Neue Rudelskopf Verbunden",
+    "short": "Verbunden"
+   },
+   {
+    "file": "Neue_Rudelskopf.ttf",
+    "name": "Neue Rudelskopf",
+    "short": "Neue Rudelskopf"
+   },
+   {
+    "file": "Neue_Rudelskopf_Stark.ttf",
+    "name": "Neue Rudelskopf Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Neue_Rudelskopf_Stark_Schraeg.ttf",
+    "name": "Neue Rudelskopf Bold Italic",
+    "short": "Bold Italic"
+   },
+   {
+    "file": "Neue_Rudelskopf-Schraeg.ttf",
+    "name": "Neue Rudelskopf Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Neue_Rudelskopf_Verbunden_Fett.ttf",
+    "name": "Neue Rudelskopf Verbunden Bold",
+    "short": "Verbunden Bold"
+   },
+   {
+    "file": "Neue_Rudelskopf_Verbunden_Schraeg_Fett.ttf",
+    "name": "Neue Rudelskopf Verbunden Bold Italic",
+    "short": "Verbunden Bold Italic"
+   },
+   {
+    "file": "Neue_Rudelskopf_Verbunden_Schraeg.ttf",
+    "name": "Neue Rudelskopf Verbunden Italic",
+    "short": "Verbunden Italic"
+   }
+  ]
+ },
+ "neuetheuerdank": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "NeueTheuerdankFrakturUNZ1A.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "NeueTheuerdankFrakturGesperrtUNZ1A.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "normalschrift": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Deutsche_Normalschrift_a.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Deutsche_Normalschrift_b.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "normalschrift-ot": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Deutsche_Normalschrift_OT.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Deutsche_Normalschrift_OT_B.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "numukki": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "numukki.ttf",
+    "name": "Numikki",
+    "short": "Numikki"
+   },
+   {
+    "file": "numukki_i.ttf",
+    "name": "Numukki Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "ondrwaax": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Ondrwaax.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Ondrwaax_b.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Ondrwaax_i.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Ondrwaax_b_i.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "plakatfraktur": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Plakat-FrakturUNZ1L.ttf",
+    "name": "Black",
+    "short": "Black"
+   },
+   {
+    "file": "Plakat-FrakturGesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   }
+  ]
+ },
+ "postbus": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "PostBusPro.ttf",
+    "name": "PostBus",
+    "short": "PostBus"
+   },
+   {
+    "file": "LichtePostBusPro.ttf",
+    "name": "Lichte PostBus",
+    "short": "Lichte PostBus"
+   }
+  ]
+ },
+ "preussischevi9": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "PreussischeVI9Ag2.ttf",
+    "name": "Preussische VI 9",
+    "short": "Preussische VI 9"
+   },
+   {
+    "file": "PreussischeVI9Ag2Linie.ttf",
+    "name": "Preussische VI 9 Linie",
+    "short": "Preussische VI 9 Linie"
+   },
+   {
+    "file": "PreussischeVI9Ag2Schatten.ttf",
+    "name": "Preussische VI 9 Schatten",
+    "short": "Preussische VI 9 Schatten"
+   },
+   {
+    "file": "SchattenVonPreussischeVI9Ag2.ttf",
+    "name": "Preussische VI 9 Schatten B",
+    "short": "Preussische VI 9 Schatten B"
+   },
+   {
+    "file": "PreussischeVI9Ag2SchattenLinie.ttf",
+    "name": "Preussische VI 9 Schatten-Linie",
+    "short": "Preussische VI 9 Schatten Linie"
+   }
+  ]
+ },
+ "quimbie": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Quimbie_Shaddow.ttf",
+    "name": "Quimbie Shaddow",
+    "short": "Shaddow"
+   },
+   {
+    "file": "Quimbie.ttf",
+    "name": "Quimbie",
+    "short": "Quimbie"
+   },
+   {
+    "file": "Quimbie_3D.ttf",
+    "name": "Quimbie 3D",
+    "short": "3D"
+   },
+   {
+    "file": "Quimbie_Ultra_Heavy.ttf",
+    "name": "Quimbie UH",
+    "short": "UH"
+   }
+  ]
+ },
+ "quirkus": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Quirkus.ttf",
+    "name": "Quirkus",
+    "short": "Quirkus"
+   },
+   {
+    "file": "Quirkus_B.ttf",
+    "name": "Quirkus Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Quirkus_BI.ttf",
+    "name": "Quirkus Bold Italic",
+    "short": "Bold Italic"
+   },
+   {
+    "file": "Quirkus_I.ttf",
+    "name": "Quirkus Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Quirkus_Out.ttf",
+    "name": "Quirkus Out",
+    "short": "Out"
+   },
+   {
+    "file": "Quirkus_Upside_Down.ttf",
+    "name": "Quirkus Upside Down",
+    "short": "Upside Down"
+   }
+  ]
+ },
+ "rastenburg": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Rastenburg_Band_U1SY.ttf",
+    "name": "Rastenburg Band",
+    "short": "Band"
+   },
+   {
+    "file": "Rastenburg_schraeg_U1SY.ttf",
+    "name": "Rastenburg Schraeg U1SY",
+    "short": "Schraeg U1SY"
+   },
+   {
+    "file": "Rastenburg_Bold_schraeg_U1SY.ttf",
+    "name": "Rastenburg Schraeg U1SY Bold",
+    "short": "Schraeg U1SY Bold"
+   },
+   {
+    "file": "Rastenburg_Out_U1SY.ttf",
+    "name": "Rastenburg U1SY",
+    "short": "U1SY"
+   },
+   {
+    "file": "Rastenburg_Bold_U1SY.ttf",
+    "name": "Rastenburg U1SY Bold",
+    "short": "U1SY Bold"
+   },
+   {
+    "file": "Rastenburg2_U1SY.ttf",
+    "name": "Rastenburg2 U1SY",
+    "short": "Rastenburg2 U1SY"
+   }
+  ]
+ },
+ "ringmatrix": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "RingMatrix.ttf",
+    "name": "Ring Matrix",
+    "short": "Ring Matrix"
+   },
+   {
+    "file": "RingMatrix3D.ttf",
+    "name": "Ring Matrix 3D",
+    "short": "3D"
+   },
+   {
+    "file": "RingMatrixTwo.ttf",
+    "name": "Ring Matrix Two",
+    "short": "Two"
+   }
+  ]
+ },
+ "ronaldsongothic": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "RonaldsonGothic.ttf",
+    "name": "Ronaldson Gothic",
+    "short": "Ronaldson Gothic"
+   },
+   {
+    "file": "RonaldsonGothicLicht.ttf",
+    "name": "Ronaldson Gothic Licht",
+    "short": "Licht"
+   }
+  ]
+ },
+ "rotunda": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Rotunda_Pommerania_UNZ1A.ttf",
+    "name": "Rotunda Pommerania UNZ1A",
+    "short": "UNZ1A"
+   },
+   {
+    "file": "Rotunda_Pommerania.ttf",
+    "name": "Rotunda Pommerania",
+    "short": "Rotunda Pommerania"
+   },
+   {
+    "file": "Rotunda_Pommerania_gesperrt_UNZ1A.ttf",
+    "name": "Rotunda Pommerania UNZ1A Italic",
+    "short": "UNZ1A Italic"
+   }
+  ]
+ },
+ "rueck": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Rueck_Left.ttf",
+    "name": "Rueck Left",
+    "short": "Left"
+   },
+   {
+    "file": "Rueck.ttf",
+    "name": "Rueck",
+    "short": "Rueck"
+   },
+   {
+    "file": "Rueck_right.ttf",
+    "name": "Rueck Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Rueck_Licht.ttf",
+    "name": "Rueck Licht",
+    "short": "Licht"
+   }
+  ]
+ },
+ "rundgotisch": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "RundgotischRauh.ttf",
+    "name": "Rundgotisch Rauh",
+    "short": "Rundgotisch Rauh"
+   },
+   {
+    "file": "Tyskland_45.otf",
+    "name": "Tyskland45",
+    "short": "Tyskland45",
+    "other": true
+   }
+  ]
+ },
+ "schraubenkiste": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Schraubenkiste.ttf",
+    "name": "Schraubenkiste",
+    "short": "Schraubenkiste"
+   },
+   {
+    "file": "Schraubenkiste2.ttf",
+    "name": "Schraubenkiste 2",
+    "short": "2"
+   }
+  ]
+ },
+ "schwaben": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Schwaben_Alt_UNZ1A.ttf",
+    "name": "Schwaben Alt UNZ1A",
+    "short": "Schwaben Alt UNZ1A"
+   },
+   {
+    "file": "Schwaben_Alt_Bold.ttf",
+    "name": "Schwaben Alt Bold",
+    "short": "Schwaben Alt Bold"
+   },
+   {
+    "file": "Schwaben_Alt_gesperrt_UNZ1A.ttf",
+    "name": "Schwaben Alt UNZ1A Italic",
+    "short": "Schwaben Alt UNZ1A Italic"
+   }
+  ]
+ },
+ "simpleprint": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Simple_Print.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Simple_Print_Bold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "spartakus": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "SparTakus_Round.ttf",
+    "name": "SparTakus Round",
+    "short": "Round"
+   },
+   {
+    "file": "SparTakus.ttf",
+    "name": "SparTakus",
+    "short": "SparTakus"
+   }
+  ]
+ },
+ "stefansuhr": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "StefansUhr.ttf",
+    "name": "Stefans Uhr",
+    "short": "Stefans Uhr"
+   },
+   {
+    "file": "StefansUhrBlank.ttf",
+    "name": "Stefans Uhr Blank",
+    "short": "Blank"
+   },
+   {
+    "file": "StefansUhrInvers.ttf",
+    "name": "Stefans Uhr Invers",
+    "short": "Invers"
+   },
+   {
+    "file": "StefansUhrInversOst.ttf",
+    "name": "Stefans Uhr Invers Ost",
+    "short": "Invers Ost"
+   },
+   {
+    "file": "StefansUhrSquare.ttf",
+    "name": "Stefans Uhr Square",
+    "short": "Square"
+   }
+  ]
+ },
+ "sylvar": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Sylvar.ttf",
+    "name": "Sylvar",
+    "short": "Sylvar"
+   },
+   {
+    "file": "Sylvar_Schatten.ttf",
+    "name": "Sylvar Schatten",
+    "short": "Schatten"
+   }
+  ]
+ },
+ "tartlers": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Tartlers_End_Krystal.ttf",
+    "name": "Tartlers End Krystal",
+    "short": "Krystal"
+   },
+   {
+    "file": "Tartlers_End.ttf",
+    "name": "Tartlers End",
+    "short": "Tartlers End"
+   }
+  ]
+ },
+ "tgl": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "TGL_31034-1.ttf",
+    "name": "TGL 31034-1",
+    "short": "31034 1"
+   },
+   {
+    "file": "TGL_31034-2.ttf",
+    "name": "TGL 31034-2",
+    "short": "31034 2"
+   }
+  ]
+ },
+ "tgl-0-16": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "TGL_0-17.ttf",
+    "name": "TGL 0-17",
+    "short": "17"
+   },
+   {
+    "file": "TGL_0-16.ttf",
+    "name": "TGL 0-16",
+    "short": "TGL 0-16"
+   },
+   {
+    "file": "TGL_0-17_alt.ttf",
+    "name": "TGL 0-17 Alt",
+    "short": "17 Alt"
+   }
+  ]
+ },
+ "titillium": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "TitilliumMaps29L-1wt.otf",
+    "name": "Titillium Maps 29L 1",
+    "short": "Maps 29L 1"
+   },
+   {
+    "file": "TitilliumMaps29L-400wt.otf",
+    "name": "Titillium Maps 29L 400",
+    "short": "Maps 29L 400"
+   },
+   {
+    "file": "TitilliumMaps29L-800wt.otf",
+    "name": "Titillium Maps 29L 800",
+    "short": "Maps 29L 800"
+   },
+   {
+    "file": "TitilliumMaps29L-999wt.otf",
+    "name": "Titillium Maps 29L 999",
+    "short": "Maps 29L 999"
+   },
+   {
+    "file": "TitilliumText22L-1wt.otf",
+    "name": "Titillium Text 22L 1",
+    "short": "Text 22L 1"
+   },
+   {
+    "file": "TitilliumText22L-250wt.otf",
+    "name": "Titillium Text 22L 250",
+    "short": "Text 22L 250"
+   },
+   {
+    "file": "TitilliumText22L-400wt.otf",
+    "name": "Titillium Text 22L 400",
+    "short": "Text 22L 400"
+   },
+   {
+    "file": "TitilliumText22L-600wt.otf",
+    "name": "Titillium Text 22L 600",
+    "short": "Text 22L 600"
+   },
+   {
+    "file": "TitilliumText22L-800wt.otf",
+    "name": "Titillium Text 22L 800",
+    "short": "Text 22L 800"
+   },
+   {
+    "file": "TitilliumText22L-999wt.otf",
+    "name": "Titillium Text 22L 999",
+    "short": "Text 22L 999"
+   },
+   {
+    "file": "TitilliumTitle20.otf",
+    "name": "Titillium Title 20",
+    "short": "Title 20"
+   }
+  ]
+ },
+ "tokeelybrookings": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Tokeely_Brookings.ttf",
+    "name": "Tokeely Brookings",
+    "short": "Tokeely Brookings"
+   },
+   {
+    "file": "Tokeely_Brookings_Schatten.ttf",
+    "name": "Tokeely Brookings Schatten",
+    "short": "Schatten"
+   }
+  ]
+ },
+ "tschichold": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Tschichold_Alt.ttf",
+    "name": "Tschichold Alternate",
+    "short": "Alternate"
+   },
+   {
+    "file": "Tschichold.ttf",
+    "name": "Tschichold",
+    "short": "Tschichold"
+   },
+   {
+    "file": "Tschichold_Alt_Bold.ttf",
+    "name": "Tschichold Alternate Bold",
+    "short": "Alternate Bold"
+   },
+   {
+    "file": "Tschichold_Bold.ttf",
+    "name": "Tschichold Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "typographerfraktur": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "TypographerFraktur-Medium_UNZ1.ttf",
+    "name": "Typographer Fraktur UNZ1",
+    "short": "UNZ1"
+   },
+   {
+    "file": "TypographerFrakturUNZ1-Medium.ttf",
+    "name": "Typographer Fraktur UNZ1, second cut",
+    "short": "UNZ1, second cut"
+   }
+  ]
+ },
+ "typographerrotunda": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "TypographerRotundaUNZ1.ttf",
+    "name": "Typographer Rotunda UNZ1",
+    "short": "UNZ1"
+   },
+   {
+    "file": "TypographerRotundaAltUNZ1.ttf",
+    "name": "Typographer Rotunda Alt UNZ1",
+    "short": "Alt UNZ1"
+   }
+  ]
+ },
+ "typographertextur": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "TypographerTexturUNZ1.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "TypographerTexturUNZ1-Bold.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "tyskland45": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Tyskland_45_1.10.otf",
+    "name": "Tyskland45",
+    "short": "Tyskland45"
+   },
+   {
+    "file": "Austria_45_1.03.ttf",
+    "name": "Austria45",
+    "short": "Austria45",
+    "other": true
+   }
+  ]
+ },
+ "utusi": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Utusi_Star_Normal.otf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Utusi_Star_Bold.otf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "variete": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Variete.ttf",
+    "name": "Varieté",
+    "short": "Varieté"
+   },
+   {
+    "file": "Variete_Artist.ttf",
+    "name": "Varieté Artist",
+    "short": "Artist"
+   },
+   {
+    "file": "Variete_Cabaret.ttf",
+    "name": "Varieté Cabaret",
+    "short": "Cabaret"
+   },
+   {
+    "file": "Variete_Cascadeur.ttf",
+    "name": "Varieté Cascadeur",
+    "short": "Cascadeur"
+   },
+   {
+    "file": "Variete_Casino.ttf",
+    "name": "Varieté Casino",
+    "short": "Casino"
+   },
+   {
+    "file": "Variete_Cirque.ttf",
+    "name": "Varieté Cirque",
+    "short": "Cirque"
+   },
+   {
+    "file": "Variete_Colege.ttf",
+    "name": "Varieté Colege",
+    "short": "Colege"
+   },
+   {
+    "file": "Variete_Conferencier.ttf",
+    "name": "Varieté Conférencier",
+    "short": "Conférencier"
+   },
+   {
+    "file": "Variete_Folies.ttf",
+    "name": "Varieté Folies",
+    "short": "Folies"
+   },
+   {
+    "file": "Variete_Ikarier.ttf",
+    "name": "Varieté Ikarier",
+    "short": "Ikarier"
+   },
+   {
+    "file": "Variete_Jongleur.ttf",
+    "name": "Varieté Jongleur",
+    "short": "Jongleur"
+   },
+   {
+    "file": "Variete_Mirage.ttf",
+    "name": "Varieté Mirage",
+    "short": "Mirage"
+   },
+   {
+    "file": "Variete_Revue.ttf",
+    "name": "Varieté Revue",
+    "short": "Revue"
+   },
+   {
+    "file": "Variete_Scala.ttf",
+    "name": "Varieté Scala",
+    "short": "Scala"
+   },
+   {
+    "file": "Variete_Theatre.ttf",
+    "name": "Varieté Theatre",
+    "short": "Theatre"
+   },
+   {
+    "file": "barnroof.ttf",
+    "name": "Barnroof",
+    "short": "Barnroof",
+    "other": true
+   }
+  ]
+ },
+ "verfont": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Zeichen_Hundert.ttf",
+    "name": "Zeichen Hundert",
+    "short": "Zeichen Hundert"
+   },
+   {
+    "file": "Zeichen_Zweihundert.ttf",
+    "name": "Zeichen Zweihundert",
+    "short": "Zeichen Zweihundert"
+   },
+   {
+    "file": "Zeichen_Dreihundert.ttf",
+    "name": "Zeichen Dreihundert",
+    "short": "Zeichen Dreihundert"
+   },
+   {
+    "file": "Zeichen_Vierhundert.ttf",
+    "name": "Zeichen Vierhundert",
+    "short": "Zeichen Vierhundert"
+   }
+  ]
+ },
+ "verfont2": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Zeichen_Hundert_Alt.ttf",
+    "name": "Zeichen Hundert Alt",
+    "short": "Zeichen Hundert Alt"
+   },
+   {
+    "file": "Zeichen_Zweihundert_Alt.ttf",
+    "name": "Zeichen Zweihundert Alt",
+    "short": "Zeichen Zweihundert Alt"
+   },
+   {
+    "file": "Zeichen_Dreihundert_Alt.ttf",
+    "name": "Zeichen Dreihundert Alt",
+    "short": "Zeichen Dreihundert Alt"
+   }
+  ]
+ },
+ "vis-a-vis": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Vis-A-Vis.ttf",
+    "name": "Via-A-Vis",
+    "short": "Via A Vis"
+   },
+   {
+    "file": "Vis-A-Vis-bold.ttf",
+    "name": "Via-A-Vis Bold",
+    "short": "Via A Vis Bold"
+   }
+  ]
+ },
+ "volk": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "VolkRedis.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "VolkRedis_Fett.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "VolkRedis_Verkehrsschift.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "VolkRedis_Fette_Verkehrsschift.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "waschkueche": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Waschkueche.ttf",
+    "name": "Waschkueche",
+    "short": "Waschkueche"
+   },
+   {
+    "file": "WaschkuecheGrob.ttf",
+    "name": "Waschkueche Grob Ultra",
+    "short": "Waschkueche Grob Ultra"
+   }
+  ]
+ },
+ "weiynk": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "WieynckFraktur-RegularUNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "WieynckFraktur-FettUNZ1L.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "WieynckFraktur-GesperrtUNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "WieynckFraktur-GesperrtFettUNZ1L.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "werbedeutsch": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "WerbedeutschUNZ1L.ttf",
+    "name": "Heavy",
+    "short": "Heavy"
+   },
+   {
+    "file": "WerbedeutschGesperrtUNZ1L.ttf",
+    "name": "Heavy Italic",
+    "short": "Heavy Italic"
+   }
+  ]
+ },
+ "wiegelkurrent": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "WiegelKurrent.unz1t.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "WiegelKurrent.unz1tB.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "wiegellatein": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "WiegelLateinMedium.ttf",
+    "name": "Wiegel Latein Medium",
+    "short": "Medium"
+   },
+   {
+    "file": "WiegelLatein.ttf",
+    "name": "Wiegel Latein",
+    "short": "Wiegel Latein"
+   }
+  ]
+ },
+ "wolgast": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Wolgast_Two_Normal_Cyr.ttf",
+    "name": "Wolgast Two",
+    "short": "Wolgast Two"
+   },
+   {
+    "file": "Wolgast_Two_Bold_Cyr.ttf",
+    "name": "Wolgast Two Bold",
+    "short": "Bold"
+   }
+  ]
+ },
+ "xayax": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "XAYAX.ttf",
+    "name": "XAYAX",
+    "short": "XAYAX"
+   },
+   {
+    "file": "Contour_XAYAX.ttf",
+    "name": "Contour XAYAX",
+    "short": "Contour XAYAX"
+   },
+   {
+    "file": "Lichte_XAYAX.ttf",
+    "name": "Lichte XAYAX",
+    "short": "Lichte XAYAX"
+   }
+  ]
+ },
+ "yiggivoo": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Yiggivoo_UC.ttf",
+    "name": "Yiggivoo Unicode",
+    "short": "Unicode"
+   },
+   {
+    "file": "Yiggivoo_UC_3D.ttf",
+    "name": "Yiggivoo Unicode 3D",
+    "short": "Unicode 3D"
+   },
+   {
+    "file": "Yiggivoo_UC_I_3D.ttf",
+    "name": "Yiggivoo Unicode 3D Italic",
+    "short": "Unicode 3D Italic"
+   },
+   {
+    "file": "Yiggivoo_UC_I.ttf",
+    "name": "Yiggivoo Unicode Italic",
+    "short": "Unicode Italic"
+   }
+  ]
+ },
+ "zentenar": {
+  "kind": "styles",
+  "members": [
+   {
+    "file": "Zentenar_Fraktur_UNZ1L.ttf",
+    "name": "Regular",
+    "short": "Regular"
+   },
+   {
+    "file": "Zentenar_Fraktur_fett_UNZ1L.ttf",
+    "name": "Bold",
+    "short": "Bold"
+   },
+   {
+    "file": "Zentenar_Fraktur_kusiv_UNZ1L.ttf",
+    "name": "Italic",
+    "short": "Italic"
+   },
+   {
+    "file": "Zentenar_Fraktur_fett_kursiv_UNZ1L.ttf",
+    "name": "Bold Italic",
+    "short": "Bold Italic"
+   }
+  ]
+ },
+ "zschusch": {
+  "kind": "collection",
+  "members": [
+   {
+    "file": "Zschusch.ttf",
+    "name": "Zschusch",
+    "short": "Zschusch"
+   },
+   {
+    "file": "Zschusch_light_Schatten.ttf",
+    "name": "Zschusch Light Schatten",
+    "short": "Light Schatten"
+   },
+   {
+    "file": "Zschusch_light_Schatten_B.ttf",
+    "name": "Zschusch Light Schatten B",
+    "short": "Light Schatten B"
+   },
+   {
+    "file": "Zschusch_light_Schatten_C.ttf",
+    "name": "Zschusch Light Schatten C",
+    "short": "Light Schatten C"
+   }
+  ]
+ }
+}

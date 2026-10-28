@@ -6,14 +6,15 @@ The design system Okay signed off, and the working rules for changing it. The si
 
 - **One interface size:** `--ui: 24px` (18 on phone), set in Wiegel's Preussische IV 44 (`UI_DISPLAY`). Running text in his Proletarsk (`UI_TEXT`, `--read: 28px`). DIN is not used for any label; it survives only as the source of two chip marks (ẞ, ſ), see [ICONS.md](ICONS.md).
 - **Smallest text** (`--info`, 14px): always caps, letter-spaced `.05em`, one tone (`--ink-3`). Vertical labels are the same text, rotated. One block at the end of `app.css` ("the smallest text") enforces this for every small-text selector, by source order. Do not add colour or opacity to those selectors elsewhere; it will be silently overridden.
-- **Specimen ink is never cut vertically:** fit lines and waterfall lines clip sideways only (`overflow-x: clip`).
-- **Specimens are live type**, never images. The page sizes each fit line with canvas `measureText` to 97% of the measure, floor `2 × --ui`; below the floor the line wraps instead (`.wrapped`).
+- **Specimen ink is never cut.** Each fit line is sized from the line as the browser lays it out (a hidden probe with the face, tracking and features) and from its ink (canvas `actualBoundingBox*`): 97% of the measure, or less when swashes reach past the first or last letter. Ink left of the first letter is indented (`text-indent`), never clipped. Ordinary fonts keep the sizes they had. It re-fits on typing, tracking and feature toggles. A line sized by hand with the slider wraps instead of fitting. Below the floor `2 × --ui` a line wraps (`.wrapped`). `overflow-x: clip` stays only as a guard against typed text; the waterfall is cut only at its right edge. Checked: 0 cut lines on 337 fonts, also after tracking and typing on the 63 swash fonts.
+- **Specimens are live type**, never images.
 
 ## Line and spacing
 
 - **One line thickness:** `--line = var(--ui) * .105`, the stem of the UI face. Lighter lines come from opacity or colour, never thinner strokes. Deliberate exceptions: link arrows (1px lighter), feature chips (outline proportional to the chip), small tags (`var(--info) * .105`).
 - **Rhythm:** rows in the top bar sit 12px above the pill and 14px below to the next line. Paragraphs and list rows have top padding half the bottom (`--pt 8 / --pb 16`); sections the same ratio (`--st 24 / --sbt 48`). The gap above the first font preview is `2 × --st`.
-- On the About pages the first rule (or the portrait) sits 48px under the bar: `.prose` padding 16 plus the `h2`/`.portrait` margin 32.
+- On the About pages the first heading (or the portrait) sits 48px under the bar: `.prose` padding 16 plus the `h2`/`.portrait` margin 32.
+- **One rule is enough.** Never two horizontal rules with nothing between them. A list that opens a section, or a heading that opens a page under the nav, sits on the rule already above it: its own first rule keeps its space (so nothing moves) but not its line (`border-top-color: transparent`; Facts, a grid, clips its top line). A list that ends a section draws no closing rule; the next section's rule closes it. Not rules, so exempt: the glyph table's cell outlines and the font-page timeline axis. `tools/double_rules.py` finds offenders.
 
 ## Colour
 

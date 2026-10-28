@@ -86,10 +86,11 @@ The progression of 27–28 Oct (260 screenshots, indexed against Okay's messages
    1. Restore the publish folder: `Artifact read` the artifact into `/home/claude/wiegel-hosted/`.
    2. Seed the fonts: copy `wiegel-hosted/assets/fonts/*` into `wiegel-archive/fonts/`.
    3. Seed the photos: copy `wiegel-hosted/assets/photos/*.jpg` into `wiegel-archive/site/assets/photos/`.
-   4. Run `python3 tools/hosted.py`.
+   4. Seed the set members: their woff2 files go in `fonts-web/<slug>/` (gitignored; on the Mac they come from the TTFs). Without them, `hosted.py` reports each missing member.
+   5. Run `python3 tools/hosted.py`.
 3. **Copy what changed** from `hosted/` to `/home/claude/wiegel-hosted/` (compare with `cmp`). Skip `index.html` (the artifact's page is `main.html`).
    - **Never copy photos from a cloud build.** It re-encodes the already-resized JPEGs, so they differ by bytes but are not real changes.
-4. **Publish:** Artifact `url` = the artifact, `file_path` = `/home/claude/wiegel-hosted/main.html`, `files` = map of the changed files. Read the artifact (no `path`) once per session first.
+4. **Publish:** the artifact holds at most **511 files** (one publish sends at most 255). That is why set members ship as 56 packs (`assets/sets/sN.woff2`, two sets each; `write_pack()` in `hosted.py`, read by `bytes()` in `app.js`), not 261 files. They are named `.woff2` because the host serves only known types. Artifact `url` = the artifact, `file_path` = `/home/claude/wiegel-hosted/main.html`, `files` = map of the changed files. Read the artifact (no `path`) once per session first.
 5. **Commit and push** in `/home/claude/wiegel-archive`, using a branch, then fast-forward `main`.
 6. **Update the Mac.** The Mac's shell reaches GitHub raw but not the cloud container, and this session had no file-commit tool.
    1. Back up the old files first: `cp` them into `_to_delete/tools-before-<date>/`.
@@ -110,11 +111,8 @@ The 28 Oct audit used three Goldfish subagents (CSS, JS, build and drift) plus d
 
 ## Open work
 
-1. **Audit decisions still open** (see the status table in [../audits/2026-10-28.md](../audits/2026-10-28.md)): ink-aligned fit lines for 30 swash fonts; ink crossing block rules in 19 fonts; C/M "on" state; pill re-centring after rotation; sticky hover on touch.
-2. **Families inside one download** (agreed): 114 entries hold several fonts.
-   - Replace the Style menu with a Family block.
-   - Show "12 fonts" on index rows.
-   - Include all members in the hosted copy (about +46 MB).
+1. **Audit decisions still open** (see the status table in [../audits/2026-10-28.md](../audits/2026-10-28.md)): ink crossing block rules in 19 fonts; C/M "on" state; pill re-centring after rotation; sticky hover on touch. (Swash fitting: done, indent.)
+2. **Member names to check** in `data/members.json`, e.g. "Typographer Fraktur UNZ1, second cut", "Preussische VI 9 Schatten B".
 3. **Families across posts** (agreed; waiting on Okay's check): a hand-checked sibling list.
    - Examples: Rastenburg / Rastenburg Band; Typographer Fraktur / Gotisch / Rotunda / Textur; Fibel Nord / Süd / Vienna; Bernardo Moda / Contrast.
    - Do not group by first word.

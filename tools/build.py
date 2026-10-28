@@ -148,6 +148,11 @@ def analyse(path):
         for i in ids:
             r = name.getDebugName(i)
             if r:
+                w = name.getName(i, 3, 1, 0x409)
+                w = w.toUnicode() if w else ""
+                # a Mac record written in Latin-1 reads back as MacRoman ('VarietÈ'); the Windows record has it right
+                if w and w != r and len(w) == len(r) and all(a == b or ord(a) > 127 for a, b in zip(w, r)):
+                    r = w
                 return r.strip()
         return ""
     cmap = f.getBestCmap() or {}
@@ -560,7 +565,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
 
 
 def fonts_css_entry(f, i, x, up):
-    src = up + "assets/fonts/" + f["slug"] + "/" + os.path.basename(x["path"])
+    src = up + (x.get("websrc") or "assets/fonts/" + f["slug"] + "/" + os.path.basename(x["path"]))   # websrc: the hosted copy's set bundle
     return {"id": f"wa-{f['slug']}-{i}", "src": src, "style": x["style"], "weight": x["weight"], "italic": x["italic"], "glyphs": x["chars"], "feats": x["feats"], "full": x["full"]}
 
 
@@ -585,6 +590,34 @@ def extra_families(f):
     return [x for x, test in (("DIN", is_din), ("Dot matrix", is_dot)) if test(f)]
 
 
+MEMBERS = {}
+
+
+def members_of(f):
+    """A download holding several fonts: [(face index, member)], in the curated order, or None. Names come from data/members.json."""
+    if not MEMBERS:
+        p = os.path.join(DATA, "members.json")
+        MEMBERS.update(json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {"": {}})
+    m = MEMBERS.get(f["slug"])
+    if not m:
+        return None
+    idx = {os.path.basename(x["path"]): i for i, x in enumerate(f.get("faces", []))}
+    out = [(idx[x["file"]], x) for x in m["members"] if x["file"] in idx]
+    return out if len([1 for _, x in out if not x.get("other")]) > 1 else None
+
+
+def figures_only(f):
+    """Digits but no Latin letters (or Wiegel's 'Figures only' button): set in figures everywhere, never in its name."""
+    c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
+    letters = any(x in c for x in list(range(0x41, 0x5B)) + list(range(0x61, 0x7B)))
+    return "ziffern" in f["icons"] or (not letters and any(x in c for x in range(0x30, 0x3A)))
+
+
+def set_count(f):
+    ms = members_of(f)
+    return [len([1 for _, x in ms if not x.get("other")]), MEMBERS[f["slug"]]["kind"]] if ms else None
+
+
 def write_catalog_js(cat):
     rows = []
     for x in ("DIN", "Dot matrix"):
@@ -597,6 +630,8 @@ def write_catalog_js(cat):
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
             "tg": f.get("tags", []), "pal": f["pal"], **({"xf": extra_families(f)} if extra_families(f) else {}),
+            **({"set": set_count(f), "mn": " ".join(x["name"] for _, x in members_of(f))} if members_of(f) else {}),
+            **({"fo": 1} if figures_only(f) else {}),
         })
     js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in USE_PAL.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
@@ -624,47 +659,46 @@ def index_html(cat, sprite):
     return page("Wiegel Archive", body, 0, sprite, "home", "index")
 
 
+TL_LANES = (("type", "Type"), ("world", "Elsewhere"))   # named events, in this order within a year; digitisations follow as one line
+
+
 def timeline_html(cat, sprite):
+    """One stem, today at the top and the past below. A year appears only where something happened: the letters cut, cast or drawn
+    (Type), the buildings, signs and lives around them (Elsewhere), and Wiegel's digitisations, one line of names per year.
+    The decade strip on top is lit where there are events and jumps to the first year in that decade."""
+    def face_src(f):
+        face = f["faces"][0] if f.get("faces") else None
+        return ("assets/fonts/" + f["slug"] + "/" + (face.get("web") or os.path.basename(face["path"]))) if face else ""
+    def name(f, cls="fn"):
+        return f'<a class="{cls}" href="{flink(f["slug"])}" data-src="{face_src(f)}">{ESC(f["name"])}</a>'
     ev = collections.defaultdict(lambda: collections.defaultdict(list))
     for f in cat["fonts"]:
         for e in f["events"]:
-            ev[e["y"]][e["lane"]].append((f, e))
-    years = sorted(ev)
-    # decade overview
-    dec = collections.Counter()
-    for y in years:
-        d = y // 10 * 10 if y >= 1800 else (y // 100 * 100)
-        dec[d] += sum(len(v) for v in ev[y].values())
-    mx = max(dec.values())
-    first_y = {}
-    for y in years:
-        d = y // 10 * 10 if y >= 1800 else (y // 100 * 100)
-        first_y.setdefault(d, y)
-    scale = "".join(f'<a href="#y{first_y[d]}" class="dec" style="--h:{max(6, round(100 * n / mx))}%"><i></i><span class="tnum">{d}{"s" if d < 1800 else ""}</span></a>' for d, n in sorted(dec.items()))
+            ev[e["y"]][e["lane"]].append((f, e["what"]))
+    years = sorted(ev, reverse=True)
     rows = []
     for y in years:
-        cells = []
-        for k, _ in LANES:
-            items = []
-            for f, e in ev[y][k]:
-                face = f["faces"][0] if f.get("faces") else None
-                src = ("assets/fonts/" + f["slug"] + "/" + os.path.basename(face["path"])) if face else ""
-                if e.get("auto"):
-                    items.append(f'<a class="ev auto" href="{flink(f["slug"])}" data-s="{f["slug"]}"><span class="fn" data-src="{src}">{ESC(f["name"])}</span></a>')
-                else:
-                    items.append(f'<a class="ev" href="{flink(f["slug"])}" data-s="{f["slug"]}"><span class="fn" data-src="{src}">{ESC(f["name"])}</span><span class="w">{ESC(e["what"])}</span></a>')
-            cells.append(f'<div class="lane l-{k}" data-lane="{dict(LANES)[k]}">{"".join(items)}</div>')
-        rows.append(f'<div class="tl-row" id="y{y}"><div class="tl-y tnum">{y}</div>{"".join(cells)}</div>')
-    n_ev = sum(len(f["events"]) for f in cat["fonts"])
+        items = [f'<li class="e l-{lane}"><span class="lb">{lab}</span>{name(f)}<span class="w">{ESC(what)}</span></li>'
+                 for lane, lab in TL_LANES for f, what in sorted(ev[y][lane], key=lambda t: t[0]["name"].lower())]
+        dg = sorted(ev[y]["digital"], key=lambda t: t[0]["name"].lower())
+        if dg:
+            items.append(f'<li class="e l-digital"><span class="lb">Digitised <span class="tnum">{len(dg)}</span></span>'
+                         f'<span class="dg">{"".join(name(f, "fn s") for f, _ in dg)}</span></li>')
+        rows.append(f'<section class="yr" id="y{y}"><h2 class="yl tnum">{y}</h2><i class="node"></i><ul>{"".join(items)}</ul></section>')
+    first = {}
+    for y in years:
+        first.setdefault(y // 10 * 10, y)
+    top = years[0] // 10 * 10
+    dec = lambda d: (f'<a class="dc on tnum" href="#y{first[d]}">{d}s</a>' if d in first else f'<span class="dc tnum">{d}s</span>')
+    strip = "".join(dec(d) for d in range(top, 1790, -10)) + '<i class="brk"></i>' + "".join(dec(d) for d in sorted((d for d in first if d < 1800), reverse=True))
     body = f"""
 <section class="intro">
-  <p class="lead">{n_ev} dated events across {len(years)} years. <em>Type</em>: when the original letters were cut, cast, drawn or standardised. <em>Digitised</em>: when the font file was made, read from the file itself. <em>Elsewhere</em>: the buildings, signs and lives around them. Point at a name to see where else it appears.</p>
-  <nav class="scale" aria-label="Jump to decade">{scale}</nav>
+  <p class="lead">What happened, and when: the letters being cut, cast or drawn, the buildings, signs and lives around them, and Wiegel’s digitisations. Today at the top, the past below; a year appears only where something happened.</p>
 </section>
-<section class="tl" id="tl">
-  <div class="tl-head"><span></span>{"".join(f'<span>{l}</span>' for _, l in LANES)}</div>
-  {"".join(rows)}
-</section>"""
+<div id="tl">
+  <nav class="decs" aria-label="Decades">{strip}</nav>
+  <div class="stem"><p class="now">Today</p>{"".join(rows)}</div>
+</div>"""
     return page("Timeline — Wiegel Archive", body, 0, sprite, "timeline", "timeline")
 
 
@@ -783,10 +817,14 @@ def specimen_blocks(f, faces):
         lo_ = "".join(chr(x) for x in range(0x61, 0x7B) if x in c)
         dg_ = "".join(chr(x) for x in range(0x30, 0x3A) if x in c)
         blocks = [("Name", 200, f["name"], "fit")]
+        if figures_only(f):   # no letters to set its name in: figures, then the sample (times, prices)
+            blocks = [("Figures", 200, dg_, "fit")]
+            if "".join(ch for ch in ".,:;" if ord(ch) in c): blocks.append(("Sample", 160, " ".join(x for x in ("12:45", "3,50", "19.03.") if all(ord(ch) in c for ch in x)), "fit"))
+            dg_ = ""
         if up_: blocks.append(("Capitals", 160, up_, "fit"))
         if lo_ and lo_.upper() != up_ or (lo_ and "gemeine" in f["icons"]): blocks.append(("Lowercase", 160, lo_, "fit"))
         if dg_: blocks.append(("Figures", 160, dg_ + " " + "".join(ch for ch in "&?!€§" if ord(ch) in c), "fit"))
-        if f.get("sample") and f["sample"] not in (up_, lo_, f["name"]): blocks.append(("Sample", 160, f["sample"], "fit"))
+        if f.get("sample") and f["sample"] not in (up_, lo_, f["name"]) and not figures_only(f): blocks.append(("Sample", 160, f["sample"], "fit"))
     out = []
     for i, (role, px, txt, mode) in enumerate(blocks):
         out.append(f'<div class="blk{" " + mode if mode else ""}{" on" if i == 0 else ""}" data-px="{px}" data-role="{role}" data-def="{ESC(txt)}">'
@@ -822,7 +860,21 @@ def font_html(f, by, sprite, up="../", fragment=False):
     a = f.get("account") or {}
     bg, fg, _ = PALETTE[f["pal"]]
     icons = "".join(f'<li>{icon(c, 24)}<span>{ESC(ICONS[c][1])}</span></li>' for c in f["icons"] if c in ICONS)
-    styles = "".join(f'<option value="{i}">{ESC(x["style"])}</option>' for i, x in enumerate(faces))
+    ms = members_of(f)
+    set_html, set_n, now = "", 0, ""
+    if ms:
+        kind = MEMBERS[f["slug"]]["kind"]
+        def li(i, x):
+            k = x["short"] if kind == "styles" else ""
+            return (f'<li data-i="{i}" data-k="{ESC(k)}" data-short="{ESC(x["short"])}" tabindex="0" role="button"{" class=on" if i == 0 else ""}>'
+                    f'<span class="fn">{ESC(x["name"])}</span><span class="k">{"Shown above" if i == 0 else ESC(k)}</span></li>')
+        main = [li(i, x) for i, x in ms if not x.get("other")]
+        extra = [li(i, x) for i, x in ms if x.get("other")]
+        set_n = len(main)
+        now = next((x["short"] for i, x in ms if i == 0), "")
+        set_html = (f'<ul class="fl">{"".join(main)}</ul>'
+                    + (f'<h3>Also in the download</h3><ul class="fl other">{"".join(extra)}</ul>' if extra else ""))
+        set_label = f'Set <span class="info tnum">{set_n} {"styles" if kind == "styles" else "fonts"}</span>'
     dl = "".join(
         f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub tnum">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
         if d["local"] and not HOSTED else f'<li><a href="{URL(d["src"])}">{ESC(d["name"])}</a><span class="sub">original link</span></li>'
@@ -850,9 +902,9 @@ def font_html(f, by, sprite, up="../", fragment=False):
     if not acc:
         acc = f'<div class="acc"><p>{ESC(f.get("summary",""))}</p></div>'
     tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
-    secs = [("specimen", "Specimen"), ("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
+    secs = [("specimen", "Specimen")] + ([("set", f"Set {set_n}")] if ms else []) + [("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
-    subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="crumb">{ESC(f["family"])}</span>'
+    subnav = (f'<span class="pname" data-name="{ESC(f["name"])}">{ESC(f["name"]) + (" · " + ESC(now) if now else "")}</span><span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
     )
     pnav = ('<nav class="pnav" aria-label="Previous and next font">'
@@ -873,13 +925,13 @@ def font_html(f, by, sprite, up="../", fragment=False):
       <label class="sl"><span class="k">Leading</span><output id="lho" class="tnum">1.10</output><input type="range" id="lh" min="0.7" max="2" step="0.01" value="1.1"></label>
       <label class="sl"><span class="k">Tracking</span><output id="tro" class="tnum">0</output><input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"></label>
     </div>
-    {f'<div class="opts"><label>Style <select id="style">{styles}</select></label></div>' if len(faces) > 1 else ''}
   </div>
   <header class="fhead">
     <p class="kicker info tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
     <ul class="icons-row">{icons}</ul>
   </header>
 </div>
+{sec(set_label, set_html, "set") if ms else ""}
 {sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
 {sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{URL(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{URL(f["url"])}">Original German page</a></p>', "account")}
 {sec("Facts", f'<dl class="facts">{meta}</dl>' + (f'<div class="tags">{tags}</div>' if tags else ''))}

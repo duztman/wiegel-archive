@@ -108,10 +108,23 @@
   function loadSrc(src, id) {
     id = id || "wa-" + src.replace(/[^a-z0-9]/gi, "");
     if (faces.has(id)) return faces.get(id).then(() => id);
-    const p = fetch(R + src).then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-      .then((buf) => new FontFace(id, buf).load()).then((x) => { document.fonts.add(x); return x; });
+    const p = bytes(src).then((buf) => new FontFace(id, buf).load()).then((x) => { document.fonts.add(x); return x; });
     faces.set(id, p);
+    p.catch(() => faces.delete(id));
     return p.then(() => id);
+  }
+  /* a font file, or one font out of a pack ('pack.woff2#name': 4-byte header length, JSON index {name: [offset, length]}, the fonts) */
+  const packs = new Map();
+  const get = (u) => fetch(R + u).then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); });
+  function bytes(src) {
+    const [file, name] = src.split("#");
+    if (!name) return get(src);
+    if (!packs.has(file)) {
+      const p = get(file).then((buf) => { const n = new DataView(buf).getUint32(0, true);
+        return { buf, base: 4 + n, idx: JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, n))) }; });
+      packs.set(file, p); p.catch(() => packs.delete(file));
+    }
+    return packs.get(file).then(({ buf, base, idx }) => { const e = idx[name]; if (!e) throw new Error("not in pack: " + name); return buf.slice(base + e[0], base + e[0] + e[1]); });
   }
   const load = (f) => (f ? loadSrc(f.src, f.id) : Promise.reject());
 
@@ -143,7 +156,7 @@
     const SCRIPTS = { latin1: "Latin-1", ext: "Extended Latin", greek: "Greek", cyr: "Cyrillic", longs: "Long s", capsz: "Capital ẞ", euro: "Euro sign" };
     const bucket = (y) => (!y ? "Undated" : y < 1800 ? "Before 1800" : `${Math.floor(y / 10) * 10}s`);
     const CATS = [
-      ["fa", "Family", (f) => [f.fa, ...(f.xf || [])]],   // DIN and dot-matrix fonts show under their own family as well
+      ["fa", "Family", (f) => [f.fa, ...(f.xf || []), ...(f.set ? ["Sets"] : [])]],   // DIN, dot-matrix fonts and sets show under their own family as well
       ["oy", "Original", (f) => [bucket(f.y)]],
       ["cv", "Script", (f) => (f.cv || []).map((k) => SCRIPTS[k]).filter(Boolean)],
       ["ic", "Features", (f) => (f.ic || []).map((k) => (C.icons || {})[k]).filter(Boolean)],
@@ -157,7 +170,7 @@
       const e = [...m.entries()];
       if (k === "fa") {   // the extra pills follow the family most of their fonts belong to
         const fam = [...C.families];
-        fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); fam.splice(fam.indexOf("Technical") + 1, 0, "Dot matrix");
+        fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); fam.splice(fam.indexOf("Technical") + 1, 0, "Dot matrix"); fam.push("Sets");
         return e.sort((a, b) => fam.indexOf(a[0]) - fam.indexOf(b[0]));
       }
       if (k === "oy" || k === "dy") return e.sort((a, b) => num(a[0]) - num(b[0]));
@@ -183,12 +196,14 @@
     const save = () => store.set("wa-index2", JSON.stringify({ ...state, sel: Object.fromEntries(Object.entries(state.sel).map(([k, v]) => [k, [...v]])) }));
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const ico = (c) => `<svg class="ic" width="18" height="18"><use href="#i-${c}"/></svg>`;
-    C.fonts.forEach((f) => (f._h = (f.n + " " + (f.pl || "") + " " + (f.tg || []).join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase()));   // search text, built once
+    C.fonts.forEach((f) => (f._h = (f.n + " " + (f.mn || "") + " " + (f.pl || "") + " " + (f.tg || []).join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase()));   // search text, built once; includes the names of a set's members
+    const figs = (f, t) => { const d = (t || "").replace(/[^0-9.,:; ]/g, "").trim(); return d || f.sm || "0123456789"; };   // figures-only fonts preview figures, also when the text is retyped
+    const facts = (f) => [f.n, f.y ? "OG " + f.y : "", f.dy ? "DG " + f.dy : "", f.fa, f.set ? f.set[0] + (f.set[1] === "styles" ? " styles" : " fonts") : ""].filter(Boolean).map(esc).join(" · ");
     const rows = C.fonts.map((f) => {
       const a = document.createElement("a");
       a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span class="oy"></span><span class="dy"></span><span class="fa">${esc(f.fa)}</span><span class="ics">${(f.ic || []).slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
-        + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.n)}</span>`;
+      a.innerHTML = `<span class="meta info tnum"><span class="fx">${facts(f)}</span><span class="ics">${(f.ic || []).slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
+        + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.fo ? figs(f) : f.n)}</span>`;
       return a;
     });
     rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
@@ -227,12 +242,6 @@
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
       let list = rows.filter((c) => pass(c._font));
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
-      list.forEach((r, i) => {   // OG / DG named on the first row only; columns stay aligned
-        const f = r._font, oy = r.querySelector(".oy"), dy = r.querySelector(".dy");
-        const toy = f.y ? (i ? "" : "OG ") + f.y : "", tdy = f.dy ? (i ? "" : "DG ") + f.dy : "";
-        if (oy.textContent !== toy) oy.textContent = toy;
-        if (dy.textContent !== tdy) dy.textContent = tdy;
-      });
       const changed = grid.children.length !== list.length || grid.firstElementChild !== list[0];
       const same = !changed && list.every((r, i) => grid.children[i] === r);
       if (!same) grid.replaceChildren(...list);   // same rows in the same order: leave the list alone
@@ -251,7 +260,7 @@
     nq.value = state.q; nq.addEventListener("input", (e) => { state.q = e.target.value.trim(); apply(); });
     const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
     const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
-    let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = t || r._font.n)); }, 120); };
+    let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._font.n)); }, 120); };
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
     /* the rule above the first filter group sits on the rule above the second font in the list */
@@ -269,14 +278,12 @@
     const side = $(".homegrid .side"); side?.addEventListener("scroll", () => side.classList.toggle("scrolled", side.scrollTop > 0), { passive: true });
   }
 
-  /* ── timeline: names in their own face, a font's entries light up together ── */
+  /* ── timeline: names in their own face; a year jumped to clears the sticky decade strip ── */
   const tl = $("#tl");
   if (tl) {
     $$(".fn", tl).forEach((el) => lazy.observe(el));
-    let cur = null;
-    const mark = (s, on) => $$(`.ev[data-s="${CSS.escape(s)}"]`, tl).forEach((e) => e.classList.toggle("hl", on));
-    tl.addEventListener("pointerover", (e) => { const ev = e.target.closest(".ev"); const s = ev?.dataset.s || null; if (s === cur) return; if (cur) mark(cur, false); cur = s; if (s) mark(s, true); });
-    tl.addEventListener("pointerleave", () => { if (cur) mark(cur, false); cur = null; });
+    const decs = $(".decs", tl), dh = () => tl.style.setProperty("--decsh", decs.offsetHeight + "px");
+    dh(); addEventListener("resize", dh);
   }
 
   /* ── catalogue: sortable lister ────────────────────────────────────── */
@@ -357,9 +364,9 @@
     }
     function activate(b) { if (!b || b === active) return; active.classList.remove("on"); active = b; b.classList.add("on"); sync(); }
     blks.forEach((b) => { b.addEventListener("pointerdown", () => activate(b)); $(".ed", b).addEventListener("focus", () => activate(b)); });
-    $("#sz").oninput = (e) => { active._px = +e.target.value; userSized.add(active); paint(active); sync(); };
+    $("#sz").oninput = (e) => { active._px = +e.target.value; userSized.add(active); fit(active); sync(); };
     $("#lh").oninput = (e) => { active._lh = +e.target.value; paint(active); sync(); };
-    $("#tr").oninput = (e) => { active._tr = +e.target.value; paint(active); sync(); };
+    $("#tr").oninput = (e) => { active._tr = +e.target.value; fit(active); sync(); };
 
     const feats = () => $$(".feat input", art).map((i) => `"${i.value}" ${i.checked ? 1 : 0}`).join(", ") || "normal";
     function applyFace() {
@@ -368,25 +375,46 @@
       art.style.setProperty("--fea", feats()); blocks.style.setProperty("--fea", feats());
       $$(".wf .tx", art).forEach((el) => (el.style.fontFeatureSettings = feats()));
     }
-    function fitBlocks() {
-      const f = F[cur]; if (!f) return;
-      $$(".blk", blocks).forEach((b) => {   // every block repaints with the real face's metrics; fit blocks also resize
-        if (!b.classList.contains("fit") || userSized.has(b)) { paint(b); return; }
-        const ed = $(".ed", b);
-        meas.font = `100px "${f.id}"`;
-        const w = meas.measureText(ed.textContent).width || 1;
-        const avail = ed.clientWidth;
-        const px = Math.floor((avail / w) * 100 * 0.97), floor = 2 * parseFloat(css("--ui"));   // one line across the measure
-        b.classList.toggle("wrapped", px < floor);   // text too long for one readable line wraps at the floor instead
-        b._px = Math.min(small ? 160 : 420, Math.max(floor, px));
-        paint(b); if (b === active) sync();
-      });
+    /* fit: one line across the measure, sized from the line as the browser lays it out (tracking and features included) and from its ink,
+       so swashes that reach past the first or last letter fit too: the left overhang is indented, never clipped. A block sized by hand wraps. */
+    const probe = document.createElement("span");
+    probe.style.cssText = "position:absolute;left:-99999px;top:0;visibility:hidden;white-space:pre;font-size:100px";
+    document.body.appendChild(probe);
+    signal.addEventListener("abort", () => probe.remove());
+    function fit(b) {
+      const f = F[cur], ed = $(".ed", b);
+      if (!f || !b.classList.contains("fit")) { paint(b); return; }
+      if (userSized.has(b)) { b.classList.add("wrapped"); ed.style.textIndent = ""; paint(b); return; }
+      const t = ed.textContent;
+      probe.style.fontFamily = `"${f.id}"`; probe.style.letterSpacing = b._tr + "em"; probe.style.fontFeatureSettings = feats(); probe.textContent = t;
+      const w = probe.getBoundingClientRect().width || 1;
+      meas.font = `100px "${f.id}"`;
+      const m = meas.measureText(t), oL = Math.max(0, m.actualBoundingBoxLeft), oR = Math.max(0, m.actualBoundingBoxRight - m.width);
+      const avail = ed.clientWidth, floor = 2 * parseFloat(css("--ui"));
+      const px = Math.floor(Math.min((avail / w) * 100 * 0.97, (avail / (w + oL + oR)) * 100));   // the measure with a little air; the ink within it
+      b.classList.toggle("wrapped", px < floor);   // text too long for one readable line wraps at the floor instead
+      b._px = Math.min(small ? 160 : 420, Math.max(floor, px));
+      ed.style.textIndent = b.classList.contains("wrapped") || !oL ? "" : ((oL * b._px) / 100).toFixed(1) + "px";
+      paint(b); if (b === active) sync();
     }
-    $$(".feat input", art).forEach((i) => (i.onchange = applyFace));
-    $("#style")?.addEventListener("change", (e) => {
-      const n = +e.target.value;
-      load(F[n]).then(() => { cur = n; applyFace(); fitBlocks(); drawGlyphs(); }).catch(() => { e.target.value = cur; });   // a face that fails keeps the previous one
-    });
+    function fitBlocks() { if (F[cur]) $$(".blk", blocks).forEach(fit); }   // every block repaints with the real face's metrics
+    blks.forEach((b) => { if (b.classList.contains("fit")) { let q; $(".ed", b).addEventListener("input", () => { cancelAnimationFrame(q); q = requestAnimationFrame(() => fit(b)); }); } });
+    $$(".feat input", art).forEach((i) => (i.onchange = () => { applyFace(); fitBlocks(); }));
+    /* set: each member is listed in its own font; choosing one sets the specimen in it (a face that fails keeps the previous one) */
+    const setLis = $$(".fl li[data-i]", art), pname = $(".pname", sub || document);
+    if (setLis.length) {
+      const sio = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; sio.unobserve(e.target);
+        const i = +e.target.dataset.i; load(F[i]).then((id) => ($(".fn", e.target).style.fontFamily = `"${id}"`)).catch(() => {}); }), { rootMargin: "400px" });
+      signal.addEventListener("abort", () => sio.disconnect());
+      const choose = (li) => { const n = +li.dataset.i; if (n === cur) return;
+        load(F[n]).then(() => {
+          cur = n; applyFace(); fitBlocks(); drawGlyphs();
+          setLis.forEach((x) => { x.classList.toggle("on", x === li); $(".k", x).textContent = x === li ? "Shown above" : x.dataset.k; });
+          if (pname) pname.textContent = pname.dataset.name + " · " + li.dataset.short;
+          $("#specimen").scrollIntoView({ behavior: "smooth" });
+        }).catch(() => {}); };
+      setLis.forEach((li) => { sio.observe(li); li.addEventListener("click", () => choose(li)); li.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(li); } }); });
+    }
 
     /* colour */
     function setPal(k) {

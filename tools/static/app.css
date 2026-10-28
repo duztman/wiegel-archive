@@ -160,8 +160,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .about-l { margin-top: 16px; }
 .homelist .lrow:first-child { border-top-color: var(--rule); }
 .homelist .lrow .meta { display: flex; flex-wrap: nowrap; white-space: nowrap; align-items: center; gap: 4px 24px; text-transform: uppercase; letter-spacing: .05em; }
-.homelist .lrow .meta .oy, .homelist .lrow .meta .dy { flex: none; width: 4.6em; }
-.homelist .lrow .meta .fa { min-width: 0; }
+.homelist .lrow .meta .fx { min-width: 0; overflow: hidden; text-overflow: ellipsis; }   /* name · OG · DG · family · set, one line; the preview above can be retyped, so the name stays here */
 .homelist .lrow .meta .ics { display: inline-flex; gap: 3px; margin-left: auto; opacity: 0; transition: opacity .15s; }
 .homelist .lrow:hover .meta .ics { opacity: 1; }
 .homelist .lrow .meta .no { margin-left: auto; text-align: right; min-width: 3ch; }
@@ -188,38 +187,38 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .lrow { display: block; border-top: var(--line) solid var(--rule); padding: var(--pt) 0 var(--pb); }
 .lrow .meta { display: flex; flex-wrap: wrap; gap: 4px 24px; }
 .lrow .meta .no { min-width: 3ch; }
-.lrow .meta .fa { min-width: 9em; }
-.lrow .meta span:nth-child(3) { min-width: 7em; }
 .lrow .ln { display: block; font-size: 64px; line-height: 1.12; padding-top: var(--pt); overflow-wrap: anywhere; color: var(--ink); opacity: .2; transition: opacity .3s; }
 .lrow .ln.ok { opacity: 1; }
 .lrow:hover { text-decoration: none; }
 .lrow:hover .meta .no, .lrow:hover .meta .fa { color: var(--hot); }
 
 /* ── timeline ────────────────────────────────────────────────────────── */
-.scale { display: flex; align-items: flex-end; gap: 2px; height: 140px; border-bottom: var(--line) solid var(--rule); }
-.dec { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
-.dec i { display: block; width: 100%; height: var(--h); max-height: 72px; background: var(--ink); }
-.dec:hover i { background: var(--hot); }
-.dec span { writing-mode: vertical-rl; transform: rotate(180deg); color: var(--ink-3); font: var(--info)/1 var(--uiface); height: 44px; }
-.dec:hover { text-decoration: none; }
-.dec:hover span { color: var(--hot); }
-.tl { margin-top: 48px; }
-.tl-head, .tl-row { display: grid; grid-template-columns: 4ch repeat(3, minmax(0, 1fr)); gap: 32px; }
-.tl-head { position: sticky; top: var(--navh); z-index: 5; background: var(--paper); padding: var(--pt) 0 var(--pb); border-bottom: var(--line) solid var(--rule); }
-.tl-head span:nth-child(2) { color: var(--hot); } .tl-head span:nth-child(3) { color: var(--dl); } .tl-head span:nth-child(4) { color: var(--sky); }
-.tl-row { padding: var(--st) 0 var(--sbt); border-bottom: var(--line) solid var(--rule); }
-.ev { display: block; margin-bottom: 32px; }
-.ev:last-child { margin-bottom: 0; }
-.ev .fn { display: block; font-size: 44px; line-height: 1.08; overflow-wrap: anywhere; opacity: .3; transition: opacity .3s; }
-.ev .fn.ok { opacity: 1; }
-.ev .w { display: block; color: var(--ink-2); margin-top: 8px; font: var(--list)/1.3 var(--text); }
-.ev.auto { display: inline-block; margin: 0 32px 16px 0; }
-.ev.auto .fn { font-size: 34px; }
-.ev:hover { text-decoration: none; }
-.ev.hl .w { color: var(--ink); }
-.lane.l-type .ev:hover .fn, .l-type .ev.hl .fn { color: var(--hot); }
-.lane.l-digital .ev:hover .fn, .l-digital .ev.hl .fn { color: var(--dl); }
-.lane.l-world .ev:hover .fn, .l-world .ev.hl .fn { color: var(--sky); }
+/* one stem, today at the top. Columns: year | node on the stem | events (lane label, name in its own face, what happened) */
+#tl { --yw: 132px; --nw: 48px; --lbw: 110px; }
+.decs { position: sticky; top: var(--navh); z-index: 31; background: var(--paper); display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0 14px; border-bottom: var(--line) solid var(--rule); }
+.dc { padding: 5px 10px 2px 14px; border-radius: 999px; font: var(--info)/1.2 var(--uiface); letter-spacing: .05em; color: var(--ink-3); box-shadow: inset 0 0 0 calc(var(--info) * .105) color-mix(in oklab, var(--ink) 25%, transparent); text-decoration: none; }
+.dc.on { color: var(--paper); background: var(--ink); box-shadow: none; }
+@media (hover: hover) { a.dc:hover { background: var(--hot); color: var(--paper); } }
+.decs .brk { width: 16px; }
+.decs::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }   /* the strip sits over the top bar's fade and carries it */
+.scrolled .decs::after { opacity: 1; }
+.stem { position: relative; padding: 48px 0 var(--sbt); }
+.stem::before { content: ""; position: absolute; left: calc(var(--yw) + var(--nw) / 2 - var(--line) / 2); top: 48px; bottom: var(--sbt); width: var(--line); background: var(--ink); }
+.now { margin: 0 0 24px; width: var(--yw); text-align: right; font: var(--info)/1 var(--uiface); color: var(--ink-3); }
+.yr { display: grid; grid-template-columns: var(--yw) var(--nw) minmax(0, 1fr); align-items: start; padding: var(--st) 0; scroll-margin-top: calc(var(--navh) + var(--decsh, 0px) + 16px); }
+.yl { margin: 0; font: 400 44px/1 var(--uiface); text-align: right; }
+.node { justify-self: center; width: 15px; height: 15px; margin-top: 14px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 var(--line) var(--ink); position: relative; }
+.yr ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.e { display: grid; grid-template-columns: var(--lbw) minmax(0, 1fr); gap: 4px 16px; align-items: baseline; }
+.e .lb { font: var(--info)/1.2 var(--uiface); color: var(--ink-3); }
+.e.l-type .lb { color: var(--ink); }
+#tl .fn { font-size: 40px; line-height: 1.05; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; opacity: .3; transition: opacity .3s; }
+#tl .fn.ok { opacity: 1; }
+@media (hover: hover) { #tl .fn:hover { color: var(--hot); } }
+.e .w { grid-column: 2; font: var(--list)/1.3 var(--text); color: var(--ink-2); }
+.dg { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: baseline; }
+#tl .fn.s { font-size: 26px; }
 
 /* ── font page: the coloured sheet ───────────────────────────────────── */
 .font { --bg: var(--paper); --fg: var(--ink); }
@@ -296,6 +295,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .lab span { color: var(--ink-3); display: block; }
 .sb h3 { font: var(--info)/1.2 var(--uiface); color: var(--ink-3); margin: 24px 0 8px; }
 .sb h3:first-child { margin-top: 0; }
+/* one rule is enough (docs/RULES.md): a list that opens a section, or a heading that opens a page under the nav, sits on the rule
+   already above it, so its first rule keeps its space but not its line. Facts is a grid whose first row is any number of cards: clip its top line. */
+.sb > :is(.dl, .links, .fl):first-child > li:first-child, .sb > .waterfall:first-child > .wf:first-child, .prose > h2:first-child { border-top-color: transparent; }
+.sb > .facts:first-child { clip-path: inset(var(--line) 0 0); }
 
 .axis { position: relative; height: 56px; margin: 0 12px; border-bottom: var(--line) solid var(--rule); }
 .axis i { position: absolute; left: var(--x); bottom: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--paper); }
@@ -340,7 +343,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .waterfall { overflow-x: clip; }
 .wf { display: grid; grid-template-columns: 3ch minmax(0, 1fr); align-items: baseline; gap: 24px; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); white-space: nowrap; }
 .wf .px { font: var(--info)/1 var(--uiface); color: var(--ink-3); text-align: right; }
-.wf .tx { overflow-x: clip; font-family: var(--ff); }   /* sideways only, as above */
+.wf .tx { font-family: var(--ff); }   /* long lines are cut at the right edge by .waterfall; ink reaching left of the first letter hangs into the gap */
 
 .gl { display: grid; gap: 24px; }
 .gblock { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; align-items: start; }
@@ -396,6 +399,16 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .legend { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); column-gap: 32px; }
 .legend li { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 24px; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); }
 .legend p { color: var(--ink-2); margin: 4px 0 0; font: var(--list)/1.3 var(--text); }
+/* set: the fonts of one download, each named in itself; the one in the specimen carries the cap-high dot */
+.fl { list-style: none; padding: 0; margin: 0 0 24px; }
+.fl li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); cursor: pointer; }
+.fl .fn { font-size: 56px; line-height: 1.1; overflow-wrap: anywhere; color: var(--ink); }
+.fl.other .fn { font-size: 40px; }
+.fl .k { font: var(--info)/1 var(--uiface); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); white-space: nowrap; }
+.fl li.on .k { color: var(--ink); }
+.fl li.on .k::before { content: ""; display: inline-block; width: 1cap; height: 1cap; border-radius: 50%; background: currentColor; margin-inline-end: 1cap; vertical-align: .09em; }
+@media (hover: hover) { .fl li:hover .fn { color: var(--hot); } }
+.fl li:focus-visible { outline: var(--line) solid var(--ink); outline-offset: 4px; }
 .prose { max-width: 34em; padding-top: 16px; }
 .prose h2 { margin: 32px 0 0; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); }
 .prose p { font: var(--read)/1.42 var(--text); }
@@ -413,20 +426,24 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   .sliders { gap: 8px 24px; }
 }
 @media (max-width: 800px) {
+  .fl .fn { font-size: 32px; } .fl.other .fn { font-size: 24px; }
   :root { --ui: 18px; --info: 12px; --list: 19px; --read: 21px; --gut: 24px; --st: 16px; --sbt: 32px; }
   .nav1 { padding: 10px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
   .nav2 { gap: 8px 22px; }
   .lrow .ln { font-size: 40px; }
   .lrow .meta .fa, .lrow .meta span:nth-child(3) { min-width: 0; }
-  .tl-head { display: none; }
-  .tl-row { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .tl-y { font-size: 40px; }
-  .lane:empty { display: none; }
-  .lane::before { content: attr(data-lane); display: block; margin-bottom: 8px; font: var(--info)/1.2 var(--uiface); }
-  .ev .fn { font-size: 34px; }
-  .ev.auto .fn { font-size: 26px; }
-  .scale { height: 110px; }
-  .dec span { font-size: 10px; height: 30px; }
+  /* phone: decades in one swiping row; the stem runs down the left edge, the year above its events */
+  .decs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .dc { flex: none; }
+  .stem::before { left: calc(7.5px - var(--line) / 2); }
+  .now { display: none; }
+  .yr { grid-template-columns: 15px minmax(0, 1fr); column-gap: 16px; }
+  .yl { grid-column: 2; grid-row: 1; text-align: left; font-size: 32px; }
+  .node { grid-column: 1; grid-row: 1; margin-top: 9px; }
+  .yr ul { grid-column: 2; margin-top: 12px; }
+  .e { grid-template-columns: minmax(0, 1fr); }
+  .e .w { grid-column: 1; font-size: 18px; }
+  #tl .fn { font-size: 30px; } #tl .fn.s { font-size: 22px; }
   .sliders { grid-template-columns: minmax(0, 1fr); }
   .tools { position: static; }
   .lister { --cols: 2.6em minmax(0, 1fr) 3.6em 3.6em; }
@@ -443,9 +460,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 }
 
 /* ── the smallest text: always caps, always one tone ─────────────────── */
-.info, .sheet .info, .foot, .pill.small, .vlab, .dec span, .vl, .sl .k, .sl output, .sb h3, .axis .tk,
+.info, .sheet .info, .foot, .pill.small, .vlab, .vl, .sl .k, .sl output, .sb h3, .axis .tk,
 .evs .y, .evs .ln, .facts dt, .tg, .photo figcaption .sub, .links .sub, .dl .sub, .wf .px, .gl .g span,
-.crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lane::before, .lrow .meta, .kicker, .fcount .info, .pic figcaption {
+.crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lrow .meta, .kicker, .fcount .info, .pic figcaption, .e .lb, .now {
   text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); opacity: 1;
 }
 /* vertical labels are the same small caps text as everywhere else, just turned */
@@ -461,7 +478,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .ca.l { transform: rotate(180deg); } .ca.u { transform: rotate(-90deg); } .ca.d { transform: rotate(90deg); } .ca.ne { transform: rotate(-45deg); }
 .pill .ca { margin-left: 0; }
 .pn a .ca.l { margin: 0 .25em 0 0; }
-.info .ca, .kicker .ca, .sub .ca, .lane .ca { --ref: 1cap; margin: 0 .2em; }   /* in capitals: aligned to the cap height */
+.info .ca, .kicker .ca, .sub .ca { --ref: 1cap; margin: 0 .2em; }   /* in capitals: aligned to the cap height */
 .fsum .ca.pm { margin-left: .3em; } details[open] > .fsum .pm .v { display: none; }
 /* inside pills the arrow is long and has no circle */
 .arw { width: .75em; height: .5em; flex: none; fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; overflow: visible; }
@@ -470,6 +487,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .t:has(.ca), .pn a { display: inline; }   /* inline, so the icon can sit on the letters' band rather than the line box */
 
 @supports not (height: 1cap) {   /* Safari before 17.2 (last, so it wins over --ref: 1cap): the UI face's cap height is .735em */
-  .blk.on .vl::before { width: .735em; height: .735em; margin-inline-end: .735em; }
-  .info .ca, .kicker .ca, .sub .ca, .lane .ca { --ref: .735em; }
+  .blk.on .vl::before, .fl li.on .k::before { width: .735em; height: .735em; margin-inline-end: .735em; }
+  .info .ca, .kicker .ca, .sub .ca { --ref: .735em; }
 }

@@ -9,7 +9,7 @@ Same pages and data as tools/build.py, packed to fit a static host's file limit:
 
 Writes hosted/ next to site/. Run after tools/build.py has extracted the fonts.
 """
-import io, json, os, re, shutil, sys
+import collections, io, json, os, re, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build as B
 
@@ -25,19 +25,76 @@ def strip_document(html):
     return html.strip() + "\n</div>"
 
 
+def web_woff2(slug, x, dst):
+    """A set member for the hosted copy: woff2 from the font file, or the prepared woff2 in fonts-web/ (a copy without the font folder)."""
+    src = os.path.join(B.ROOT, x["path"])
+    if os.path.exists(src):
+        from fontTools.ttLib import TTFont
+        t = TTFont(src, fontNumber=0, recalcTimestamp=False)
+        names = t["name"].names
+        if sum(len(r.toBytes()) for r in names) > 0xFFFF:
+            t["name"].names = [r for r in names if r.platformID != 1]   # as B.web_font: browsers reject name tables over 64 KB
+        t.flavor = "woff2"
+        t.save(dst)
+        return
+    seed = os.path.join(B.ROOT, "fonts-web", slug, x["web"])
+    if os.path.exists(seed):
+        shutil.copy2(seed, dst)
+    else:
+        print(f"hosted: missing member font {slug}/{x['web']}")
+
+
+SETS_PER_PACK = 2   # packs are named .woff2 because the artifact host serves only known types; they are not single fonts. The artifact holds at most 511 files: 337 faces + pages + photos leave room for ~60 packs, not 261 member files
+
+
+def write_pack(dst, items):
+    """Several woff2 files in one: a 4-byte little-endian header length, a JSON index {name: [offset, length]}, then the fonts.
+    app.js loads 'pack.woff2#name' by slicing it out (loadSrc)."""
+    idx, blobs, off = {}, [], 0
+    for name, p in items:
+        b = open(p, "rb").read()
+        idx[name] = [off, len(b)]; blobs.append(b); off += len(b)
+    head = json.dumps(idx, separators=(",", ":")).encode()
+    with open(dst, "wb") as o:
+        o.write(len(head).to_bytes(4, "little")); o.write(head)
+        for b in blobs:
+            o.write(b)
+
+
 def main():
     B.HOSTED = True
     cat = B.prepare()
+    n_sets = 0
     for f in cat["fonts"]:
         f["n_styles"] = len(f.get("faces", []))
-        f["faces"] = f.get("faces", [])[:1]
+        if B.members_of(f):   # a set keeps every member, the extra ones as woff2 (a third of the size), packed per two sets (see SETS_PER_PACK)
+            k = n_sets // SETS_PER_PACK; n_sets += 1
+            for x in f["faces"][1:]:
+                x["web"] = os.path.splitext(os.path.basename(x["path"]))[0] + ".woff2"
+                x["websrc"] = f"assets/sets/s{k}.woff2#{f['slug']}/{x['web']}"
+        else:
+            f["faces"] = f.get("faces", [])[:1]
     by = {f["slug"]: f for f in cat["fonts"]}
     os.makedirs(OUT, exist_ok=True)
     for d in ("assets/fonts", "assets/photos", "pages"):
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
 
-    # fonts: canonical face only, plus every UI face
-    keep = {(f["slug"], os.path.basename(x["path"])): x["path"] for f in cat["fonts"] for x in f["faces"]}
+    # fonts: the canonical face, every member of a set, every UI face
+    keep = {(f["slug"], os.path.basename(x["path"])): x["path"] for f in cat["fonts"] for x in f["faces"] if not x.get("web")}
+    packs = collections.defaultdict(list)
+    tmp = os.path.join(OUT, ".members"); os.makedirs(tmp, exist_ok=True)
+    for f in cat["fonts"]:
+        for x in f["faces"]:
+            if x.get("web"):
+                p = os.path.join(tmp, f["slug"] + "-" + x["web"])
+                web_woff2(f["slug"], x, p)
+                file, name = x["websrc"].split("#")
+                packs[file].append((name, p))
+    shutil.rmtree(os.path.join(OUT, "assets/sets"), ignore_errors=True)
+    os.makedirs(os.path.join(OUT, "assets/sets"))
+    for file, items in packs.items():
+        write_pack(os.path.join(OUT, file), items)
+    shutil.rmtree(tmp)
     full = json.load(open(os.path.join(B.DATA, "catalog.json"), encoding="utf-8"))
     for f in full["fonts"]:
         if f["slug"] in (B.UI_TEXT, B.UI_DISPLAY, B.UI_DIN):
