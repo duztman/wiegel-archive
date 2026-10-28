@@ -649,6 +649,12 @@ def images_html(cat, sprite, photo_dir):
 PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich"
 
 
+# drawn arrows: stroke = the one line thickness, centred on the pill
+_ARW = '<svg class="arw" viewBox="0 0 18 12" aria-hidden="true"><path d="{}" vector-effect="non-scaling-stroke"/></svg>'
+ARROW_L = _ARW.format("M17 6H1M6 1L1 6L6 11")
+ARROW_R = _ARW.format("M1 6H17M12 1L17 6L12 11")
+
+
 def specimen_blocks(f, faces):
     """Apple-style text styles for text faces; big editable previews for display and odd faces."""
     c = set(f["faces"][0]["cmap"]) if f.get("faces") else set()
@@ -746,8 +752,8 @@ def font_html(f, by, sprite, up="../", fragment=False):
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
     )
     pnav = ('<nav class="pnav" aria-label="Previous and next font">'
-            + (f'<a href="{plink(prev_)}">← {ESC(prev_["name"])}</a>' if prev_ else "")
-            + (f'<a href="{plink(next_)}">{ESC(next_["name"])} →</a>' if next_ else "") + '</nav>')
+            + (f'<a href="{plink(prev_)}">{ARROW_L}{ESC(prev_["name"])}</a>' if prev_ else "")
+            + (f'<a href="{plink(next_)}">{ESC(next_["name"])}{ARROW_R}</a>' if next_ else "") + '</nav>')
     years_lbl = " → ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
