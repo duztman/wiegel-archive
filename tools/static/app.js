@@ -58,7 +58,7 @@
   const PAL = window.WA_PAL || {};
   function markModes() {
     const pick = root.dataset.mode === "random" ? window.WA_PICK : "";
-    cbtn?.classList.toggle("on", !!pick);
+    if (cbtn) { const cs = getComputedStyle(root); cbtn.style.setProperty("--b", cs.getPropertyValue("--paper").trim()); cbtn.style.setProperty("--f", cs.getPropertyValue("--ink").trim()); }   // the button is the swatch on show
     $$("[data-m=mono]").forEach((b) => { b.classList.toggle("on", root.dataset.mode === "mono"); b.setAttribute("aria-pressed", root.dataset.mode === "mono"); });
     $$("#cpanel .sw[data-p]").forEach((s) => { s.classList.toggle("on", s.dataset.p === pick); s.setAttribute("aria-pressed", s.dataset.p === pick); });
     $("#cinv")?.classList.toggle("on", !!window.WA_INV); $("#cinv")?.setAttribute("aria-pressed", !!window.WA_INV);
@@ -71,28 +71,7 @@
     markModes(); redrawAll();
   }
   const openPanel = (on) => { if (!cpanel) return;
-    const pick = cbtn.closest(".cpick"), cw = cbtn.offsetWidth;
-    clearTimeout(cpanel._t);
-    if (on) {   // the pill reaches past the search; if its swatches need more room it covers whole neighbours, never half of one
-      const cin = $(".cin", cpanel);
-      Object.assign(cpanel.style, { width: "", transition: "none" }); Object.assign(cin.style, { width: "", gap: "", paddingLeft: "", paddingRight: "" });
-      cpanel.hidden = false;
-      const right = cbtn.getBoundingClientRect().right, need = right - cin.scrollWidth;
-      const items = [...cbtn.closest(".nav1").children].filter((el) => !el.contains(cbtn) && !el.classList.contains("home")).reverse();
-      let left = right;
-      for (const el of items) { const r = el.getBoundingClientRect(); left = r.left; if (r.left <= need && el.matches(".nsearch, a, form")) break; }
-      const W = Math.ceil(right - Math.min(left, need)), sws = $$(".sw", cpanel), n = sws.length;
-      const g = Math.max(4, (W - cw - n * sws[0].offsetWidth) / (n + 1));   // the same gap before, between and after
-      Object.assign(cin.style, { width: W + "px", gap: g + "px", paddingLeft: g + "px", paddingRight: cw + g + "px" });
-      cpanel.style.width = cw + "px";
-      cpanel.offsetWidth;   // start closed, then grow
-      cpanel.style.transition = ""; cpanel.style.width = W + "px";
-      pick.classList.add("open");
-    } else {
-      cpanel.style.width = cw + "px"; pick.classList.remove("open");
-      cpanel._t = setTimeout(() => (cpanel.hidden = true), 480);
-    }
-    cbtn.setAttribute("aria-expanded", on);
+    cpanel.hidden = !on; cbtn.closest(".cpick").classList.toggle("open", on); cbtn.setAttribute("aria-expanded", on);
   };
   cbtn?.addEventListener("click", () => openPanel(!cbtn.closest(".cpick").classList.contains("open")));
   $$("#cpanel .sw[data-p]").forEach((s) => (s.onclick = () => {
@@ -117,6 +96,7 @@
     markModes(); redrawAll();
   }));
   markModes();
+  new MutationObserver(markModes).observe(root, { attributes: true, attributeFilter: ["style", "class", "data-mode"] });   // the button follows every change of pair
   $("#rndfont")?.addEventListener("click", (e) => {
     if (!C.fonts.length) return;
     e.preventDefault();

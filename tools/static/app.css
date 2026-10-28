@@ -272,27 +272,26 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px;
 input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: currentColor; border: 0; }
 input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px currentColor; }
 
-/* C: the circle opens into a pill that grows left over the search, holding Wiegel's pairs */
+/* colour: the button is the swatch on show; it opens a rounded box with an arrow, two rows: invert, mono, Wiegel's pairs */
 .cpick { position: relative; display: flex; }
-.cpick .cbtn { position: relative; z-index: 2; }
-.cpanel { position: absolute; z-index: 1; right: 0; top: 0; bottom: 0; display: flex; align-items: center;
-  border-radius: 999px; background: var(--navbg);
-  box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
-.cpanel[hidden] { display: none; }
-.top .cpick .cbtn { transition: box-shadow .2s; }
-.top .cpick.open .cbtn { box-shadow: none; }   /* the pill's outline is C's outline now */
 .top .sw { --swd: calc(var(--ui) * var(--lh) - 6px); width: var(--swd); height: var(--swd); flex: none; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
   background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent); }
-.cpanel { justify-content: flex-end; overflow: hidden; box-sizing: border-box; }   /* its inner row carries the padding and gaps, so the pill can start as narrow as C */
-.cin { flex: none; display: flex; align-items: center; justify-content: flex-start; box-sizing: border-box; height: 100%; }
-.cpanel {
-  /* grows left out of C: quick start, peak early, long settle */
-  transition: width .48s cubic-bezier(.3, 0, .1, 1), box-shadow .6s ease; }
-.cpick.open .cpanel { box-shadow: inset 0 0 0 var(--line) color-mix(in oklab, var(--navfg) 40%, transparent), 0 0 14px 2px color-mix(in oklab, var(--navfg) 28%, transparent); }   /* faint glow in the border colour, fades in */
+.top .cbtn { --swd: calc(var(--ui) * var(--lh) + 3px); }   /* as tall as the pills beside it */
+@media (hover: hover) { .top .cbtn:hover { background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) var(--navfg); } }
+.top .cpick.open .cbtn { box-shadow: inset 0 0 0 var(--line) var(--navfg); }
+.cpanel { --bd: color-mix(in oklab, var(--navfg) 40%, var(--navbg)); position: absolute; z-index: 40; top: calc(100% + 12px); right: 50%; transform: translateX(50%);
+  padding: 12px; border-radius: 17px; background: var(--navbg); border: var(--line) solid var(--bd); box-shadow: 0 6px 18px color-mix(in oklab, var(--navfg) 18%, transparent); }   /* outlined like the preview box; opaque border, so the arrow meets it cleanly */
+.cpanel::before { content: ""; position: absolute; top: 0; left: 50%; width: 12px; height: 12px; background: var(--navbg); border: solid var(--bd); border-width: var(--line) 0 0 var(--line);
+  transform: translate(-50%, calc(-50% - var(--line) / 2)) rotate(45deg); }
+.cpanel[hidden] { display: none; }
+.cin { display: grid; grid-template-columns: repeat(4, var(--swd, 27px)); gap: 10px; }   /* two rows of four */
+.cin .sw { --swd: calc(var(--ui) * var(--lh) - 6px); }
 .inv .top .sw[data-p], .inv .top .sw[data-p].on, .inv .top .sw[data-p]:hover { background: linear-gradient(135deg, var(--f) 0 50%, var(--b) 50% 100%); }   /* inverted: dark on top */
-.top .sw.cinv { background: none; color: var(--navfg); display: block; font-size: calc(var(--swd) * .75); line-height: 1; padding: calc(var(--swd) * .125) 0; text-align: center; }   /* same size as a swatch; label ink-centred by script */
+.top .sw.cinv { background: none; color: var(--navfg); display: grid; place-items: center; }
+.top .sw.cinv svg { width: 60%; height: 60%; fill: currentColor; }   /* a lightning bolt: invert */
 .top .sw.cinv.on, .top .sw.cinv:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; }
-.top .sw.on, .top .sw:hover { background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
+.top .cin .sw.on, .top .cin .sw:hover { background: linear-gradient(135deg, var(--b) 0 50%, var(--f) 50% 100%); box-shadow: inset 0 0 0 var(--line) var(--navfg); }
+.top .cin .sw.cinv.on, .top .cin .sw.cinv:hover { background: var(--navfg); }
 
 /* ── sections: label column + body ────────────────────────────────────── */
 .sec { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid var(--rule); }
@@ -452,8 +451,9 @@ a.tg { text-decoration: none; }
   .mslot .nsearch { margin: 0; width: 100%; }
   .mslot .modes { margin: 0; flex-wrap: wrap; justify-content: center; }
   .mslot .cbtn { display: none; }   /* the pairs are always open in the menu */
-  .mslot .cpanel { position: static; width: 100%; box-shadow: none; overflow: visible; justify-content: center; }
-  .mslot .cin { width: auto; gap: 8px; padding: 0; flex-wrap: wrap; justify-content: center; }
+  .mslot .cpanel { position: static; transform: none; padding: 0; border: 0; box-shadow: none; background: none; }
+  .mslot .cpanel::before { display: none; }
+  .mslot .cin { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .mslot .cpick { position: absolute; left: var(--gut); right: var(--gut); bottom: calc(var(--gut) + env(safe-area-inset-bottom, 0px)); justify-content: center; }   /* the pairs at the foot of the menu */
   .mslot .sw { --swd: calc((var(--ui) * var(--lh) - 6px) * 2); box-shadow: inset 0 0 0 calc(var(--line) * 2) color-mix(in oklab, var(--navfg) 40%, transparent); }   /* swatches twice as large, outlines too */
   .mslot .sw.on { box-shadow: inset 0 0 0 calc(var(--line) * 2) var(--navfg); }
