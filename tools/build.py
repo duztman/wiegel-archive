@@ -918,7 +918,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     lic = lic_name(f.get("font_license"))
     facts = (f'<div class="lic">{f"<p>{ESC(lic)}</p>" if lic else ""}<p class="tags">{pills}</p></div>'
              + (f'<ul class="chips">{chips}</ul>' if chips else ""))   # licence → linked small pills → feature chips
-    secs = [("specimen", "Specimen")] + ([("set", f"Set {set_n}")] if ms else []) + [("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
+    secs = [("specimen", "Specimen")] + ([("set", f"Set of {set_n}")] if ms else []) + [("timeline", "Font history"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
     subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
@@ -948,7 +948,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
   </div>
 </div>
 {sec(set_label, set_html, "set") if ms else ""}
-{sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
+{sec("Font history", strip_html(f), "timeline") if f["events"] else ""}
 {sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{URL(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{URL(f["url"])}">Original German page</a></p>', "account")}
 {sec("Facts", facts, "facts")}
 {sec("Place", photo + f'<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div>', "place") if has_place else ""}
