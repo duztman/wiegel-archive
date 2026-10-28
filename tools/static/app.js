@@ -328,7 +328,14 @@
       const lh = (b.classList.contains("cols") ? 1.4 : b._lh) * b._px;
       const above = (lh - (fA + fD)) / 2 + fA - iA;   // empty line space above the ink
       ed.style.marginTop = -Math.max(0, Math.round(above)) + "px";   // ink starts where the block's padding ends
-      $(".vl", b).style.marginTop = Math.round(iA - cA) + "px";      // label still starts at cap height
+      // the label starts at the cap height of the first line, measured from the laid-out first letter
+      const vl = $(".vl", b), t = ed.firstChild;
+      vl.style.marginTop = "0px";
+      if (t && t.nodeType === 3 && t.length) {
+        const rg = document.createRange(); rg.setStart(t, 0); rg.setEnd(t, 1);
+        const capTop = rg.getBoundingClientRect().top + fA - cA;   // a glyph's range box starts one font ascent above its baseline
+        vl.style.marginTop = Math.max(0, Math.round(capTop - vl.getBoundingClientRect().top)) + "px";
+      } else vl.style.marginTop = Math.round(iA - cA) + "px";
     }
     function sync() {
       $("#sz").value = active._px; $("#szo").textContent = Math.round(active._px);
@@ -350,8 +357,8 @@
     }
     function fitBlocks() {
       const f = F[cur]; if (!f) return;
-      $$(".blk.fit", blocks).forEach((b) => {
-        if (userSized.has(b)) return;
+      $$(".blk", blocks).forEach((b) => {   // every block repaints with the real face's metrics; fit blocks also resize
+        if (!b.classList.contains("fit") || userSized.has(b)) { paint(b); return; }
         const ed = $(".ed", b);
         meas.font = `100px "${f.id}"`;
         const w = meas.measureText(ed.textContent).width || 1;
