@@ -14,7 +14,9 @@
   function setNavH() { const t = document.getElementById("top"); if (t) document.documentElement.style.setProperty("--navh", t.offsetHeight + "px"); }
   setNavH(); if (window.ResizeObserver && document.getElementById("top")) new ResizeObserver(setNavH).observe(document.getElementById("top")); else addEventListener("resize", setNavH);   // follows the bar when the UI font arrives and it un-wraps
 
-  const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0);
+  const homeList = document.querySelector(".homelist");   // on the index the list scrolls inside its own column
+  const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0 || (homeList ? homeList.scrollTop > 0 : false));
+  homeList?.addEventListener("scroll", onScroll, { passive: true });
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
   /* top-bar search: Enter searches the index (here, or by going there with the query) */
@@ -191,7 +193,7 @@
       const box = $("#fside"); box.replaceChildren();
       const group = (title, kids) => { const g = document.createElement("div"); g.className = "fg"; const h = document.createElement("h3"); h.className = "vlab"; h.textContent = title; const w = document.createElement("div"); w.className = "pills"; w.append(...kids); g.append(w, h); box.appendChild(g); };
       const pk = $("#picked"), toggle = (k, v) => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); };
-      pk.replaceChildren(...CATS.flatMap(([k]) => [...(state.sel[k] || [])].map((v) => { const b = pill(v, null, true, () => toggle(k, v)); b.insertAdjacentHTML("beforeend", '<svg class="x" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 2L16 16M16 2L2 16" vector-effect="non-scaling-stroke"/></svg>'); b.setAttribute("aria-label", "Remove " + v); return b; })));
+      pk.replaceChildren(...CATS.flatMap(([k]) => [...(state.sel[k] || [])].map((v) => { const b = pill(v, null, true, () => toggle(k, v)); b.insertAdjacentHTML("beforeend", '<svg class="x" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.4 3.4L14.6 14.6M14.6 3.4L3.4 14.6" vector-effect="non-scaling-stroke"/></svg>'); b.setAttribute("aria-label", "Remove " + v); return b; })));
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
       CATS.forEach(([k, label, fn]) => {
         const sel = state.sel[k] || new Set(), live = liveCounts(k, fn);
