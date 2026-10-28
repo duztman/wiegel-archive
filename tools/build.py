@@ -200,7 +200,7 @@ def web_font(src, dst):
     Windows) overflows its 16-bit offsets and browsers reject the file; the web copy then drops the Mac records,
     which repeat the Windows ones. The original stays untouched in the downloads."""
     try:
-        t = TTFont(src, fontNumber=0, lazy=True)
+        t = TTFont(src, fontNumber=0, lazy=True, recalcTimestamp=False)   # same bytes on every machine
         names = t["name"].names
         if sum(len(r.toBytes()) for r in names) > 0xFFFF and any(r.platformID == 3 for r in names):
             t["name"].names = [r for r in names if r.platformID != 1]
