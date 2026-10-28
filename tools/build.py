@@ -11,6 +11,7 @@ import hashlib, html, io, json, os, re, shutil, sys, unicodedata, urllib.parse, 
 from fontTools.ttLib import TTFont, TTCollection
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.statisticsPen import StatisticsPen
 from fontTools.pens.transformPen import TransformPen
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -333,9 +334,13 @@ def place_photos(cat):
 
 
 # ── icons from the archive's own type ─────────────────────────────────────────────
+# chip outline: thin and proportional (1.5 of 24 units → 1.1px at 18px, 3px at 48px)
+CHIP = '<rect x="0.75" y="0.75" width="22.5" height="22.5" rx="5.5" class="chip"/>'
+
+
 def icon_svgs(cat):
     by = {f["slug"]: f for f in cat["fonts"]}
-    pool = [os.path.join(ROOT, x["path"]) for s in (UI_TEXT, UI_DISPLAY, UI_DIN) for x in by.get(s, {}).get("faces", [])[:1]]
+    pool = [os.path.join(ROOT, x["path"]) for s in (UI_DISPLAY, UI_DIN, UI_TEXT) for x in by.get(s, {}).get("faces", [])[:1]]
     pool += [os.path.join(ROOT, f["faces"][0]["path"]) for f in cat["fonts"] if f.get("faces") and set(f["coverage"]) >= {"greek", "cyr", "longs"}][:6]
     fonts = []
     for p in pool:
@@ -367,17 +372,21 @@ def icon_svgs(cat):
             if bounds[0] > 1e8:
                 continue
             w, h = bounds[2] - bounds[0], bounds[3] - bounds[1]
-            box = 14.0  # ink lives in a 14×14 field inside the 24×24 chip
-            s = min(box / max(w, 1), box / max(h, 1), 10.0 / (upm * 0.7))
-            s = min(box / max(w, 1), box / max(h, 1)) if len(mark) > 1 else min(s * 1.25, box / max(h, 1), box / max(w, 1))
-            cx, cy = (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            # ink-centred, y flipped; translate snapped to 1/2 px so straight stems land on the grid
-            tx = round((12 - cx * s) * 2) / 2
-            ty = round((12 + cy * s) * 2) / 2
-            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="1.3" y="1.3" width="21.4" height="21.4" rx="5" class="chip" vector-effect="non-scaling-stroke"/><path class="mark" transform="translate({tx} {ty}) scale({s:.5f} {-s:.5f})" d="{" ".join(paths)}"/></symbol>'
+            # one optical size for every mark: scale by the bbox's geometric mean, then fit a 15×12 field
+            s = min(10.5 / max((w * h) ** 0.5, 1), 15.0 / max(w, 1), 12.0 / max(h, 1))
+            # centre on the ink's centre of weight (area centroid), kept inside a 4.5-unit margin
+            st = StatisticsPen(glyphset=gs); xx = 0
+            for ch in mark:
+                g = cmap[ord(ch)]; gs[g].draw(TransformPen(st, (1, 0, 0, 1, xx, 0))); xx += gs[g].width
+            cx, cy = (st.meanX, st.meanY) if abs(st.area) > 1 else ((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2)
+            tx = 12 - cx * s; ty = 12 + cy * s
+            tx = min(max(tx, 4.5 - bounds[0] * s), 19.5 - bounds[2] * s)
+            ty = min(max(ty, 4.5 + bounds[3] * s), 19.5 + bounds[1] * s)
+            tx, ty = round(tx * 4) / 4, round(ty * 4) / 4
+            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24">{CHIP}<path class="mark" transform="translate({tx} {ty}) scale({s:.5f} {-s:.5f})" d="{" ".join(paths)}"/></symbol>'
             break
         else:
-            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24"><rect x="1.3" y="1.3" width="21.4" height="21.4" rx="5" class="chip" vector-effect="non-scaling-stroke"/><text x="12" y="16" text-anchor="middle" class="mark-t">{ESC(mark[:2])}</text></symbol>'
+            out[code] = f'<symbol id="i-{code}" viewBox="0 0 24 24">{CHIP}<text x="12" y="16" text-anchor="middle" class="mark-t">{ESC(mark[:2])}</text></symbol>'
     return '<svg xmlns="http://www.w3.org/2000/svg" style="display:none">' + "".join(out.values()) + "</svg>"
 
 
@@ -397,15 +406,19 @@ PALETTE = collections.OrderedDict([
     ("crimson", ("#D40051", "#FFFF80", "Crimson / pale yellow")),
     ("pale",    ("#FFFF80", "#000080", "Pale yellow / navy")),
 ])
+# grounds that clash with Wiegel's download green (#05872C), which the feature chips keep:
+# contrast ≤ 1.15 : 1 — green itself, olive, and the complementary magenta and crimson
+NO_GREEN = {"green", "olive", "magenta", "crimson"}
+USE_PAL = collections.OrderedDict((k, v) for k, v in PALETTE.items() if k not in NO_GREEN)
 FAM_PAL = {
     "Blackletter": ["tan", "oxblood", "navy", "pale"],
-    "Handwriting": ["pale", "sky", "indigo", "olive"],
-    "Norm & Sans": ["sun", "sky", "green", "navy"],
+    "Handwriting": ["pale", "sky", "indigo"],
+    "Norm & Sans": ["sun", "sky", "navy"],
     "Serif":       ["oxblood", "tan", "pale"],
-    "Display":     ["magenta", "violet", "sun", "crimson", "sky", "green"],
-    "Technical":   ["sun", "navy", "green", "olive"],
-    "Symbols":     ["violet", "magenta", "sky"],
-    "Other":       ["indigo", "crimson", "olive"],
+    "Display":     ["violet", "sun", "sky", "indigo"],
+    "Technical":   ["sun", "navy", "pale"],
+    "Symbols":     ["violet", "sky", "indigo"],
+    "Other":       ["indigo", "tan", "sky"],
 }
 TEXT_FAMS = {"Blackletter", "Handwriting", "Norm & Sans", "Serif", "Technical"}
 LANES = [("type", "Type"), ("digital", "Digitised"), ("world", "Elsewhere")]
@@ -496,7 +509,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal=""):
 <meta name="robots" content="noindex,nofollow">
 <title>{ESC(title)}</title>
 <link rel="stylesheet" href="{up}assets/app.css">
-<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};window.WA_FONTPAL={json.dumps(fontpal)};{THEME_JS % json.dumps({k: v[:2] for k, v in PALETTE.items()})}</script>
+<script>window.ROOT="{up}";window.HOSTED={"true" if HOSTED else "false"};window.UIFONTS={json.dumps(UIFONTS)};window.WA_FONTPAL={json.dumps(fontpal)};{THEME_JS % json.dumps({k: v[:2] for k, v in USE_PAL.items()})}</script>
 </head><body class="p-{cls}">
 {sprite}
 <header class="top" id="top">
@@ -526,7 +539,7 @@ def write_catalog_js(cat):
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
             "tg": f.get("tags", []), "pal": f["pal"],
         })
-    js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in PALETTE.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
+    js = "window.CATALOG=" + json.dumps({"families": cat["families"], "palette": {k: v[:2] for k, v in USE_PAL.items()}, "icons": {k: v[1] for k, v in ICONS.items()}, "fonts": rows}, ensure_ascii=False, separators=(",", ":")) + ";"
     open(os.path.join(SITE, "assets", "catalog.js"), "w", encoding="utf-8").write(js)
 
 
@@ -732,7 +745,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     styles = "".join(f'<option value="{i}">{ESC(x["style"])}</option>' for i, x in enumerate(faces))
     feats = "".join(f'<label class="feat"><input type="checkbox" value="{t}"{" checked" if t in ("liga", "calt", "kern") else ""}><span>{t}</span></label>'
                     for t in f.get("feats", []) if re.match(r"^(liga|dlig|calt|salt|ss\d\d|swsh|smcp|c2sc|onum|lnum|tnum|frac|hist|kern|cv\d\d|zero)$", t))
-    sw = "".join(f'<button type="button" class="sw{" on" if k == f["pal"] else ""}" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in PALETTE.items())
+    sw = "".join(f'<button type="button" class="sw{" on" if k == f["pal"] else ""}" data-p="{k}" style="--b:{v[0]};--f:{v[1]}" title="{ESC(v[2])}" aria-label="{ESC(v[2])}"></button>' for k, v in USE_PAL.items())
     sw += '<button type="button" class="sw plain" data-p="plain" title="Paper / ink" aria-label="Paper and ink"></button>'
     dl = "".join(
         f'<li><a href="{up}assets/dl/{urllib.parse.quote(d["local"])}" download>{ESC(d["name"])}</a><span class="sub tnum">{ESC(d["kind"])}{" · " + format(d["bytes"] / 1024, ".0f") + " KB" if d["bytes"] else ""}</span></li>'
@@ -825,7 +838,7 @@ def legend_html(sprite):
 
 def about_html(cat, sprite):
     n = len(cat["fonts"])
-    sw = "".join(f'<li><span class="chip-c" style="--b:{v[0]};--f:{v[1]}">Aa</span><span>{ESC(v[2])}</span><span class="sub tnum">{v[0]} / {v[1]}</span></li>' for v in PALETTE.values())
+    sw = "".join(f'<li><span class="chip-c" style="--b:{v[0]};--f:{v[1]}">Aa</span><span>{ESC(v[2])}</span><span class="sub tnum">{v[0]} / {v[1]}</span></li>' for v in USE_PAL.values())
     body = f"""<section class="intro"><p class="lead">A working archive of the free typefaces of Peter Wiegel, built for reading, setting and comparing them.</p></section>
 <section class="prose">
 <h2>Peter Wiegel</h2>
@@ -835,7 +848,7 @@ def about_html(cat, sprite):
 <h2>This archive</h2>
 <p>{n} typefaces scraped with Apify from all three of Wiegel’s index pages. The texts are new English write-ups of each page — facts regrouped, not translations — with a link to the original and to a machine translation of it. Photos of the buildings, signs and objects are freely licensed and credited; other sightings are linked, not copied. Specimens are set live from the font files; nothing here is an image of type. Digitisation years are read from each font file’s copyright line, or its creation date when that is missing.</p>
 <h2>Colour</h2>
-<p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch.</p>
+<p>The specimen colours are Wiegel’s own, sampled from his site’s stylesheet, banner, buttons and specimen scans. Each family draws from a few of them; every font page lets you switch. Grounds that fight his download green — the green itself, olive, magenta and crimson — are left out, so the feature chips always read.</p>
 <ul class="pal">{sw}</ul>
 <h2>Method</h2>
 <p>Planned with the Elephant–Goldfish model: one long-context design session wrote <code>docs/designs/archive.md</code>; stateless reviewers attacked it before code was written. Version 3 followed a study of Lineto, Grilli Type, Optimo, Herzog &amp; de Meuron, Klim, Commercial Type, Radim Peško, Caruso St John and others: one interface size, a persistent tag menu, lanes for time, colour grounds for type.</p>

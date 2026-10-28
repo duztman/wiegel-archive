@@ -101,9 +101,9 @@ main { padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--g
 
 /* ── icons: Wiegel's green buttons ───────────────────────────────────── */
 .ic { display: inline-block; vertical-align: -0.18em; flex: none; }
-.ic .chip, symbol .chip { fill: none; stroke: currentColor; stroke-width: var(--line); }
-symbol .mark { fill: currentColor; }
-symbol .mark-t { fill: currentColor; font: 600 11px/1 var(--uiface); }
+.ic .chip, symbol .chip { fill: none; stroke: var(--dl); stroke-width: 1.5; }   /* Wiegel's green, outline proportional to the chip */
+symbol .mark { fill: var(--dl); }
+symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 
 /* ── intro & bar ─────────────────────────────────────────────────────── */
 .intro { padding-top: 48px; display: grid; gap: 32px; }
@@ -258,7 +258,7 @@ symbol .mark-t { fill: currentColor; font: 600 11px/1 var(--uiface); }
 .vl { font: var(--info)/1 var(--uiface); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; opacity: .45; transition: opacity .2s; cursor: pointer; }
 .vl b { font-weight: inherit; }
 .blk.on .vl { opacity: 1; }
-.blk.on .vl::before { content: "●\00a0"; }   /* a fixed word space between dot and name */
+.blk.on .vl::before { content: ""; display: inline-block; width: 1cap; height: 1cap; border-radius: 50%; background: currentColor; margin-inline-end: 1cap; }   /* a cap-high dot, one dot away from the name */
 .ed { font-family: var(--ff); line-height: var(--blh, 1.1); letter-spacing: var(--btr, 0); font-feature-settings: var(--fea, normal); outline: none; overflow-wrap: anywhere; min-width: 0; }
 .blk.fit .ed { white-space: nowrap; overflow: hidden; overflow-wrap: normal; }
 .blk.fit.wrapped .ed { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
