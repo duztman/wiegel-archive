@@ -279,9 +279,9 @@
     let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._font.n)); }, 120); };
     /* Cards / Preview: in cards the preview box goes */
     const vbs = $$(".vmode .pill");
-    const setView = (v) => { view = v; store.set("wa-view", v); rt.hidden = v === "cards";
+    const setView = (v) => { view = v; store.set("wa-view", v); rt.hidden = v === "cards"; grid.closest(".homegrid")?.classList.toggle("cards", v === "cards");
       vbs.forEach((b) => { const on = b.dataset.v === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }); };
-    vbs.forEach((b) => (b.onclick = () => { if (b.dataset.v !== view) { setView(b.dataset.v); apply(); } }));
+    vbs.forEach((b) => (b.onclick = () => { if (b.dataset.v !== view) { setView(b.dataset.v); apply(); alignSide(); } }));
     setView(view);
     if (innerWidth < 900) $("#fdet")?.removeAttribute("open");
     apply();
@@ -290,6 +290,7 @@
       const r2 = grid.children[1];
       const pk = $("#picked");
       if (!r2 || innerWidth < 900) { pk.style.minHeight = ""; return; }
+      if (view === "cards") { pk.style.minHeight = ""; return; }   // no preview box: the first filter rule sits level with the top of the cards (CSS)
       // the selected-filter box fills the space between the write box and the search rule
       pk.style.minHeight = Math.max(16, r2.offsetTop - grid.offsetTop - rt.offsetHeight) + "px";
     }

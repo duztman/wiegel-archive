@@ -704,9 +704,7 @@ def timeline_html(cat, sprite):
     first = {}
     for y in years:
         first.setdefault(y // 10 * 10, y)
-    top = years[0] // 10 * 10
-    dec = lambda d: (f'<a class="dc tnum" href="#y{first[d]}">{d}s</a>' if d in first else f'<span class="dc off tnum">{d}s</span>')
-    strip = "".join(dec(d) for d in range(top, 1790, -10)) + '<i class="brk"></i>' + "".join(dec(d) for d in sorted((d for d in first if d < 1800), reverse=True))
+    strip = "".join(f'<a class="dc tnum" href="#y{first[d]}">{d}s</a>' for d in sorted(first, reverse=True))   # only decades with something in them
     body = f"""
 <div id="tl">
   <nav class="decs" aria-label="Decades">{strip}</nav>

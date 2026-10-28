@@ -140,8 +140,8 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .fin.settext:focus { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--ink); }
 .fcount { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; margin: 0; height: 40px; padding-bottom: var(--pt); }   /* sits in the list's 40px head, above the first rule */
 .homegrid .homelist { padding-top: 0; }
-.vmode { justify-content: flex-end; }   /* Cards / Preview, in the side column's 40px head, level with Clear */
-.grid.fcs { padding-top: var(--pt); }
+.vmode { justify-content: flex-end; }
+.homegrid.cards .picked:empty { display: none; }   /* Cards: with no preview box and no picked tags, the first filter rule sits level with the top of the cards */   /* Cards / Preview, in the side column's 40px head, level with Clear */
 .pill.zero { opacity: .35; cursor: default; pointer-events: none; } /* nothing left to show next to the active filters */
 .fcount .info { text-transform: uppercase; letter-spacing: .05em; }
 .pill.small { font: var(--info)/1.2 var(--uiface); text-transform: uppercase; letter-spacing: .05em; }
@@ -199,9 +199,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 #tl { --yw: 64px; --nw: 48px; }
 .decs { position: sticky; top: var(--navh); z-index: 31; background: var(--paper); display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0 14px; border-bottom: var(--line) solid var(--rule); }
 .dc { padding: 5px 10px 2px 14px; border-radius: 999px; font: var(--info)/1.2 var(--uiface); letter-spacing: .05em; color: var(--ink-3); text-decoration: none; box-shadow: inset 0 0 0 calc(var(--info) * .105) currentColor; }   /* as the small pills (Clear): faint outline, never filled */
-.dc.off { opacity: .4; }
 @media (hover: hover) { a.dc:hover { color: var(--ink); } }
-.decs .brk { width: 16px; }
 .decs::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 36px; pointer-events: none; opacity: 0; transition: opacity .2s;
   background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }   /* the strip sits over the top bar's fade and carries it */
 .scrolled .decs::after { opacity: 1; }
