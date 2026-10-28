@@ -494,7 +494,32 @@ def lane_of(what):
     return "world"
 
 
+# a design that came inside another font's download, shown as a font of its own (Okay, 28 Oct 2026: "a fluke by Peter")
+SPLIT = [("variete", "barnroof.ttf", "barnroof", "Barnroof",
+          "A design of its own that came inside the Varieté download; Wiegel never posted it separately.")]
+
+
+def split_out(cat):
+    """Take each SPLIT face out of its parent and add it as a font at the end of the archive, so no number moves."""
+    by = {f["slug"]: f for f in cat["fonts"]}
+    for parent, file, slug, name, summary in SPLIT:
+        p = by.get(parent)
+        face = next((x for x in (p or {}).get("faces", []) if os.path.basename(x["path"]).lower() == file), None)
+        if not face or slug in by:
+            continue
+        p["faces"].remove(face)
+        c = set(face["cmap"])
+        f = json.loads(json.dumps(p))
+        f.update(slug=slug, name=name, faces=[face], account={}, summary=summary, tags=[], photo=None, place=None, maps=None,
+                 found=[], related=[], years=[], year=None, decade=None, origin=None, prev=cat["fonts"][-1]["slug"], next=None,
+                 icons=[i for i in p["icons"] if i != "eurosign" or 0x20AC in c],   # Wiegel's buttons for the download, as far as this face has them
+                 sample=sample_for(face["cmap"]), glyphs=face["chars"], coverage=face["coverage"], feats=sorted(face["feats"]))
+        cat["fonts"][-1]["next"] = slug
+        cat["fonts"].append(f)
+
+
 def enrich(cat):
+    split_out(cat)
     for i, f in enumerate(cat["fonts"]):
         f["no"] = i + 1
         f["pal"] = pal_for(f)
@@ -618,6 +643,13 @@ def figures_only(f):
     return "ziffern" in f["icons"] or (not letters and any(x in c for x in range(0x30, 0x3A)))
 
 
+def member_name(f, x):
+    """A set member's name as the list shows it: 'Varieté Cabaret'; for styles, the font's name and the style ('cbe Bold')."""
+    if MEMBERS[f["slug"]]["kind"] == "collection":
+        return x["name"]
+    return f["name"] if x["short"] in ("Regular", "Normal") else f["name"] + " " + x["name"]
+
+
 def set_count(f):
     ms = members_of(f)
     return [len([1 for _, x in ms if not x.get("other")]), MEMBERS[f["slug"]]["kind"]] if ms else None
@@ -625,7 +657,7 @@ def set_count(f):
 
 def write_catalog_js(cat):
     rows = []
-    for x in ("DIN", "Dot matrix"):
+    for x in ("DIN", "Dot matrix", "Typewriter"):
         log(f"{x}: " + ", ".join(f["slug"] for f in cat["fonts"] if x in extra_families(f)))
     for f in cat["fonts"]:
         faces = [fonts_css_entry(f, i, x, "") for i, x in enumerate(f.get("faces", []))]
@@ -635,7 +667,8 @@ def write_catalog_js(cat):
             "ic": f["icons"], "cv": f.get("coverage", []), "sm": f.get("sample", ""), "gl": f.get("glyphs", 0),
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
             "tg": f.get("tags", []), "pal": f["pal"], **({"xf": extra_families(f)} if extra_families(f) else {}),
-            **({"set": set_count(f), "mn": " ".join(x["name"] for _, x in members_of(f))} if members_of(f) else {}),
+            **({"set": set_count(f), "mn": " ".join(x["name"] for _, x in members_of(f)),
+                "ms": [[i, member_name(f, x), faces[i]["src"]] for i, x in members_of(f) if not x.get("other")]} if members_of(f) else {}),   # one list row per style
             **({"fo": 1} if figures_only(f) else {}),
             **({"aa": aa(f)} if aa(f) != "Aa" else {}),   # what its card shows
         })
@@ -926,7 +959,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
     def style_label(x):
         sh = x["short"]
         return f["name"] if sh in ("Regular", "Normal") else sh   # a face with no style of its own keeps its full name
-    styles = [(i, style_label(x)) for i, x in ms] if ms else [(0, f["name"])]
+    styles = [(i, style_label(x)) for i, x in ms] if ms else []   # a font that comes alone has no style pills
     stylenav = ('<span class="styles">' + "".join(f'<button type="button" data-i="{i}"{" class=on aria-pressed=true" if i == 0 else " aria-pressed=false"}>{ESC(l)}</button>' for i, l in styles) + '</span>'
                 + '<span class="pnav">'
                 + (f'<a href="{plink(prev_)}">{ARROW_L}{ESC(prev_["name"])}</a>' if prev_ else "")

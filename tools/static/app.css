@@ -302,7 +302,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .sb > :is(.dl, .links, .fl):first-child > li:first-child, .sb > .waterfall:first-child > .wf:first-child, .prose > h2:first-child { border-top-color: transparent; }
 
 .axis { --solid: color-mix(in oklab, var(--ink) 22%, var(--paper)); position: relative; height: 56px; margin: 0 12px; border-bottom: var(--line) solid var(--solid); }   /* opaque, so crossing rules don't darken */
-.axis i { position: absolute; left: var(--x); bottom: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--paper); }
+.axis i { position: absolute; z-index: 1; left: var(--x); bottom: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--c); }   /* over the ticks and the axis, no halo cutting the line */
 .axis .tk { position: absolute; left: var(--x); top: 0; transform: translateX(-50%); font: var(--info)/1 var(--uiface); color: var(--ink-3); }
 .axis .tk::after { content: ""; position: absolute; left: 50%; top: 22px; height: 34px; border-left: var(--line) solid var(--solid); }
 .l-type { --c: var(--hot); } .l-digital { --c: var(--dl); } .l-world { --c: var(--sky); }

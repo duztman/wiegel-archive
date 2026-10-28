@@ -208,21 +208,25 @@
     const save = () => store.set("wa-index2", JSON.stringify({ ...state, sel: Object.fromEntries(Object.entries(state.sel).map(([k, v]) => [k, [...v]])) }));
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const ico = (c) => `<svg class="ic" width="18" height="18"><use href="#i-${c}"/></svg>`;
-    C.fonts.forEach((f) => (f._h = (f.n + " " + (f.mn || "") + " " + (f.pl || "") + " " + (f.tg || []).join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase()));   // search text, built once; includes the names of a set's members
+    C.fonts.forEach((f) => (f._hb = (f.n + " " + (f.pl || "") + " " + (f.tg || []).join(" ") + " " + f.g + " " + f.fa + " " + f.sum + " " + pad(f.no)).toLowerCase(), f._h = f._hb + " " + (f.mn || "").toLowerCase()));   // search text, built once; a font's includes its members' names, a row's only its own
     const figs = (f, t) => { const d = (t || "").replace(/[^0-9.,:; ]/g, "").trim(); return d || f.sm || "0123456789"; };   // figures-only fonts preview figures, also when the text is retyped
-    const facts = (f) => [f.n, f.y ? "OG " + f.y : "", f.dy ? "DG " + f.dy : "", f.fa, f.set ? f.set[0] + (f.set[1] === "styles" ? " styles" : " fonts") : ""].filter(Boolean).map(esc).join(" · ");
-    const rows = C.fonts.map((f) => {
+    const facts = (f, n) => [n || f.n, f.y ? "OG " + f.y : "", f.dy ? "DG " + f.dy : "", f.fa, f.set ? f.set[0] + (f.set[1] === "styles" ? " styles" : " fonts") : ""].filter(Boolean).map(esc).join(" · ");
+    /* one row per font file: a set gives a row to each of its styles, each opening the set's page with that style on */
+    const rows = C.fonts.flatMap((f) => (f.ms || [[0, f.n, f.f[0] ? f.f[0].src : ""]]).map(([i, n, src]) => {
       const a = document.createElement("a");
-      a.className = "lrow tnum"; a.href = flink(f.s); a._font = f;
-      a.innerHTML = `<span class="meta info tnum"><span class="fx">${facts(f)}</span><span class="ics">${(f.ic || []).slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
-        + `<span class="ln" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.fo ? figs(f) : f.n)}</span>`;
+      a.className = "lrow tnum"; a.href = flink(f.s); a._font = f; a._n = n; a._src = src; a._i = i;
+      a._h = f.ms ? (f._hb + " " + n.toLowerCase()) : f._h;
+      if (f.ms) a.addEventListener("click", () => store.set("wa-style", f.s + ":" + i));
+      a.innerHTML = `<span class="meta info tnum"><span class="fx">${facts(f, n)}</span><span class="ics">${(f.ic || []).slice(0, 8).map(ico).join("")}</span><span class="no">${pad(f.no)}</span></span>`
+        + `<span class="ln" data-src="${esc(src)}">${esc(f.fo ? figs(f) : n)}</span>`;
       return a;
-    });
+    }));
     rows.forEach((r) => lazy.observe(r.querySelector(".ln")));
     /* the same fonts as cards (as on the timeline): their own 'Aa' and the name; made on first use */
     const card = (r) => { if (r._card) return r._card; const f = r._font, a = document.createElement("a");
-      a.className = "fc"; a.href = flink(f.s); a.title = f.n; a._row = r;
-      a.innerHTML = `<span class="aa" data-src="${f.f[0] ? esc(f.f[0].src) : ""}">${esc(f.aa || "Aa")}</span><span class="nm">${esc(f.n)}</span>`;
+      a.className = "fc"; a.href = r.href; a.title = r._n; a._row = r;
+      if (f.ms) a.addEventListener("click", () => store.set("wa-style", f.s + ":" + r._i));
+      a.innerHTML = `<span class="aa" data-src="${esc(r._src)}">${esc(f.aa || "Aa")}</span><span class="nm">${esc(r._n)}</span>`;
       lazy.observe(a.firstChild); return (r._card = a); };
     let view = store.get("wa-view") === "cards" ? "cards" : "preview";
 
@@ -258,7 +262,8 @@
     function apply() {
       const pass = passing();
       const by = { name: (a, b) => a.n.localeCompare(b.n), oy: (a, b) => (a.y || 9999) - (b.y || 9999), dy: (a, b) => (a.dy || 9999) - (b.dy || 9999), glyphs: (a, b) => b.gl - a.gl };
-      let list = rows.filter((c) => pass(c._font));
+      const q = state.q.toLowerCase();
+      let list = rows.filter((c) => pass(c._font) && (!q || c._h.includes(q)));   // a search for one style finds that style's row
       if (by[state.order]) list = list.slice().sort((a, b) => by[state.order](a._font, b._font));
       const shown = [...grid.children].map((el) => el._row || el);
       const changed = shown.length !== list.length || shown[0] !== list[0];
@@ -272,7 +277,7 @@
         else if (scrollY > grid.offsetTop) scrollTo(0, Math.max(0, grid.getBoundingClientRect().top + scrollY - 120));
       }
       const any = Object.keys(state.sel).length || state.q;
-      $("#count").textContent = list.length === C.fonts.length ? `Filtering ${list.length} fonts` : `Filtering ${list.length} of ${C.fonts.length} fonts`;
+      $("#count").textContent = list.length === rows.length ? `Filtering ${list.length} fonts` : `Filtering ${list.length} of ${rows.length} fonts`;
       $("#fclear").hidden = !any;
       renderSide(); save();
     }
@@ -281,7 +286,7 @@
     nq.value = state.q; nq.addEventListener("input", (e) => { state.q = e.target.value.trim(); apply(); });
     const rt = $("#retype"); rt.rows = innerWidth < 900 ? 1 : 2;
     const grow = () => { rt.style.height = "auto"; if (rt.value) rt.style.height = rt.scrollHeight + "px"; };
-    let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._font.n)); }, 120); };
+    let tm; $("#retype").oninput = (e) => { grow(); clearTimeout(tm); tm = setTimeout(() => { const t = e.target.value; rows.forEach((r) => (r.querySelector(".ln").textContent = r._font.fo ? figs(r._font, t) : t || r._n)); }, 120); };
     /* Cards / Preview: in cards the preview box goes */
     const vbs = $$(".vmode .pill");
     const setView = (v) => { view = v; store.set("wa-view", v); rt.hidden = v === "cards"; grid.closest(".homegrid")?.classList.toggle("cards", v === "cards");
@@ -440,6 +445,7 @@
       setLis.forEach((li) => sio.observe(li));
     }
     const sbs = $$("#stylenav .styles button");
+    const want = store.get("wa-style"); try { sessionStorage.removeItem("wa-style"); } catch {}   // a style row clicked in the list opens with that style on
     sbs.forEach((b) => b.addEventListener("click", () => { const n = +b.dataset.i; if (n === cur) return;
       load(F[n]).then(() => {   // a face that fails keeps the previous one
         cur = n; applyFace(); fitBlocks(); drawGlyphs();
@@ -471,7 +477,8 @@
 
     blocks.classList.add("waiting");
     F.slice(1).forEach((f) => load(f).catch(() => {}));
-    load(F[0]).then(() => { blocks.classList.remove("waiting"); applyFace(); fitBlocks(); drawGlyphs(); sync(); })
+    load(F[0]).then(() => { blocks.classList.remove("waiting"); applyFace(); fitBlocks(); drawGlyphs(); sync();
+      const [ws, wi] = (want || "").split(":"); if (ws === art.dataset.slug && +wi) sbs.find((b) => +b.dataset.i === +wi)?.click(); })
       .catch(() => { blocks.classList.remove("waiting"); blocks.innerHTML = `<p class="msg">This font file can’t be shown in a browser. The original archives are under Files below.</p>`; });
     let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(fitBlocks, 150); }, { signal });
     signal.addEventListener("abort", () => { clearTimeout(rz); gio?.disconnect(); });
