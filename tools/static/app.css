@@ -1,5 +1,8 @@
 /* Wiegel Archive v4 — one interface size, one line weight. Tokens first; everything else derives from them. */
 /*UI_FONTS*/
+/* no fallbacks in a font's own text: what the font lacks shows as nothing (an empty font for every character), never in another face */
+@font-face { font-family: "WA Blank"; src: url("blank.woff2") format("woff2"); }
+.lrow .ln, .fl .fn, .fc .aa, #tl .fn, .pic .fn { font-family: "WA Blank"; }
 
 :root {
   --paper: #f4f2ec;
@@ -138,6 +141,9 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .p-home .foot { display: none; }
 .homegrid { display: grid; grid-template-columns: minmax(0, 1fr) calc(var(--ui) * 12); gap: 40px; align-items: stretch;
   height: calc(100dvh - var(--navh)); }
+.homelist::before { content: ""; position: sticky; top: 0; z-index: 3; display: block; height: 36px; margin-bottom: -36px; pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: linear-gradient(to bottom, var(--paper), color-mix(in oklab, var(--paper) 0%, transparent)); }   /* the list's own fade, as under the top bar */
+.homelist.scrolled::before { opacity: 1; }
 .homelist, .homegrid .side { position: relative; height: 100%; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   scrollbar-width: none; padding-top: 40px; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 .homegrid .side { padding-top: 0; }   /* its sticky head carries the 40px */
@@ -243,7 +249,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .vl { font: var(--info)/1 var(--uiface); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; cursor: pointer; }
 .vl b { font-weight: inherit; }
 .blk.on .vl::before { content: ""; display: inline-block; width: 1cap; height: 1cap; border-radius: 50%; background: currentColor; margin-inline-end: 1cap; vertical-align: .09em; }   /* a cap-high dot, one dot away from the name, centred on the cap band */
-.ed { font-family: var(--ff); line-height: var(--blh, 1.1); letter-spacing: var(--btr, 0); font-feature-settings: var(--fea, normal); outline: none; overflow-wrap: anywhere; min-width: 0; }
+.ed { font-family: var(--ff, "WA Blank"), "WA Blank"; line-height: var(--blh, 1.1); letter-spacing: var(--btr, 0); font-feature-settings: var(--fea, normal); outline: none; overflow-wrap: anywhere; min-width: 0; }
 .blk.fit .ed { white-space: nowrap; overflow-x: clip; overflow-wrap: normal; }   /* clip sideways only (typed text past the measure); ascenders, descenders and swashes stay whole */
 .blk.fit.wrapped .ed { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
 .blk.cols .ed { columns: 2 18em; column-gap: 48px; --blh: 1.4; }
@@ -349,7 +355,7 @@ a.tg { text-decoration: none; }
 .waterfall { overflow-x: clip; }
 .wf { display: grid; grid-template-columns: 3ch minmax(0, 1fr); align-items: baseline; gap: 24px; padding: var(--pt) 0 var(--pb); border-top: var(--line) solid var(--rule); white-space: nowrap; }
 .wf .px { font: var(--info)/1 var(--uiface); color: var(--ink-3); text-align: right; }
-.wf .tx { font-family: var(--ff); }   /* long lines are cut at the right edge by .waterfall; ink reaching left of the first letter hangs into the gap */
+.wf .tx { font-family: var(--ff, "WA Blank"), "WA Blank"; }   /* long lines are cut at the right edge by .waterfall; ink reaching left of the first letter hangs into the gap */
 
 .gl { display: grid; gap: 24px; }
 .gblock { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; align-items: start; }

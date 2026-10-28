@@ -939,7 +939,8 @@ def font_html(f, by, sprite, up="../", fragment=False):
         kind = MEMBERS[f["slug"]]["kind"]
         def li(i, x):
             k = x["short"] if kind == "styles" else ""
-            return f'<li data-i="{i}"><span class="fn">{ESC(x["name"])}</span><span class="k">{ESC(k)}</span></li>'   # shown, not a switch: the style pills in the bar switch
+            txt = f["sample"] if figures_only(f) else x["name"]   # clocks and figures-only fonts show what they draw
+            return f'<li data-i="{i}" title="{ESC(x["name"])}"><span class="fn">{ESC(txt)}</span><span class="k">{ESC(k or (x["name"] if txt != x["name"] else ""))}</span></li>'   # shown, not a switch: the style pills in the bar switch
         main = [li(i, x) for i, x in ms if not x.get("other")]
         extra = [li(i, x) for i, x in ms if x.get("other")]
         set_n = len(main)
@@ -1203,6 +1204,7 @@ def main():
     css = open(os.path.join(STATIC, "app.css"), encoding="utf-8").read().replace("/*UI_FONTS*/", ui_font_css(by))
     open(os.path.join(SITE, "assets/app.css"), "w", encoding="utf-8").write(css)
     shutil.copy2(os.path.join(STATIC, "app.js"), os.path.join(SITE, "assets/app.js"))
+    shutil.copy2(os.path.join(STATIC, "blank.woff2"), os.path.join(SITE, "assets/blank.woff2"))
     write_catalog_js(cat)
     W = lambda p, s: open(os.path.join(SITE, p), "w", encoding="utf-8").write(s)
     W("index.html", index_html(cat, sprite))

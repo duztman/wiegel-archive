@@ -15,8 +15,8 @@
   setNavH(); if (window.ResizeObserver && document.getElementById("top")) new ResizeObserver(setNavH).observe(document.getElementById("top")); else addEventListener("resize", setNavH);   // follows the bar when the UI font arrives and it un-wraps
 
   const homeList = document.querySelector(".homelist");   // on the index the list scrolls inside its own column
-  const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0 || (homeList ? homeList.scrollTop > 0 : false));
-  homeList?.addEventListener("scroll", onScroll, { passive: true });
+  const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 0);
+  homeList?.addEventListener("scroll", () => homeList.classList.toggle("scrolled", homeList.scrollTop > 0), { passive: true });   // the list fades under its own head, not over Cards / Preview
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
   $$("#subnav > .secs").forEach((x) => x.addEventListener("scroll", () => x.classList.toggle("sc", x.scrollLeft > 0), { passive: true }));   // About row: fades in at the left once scrolled
@@ -136,7 +136,7 @@
     lazy.unobserve(e.target);
     const el = e.target;
     if (!el.dataset.src) { el.classList.add("ok"); return; }
-    loadSrc(el.dataset.src).then((id) => { el.style.fontFamily = `"${id}"`; el.classList.add("ok"); if (el.classList.contains("aa")) fitAa(el); }).catch(() => el.classList.add("ok"));
+    loadSrc(el.dataset.src).then((id) => { el.style.fontFamily = `"${id}", "WA Blank"`; el.classList.add("ok"); if (el.classList.contains("aa")) fitAa(el); }).catch(() => el.classList.add("ok"));
   }), { rootMargin: "600px 0px" });
 
   /* font cards: one size for every 'Aa'; only a face too wide for the card is set smaller, never cut */
@@ -448,7 +448,7 @@
     const setLis = $$(".fl li[data-i]", art);
     if (setLis.length) {
       const sio = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; sio.unobserve(e.target);
-        const i = +e.target.dataset.i; load(F[i]).then((id) => ($(".fn", e.target).style.fontFamily = `"${id}"`)).catch(() => {}); }), { rootMargin: "400px" });
+        const i = +e.target.dataset.i; load(F[i]).then((id) => ($(".fn", e.target).style.fontFamily = `"${id}", "WA Blank"`)).catch(() => {}); }), { rootMargin: "400px" });
       signal.addEventListener("abort", () => sio.disconnect());
       setLis.forEach((li) => sio.observe(li));
     }

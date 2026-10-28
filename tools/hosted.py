@@ -135,6 +135,7 @@ def main():
     css = open(os.path.join(B.STATIC, "app.css"), encoding="utf-8").read().replace("/*UI_FONTS*/", "")
     open(os.path.join(OUT, "assets/app.css"), "w", encoding="utf-8").write(css)
     shutil.copy2(os.path.join(B.STATIC, "app.js"), os.path.join(OUT, "assets/app.js"))
+    shutil.copy2(os.path.join(B.STATIC, "blank.woff2"), os.path.join(OUT, "assets/blank.woff2"))
     site_backup = B.SITE
     B.SITE = OUT
     B.write_catalog_js(cat)
