@@ -644,6 +644,17 @@ def figures_only(f):
     return "ziffern" in f["icons"] or (not letters and any(x in c for x in range(0x30, 0x3A)))
 
 
+COMPANION = re.compile(r"\b(?:Alt|Alternates?|Init|Initials?|Start)\b", re.I)   # alternates, initials and word-start forms go with an original
+
+
+def list_rows(f, faces):
+    """The set's styles as rows of the font list. Companions (alternates, initials, start forms) stay under their original:
+    they show on the font page, not as rows. A set made only of such names keeps them all ('Schwaben Alt' is a name)."""
+    ms = [(i, x) for i, x in members_of(f) if not x.get("other")]
+    keep = [(i, x) for i, x in ms if not COMPANION.search(x["name"])] or ms
+    return [[i, member_name(f, x), faces[i]["src"]] for i, x in keep]
+
+
 def member_name(f, x):
     """A set member's name as the list shows it: 'Varieté Cabaret'; for styles, the font's name and the style ('cbe Bold')."""
     if MEMBERS[f["slug"]]["kind"] == "collection":
@@ -669,7 +680,7 @@ def write_catalog_js(cat):
             "st": len(faces), "f": faces[:1], "sum": f.get("summary", ""), "pl": f.get("place"), "ph": bool(f.get("photo")),
             "tg": f.get("tags", []), "pal": f["pal"], **({"xf": extra_families(f)} if extra_families(f) else {}),
             **({"set": set_count(f), "mn": " ".join(x["name"] for _, x in members_of(f)),
-                "ms": [[i, member_name(f, x), faces[i]["src"]] for i, x in members_of(f) if not x.get("other")]} if members_of(f) else {}),   # one list row per style
+                "ms": list_rows(f, faces)} if members_of(f) else {}),   # one list row per style
             **({"fo": 1} if figures_only(f) else {}),
             **({"aa": aa(f)} if aa(f) != "Aa" else {}),   # what its card shows
         })
