@@ -134,9 +134,16 @@
     lazy.unobserve(e.target);
     const el = e.target;
     if (!el.dataset.src) { el.classList.add("ok"); return; }
-    loadSrc(el.dataset.src).then((id) => { el.style.fontFamily = `"${id}"`; el.classList.add("ok"); }).catch(() => el.classList.add("ok"));
+    loadSrc(el.dataset.src).then((id) => { el.style.fontFamily = `"${id}"`; el.classList.add("ok"); if (el.classList.contains("aa")) fitAa(el); }).catch(() => el.classList.add("ok"));
   }), { rootMargin: "600px 0px" });
 
+  /* font cards: one size for every 'Aa'; only a face too wide for the card is set smaller, never cut */
+  function fitAa(el) {
+    el.style.fontSize = "";
+    const c = el.parentElement, cs = getComputedStyle(c), room = c.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const w = el.getBoundingClientRect().width;
+    if (w > room) el.style.fontSize = Math.floor(parseFloat(getComputedStyle(el).fontSize) * room / w) + "px";
+  }
   const meas = document.createElement("canvas").getContext("2d");   // text measuring for fitting and cap alignment
   function prep(canvas) {
     const dpr = Math.max(1, Math.round(devicePixelRatio || 1));
@@ -283,7 +290,7 @@
   if (tl) {
     $$(".aa", tl).forEach((el) => lazy.observe(el));
     const decs = $(".decs", tl), dh = () => tl.style.setProperty("--decsh", decs.offsetHeight + "px");
-    dh(); addEventListener("resize", dh);
+    let rq; dh(); addEventListener("resize", () => { dh(); cancelAnimationFrame(rq); rq = requestAnimationFrame(() => $$(".aa.ok", tl).forEach(fitAa)); });
   }
 
   /* ── catalogue: sortable lister ────────────────────────────────────── */

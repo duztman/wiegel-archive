@@ -212,7 +212,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .yb { display: grid; gap: 16px; }
 .fcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 12px; }
 .fc { aspect-ratio: 1; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; justify-items: center; align-items: center; padding: 0 12px 12px; border-radius: 17px; box-shadow: inset 0 0 0 var(--line) var(--rule); color: var(--ink); text-decoration: none; }
-.fc .aa { font-size: 56px; line-height: 1; white-space: nowrap; opacity: .3; transition: opacity .3s; }
+.fc .aa { font-size: 72px; line-height: 1; white-space: nowrap; opacity: .3; transition: opacity .3s; }
 .fc .aa.ok { opacity: 1; }
 .fc .nm { font: var(--info)/1.2 var(--uiface); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (hover: hover) { .fc:hover { box-shadow: inset 0 0 0 var(--line) var(--ink); } }
@@ -296,7 +296,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 /* one rule is enough (docs/RULES.md): a list that opens a section, or a heading that opens a page under the nav, sits on the rule
    already above it, so its first rule keeps its space but not its line. Facts is a grid whose first row is any number of cards: clip its top line. */
 .sb > :is(.dl, .links, .fl):first-child > li:first-child, .sb > .waterfall:first-child > .wf:first-child, .prose > h2:first-child { border-top-color: transparent; }
-.sb > .facts:first-child { clip-path: inset(var(--line) 0 0); }
+.sb > .facts:first-child { clip-path: inset(var(--pt) 0 0); }   /* the first row's rule and the padding under it hold no ink; clipping just the line's width left a device-pixel sliver */
 
 .axis { position: relative; height: 56px; margin: 0 12px; border-bottom: var(--line) solid var(--rule); }
 .axis i { position: absolute; left: var(--x); bottom: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--paper); }
@@ -440,7 +440,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   .node { grid-column: 1; grid-row: 1; }
   .yb { grid-column: 2; margin-top: 12px; }
   .fcs { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
-  .fc .aa { font-size: 32px; }
+  .fc .aa { font-size: 44px; }
   .sliders { grid-template-columns: minmax(0, 1fr); }
   .tools { position: static; }
   .lister { --cols: 2.6em minmax(0, 1fr) 3.6em 3.6em; }
