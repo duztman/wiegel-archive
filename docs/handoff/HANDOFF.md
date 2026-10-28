@@ -1,79 +1,124 @@
 # Wiegel Archive: handoff for the next agent
 
-State at 28 Oct 2026, 05:50 (Istanbul). Written after a long design session with Okay, the owner, who directs the design closely. Read this, then `docs/designs/archive.md` (the original design doc and its v3 decisions).
+State at 28 Oct 2026, afternoon (Istanbul). Okay (the owner) directs the design closely; the site is signed off as **pixel-perfect**. Read in this order:
+1. this file
+2. [../RULES.md](../RULES.md): the design system and how to work with Okay
+3. [../audits/2026-10-28.md](../audits/2026-10-28.md): open findings
+4. [../ICONS.md](../ICONS.md) and [../REUSE.md](../REUSE.md) when relevant
+
+`docs/designs/archive.md` is the original v1 design; sections 1–10 are superseded and are kept as history.
 
 ## What it is
 
-A private, typographic showcase of Peter Wiegel's free fonts (CAT Fonts, peter-wiegel.de): 337 entries, 598 font files, each with a live specimen page, an English write-up, the timeline of the original lettering and its digitisation, photos of the source objects, the character set, and the original downloads.
+A private typographic showcase of Peter Wiegel's free fonts (CAT Fonts, peter-wiegel.de). There are 337 entries: 598 faces from 642 font files. Each entry has:
+- a live specimen page
+- an English write-up
+- the timeline of the original lettering and its digitisation
+- photos of the source objects
+- the character set
+- the original downloads
 
-- **Full build:** on Okay's Mac at `~/Sites/wiegel-archive`, opened with "Open Wiegel Archive.command". The Mac folder is **not a git repo**; it is kept in step by copying files into it and running `python3 tools/build.py` there.
-- **Hosted copy:** private claude.ai artifact https://claude.ai/artifact/9XpQGH3LqFMUfXSGQkgQiG (Version 57 at time of writing). One font file per entry, to save space.
-- **Source repo:** `duztman/wiegel-archive` on GitHub (currently public; Okay may make it private).
+## Where it lives
+
+There are three copies. They must stay in step: the same `tools/` builds byte-identical `hosted/` output in all of them (checked on 28 Oct).
+
+| Copy | Where | Notes |
+|---|---|---|
+| **Mac** (full build) | `~/Sites/wiegel-archive` on Okay's Mac. Open with "Open Wiegel Archive.command" | Has all fonts, raw archives and photos. **Not a git repo.** |
+| **Repo** | `duztman/wiegel-archive` (GitHub), branch `main` | `tools/`, `data/`, `docs/`. Fonts, raw files, `site/` and `hosted/` are git-ignored. |
+| **Hosted** | private claude.ai artifact https://claude.ai/artifact/9XpQGH3LqFMUfXSGQkgQiG (v58 on 28 Oct) | One face per font. Its page is `main.html`. |
+
+## Pages
+
+- **Top bar:** Wiegel Archive · **Fonts** · Timeline · Images · About · search · C · M · Random.
+- **Fonts** (`index.html`): the list and filters.
+- **Font pages:** `font/<slug>.html` locally; `font.html#<slug>` in the hosted copy, with bodies in `pages/pN.json`.
+- **About** has its own second row:
+  - **Peter Wiegel** (`about.html`): portrait, bio, licences, references
+  - **This site** (`site.html`): one paragraph, colour, colophon
+  - **Legend** (`legend.html`): the feature chips
+  - **Catalogue** (`catalogue.html`): the sortable list
+- Data for the About pages lives in `build.py`: `REFS`, `about_html()`, `site_html()`. The portrait is `tools/static/people/wiegel.png`, from his own site, made black and white and cut out. Its ground is `--dark`.
 
 ## Screenshots
 
-Current state, 1366 × 1024 unless noted, in this folder:
+These are in this folder, taken at 1366 × 1024 (phone 390 × 844) in the "sun" pair, after the 28 Oct nav change:
 
 | File | Shows |
 |---|---|
-| `01-index.png` | Index: font list on the left, filter column on the right |
-| `02-index-filtered.png` | Index with a filter on: selected tag pinned under the write box, live counts, dimmed empty pills |
-| `03-font-page.png` | Font page top: name in the section bar, prev/next row, previews, sliders |
+| `01-index.png` | Fonts: list on the left, filter column on the right |
+| `02-index-filtered.png` | A filter on: the tag pinned under the write box, live counts |
+| `03-font-page.png` | Font page top: name row, prev/next, previews |
 | `04-font-account-links.png` | Account text and links out with the circled arrow |
 | `05-characters.png` | Character grid with vertical block labels |
-| `06-colour-picker-open.png` | The C colour picker open in the top bar |
-| `07-catalogue.png` | Catalogue lister |
+| `06-colour-picker-open.png` | The C colour picker open |
+| `07-catalogue.png` | About › Catalogue |
 | `08-timeline.png` | Timeline |
-| `09-images.png` | Images page |
-| `10-about-legend.png` | About page with the feature-icon legend |
-| `11-phone-font-page.png` | Font page on a phone (390 wide) |
+| `09-images.png` | Images |
+| `10-about-peter.png` | About › Peter Wiegel |
+| `11-phone-font-page.png` | Font page on a phone |
+| `12-this-site.png` | About › This site |
+| `13-legend.png` | About › Legend |
 
-The whole evening's progression is on the Mac in `~/Sites/wiegel-archive/docs/screenshots/2026-10-28/`: 260 screenshots (Okay's annotated ones plus every check) indexed in its `README.md` against Okay's messages, and `main-page-versions/` with the index page of 46 successive builds.
+The progression of 27–28 Oct (260 screenshots, indexed against Okay's messages) is on the Mac in `docs/screenshots/2026-10-28/`.
 
 ## How it is built
 
-- `tools/build.py`: Python static build (stdlib + fontTools). Reads `data/catalog.json` and the font files, writes `site/`. ~2 s.
-- `tools/static/app.css`, `tools/static/app.js`: all styling and behaviour; vanilla, no framework.
-- `tools/hosted.py`: builds the artifact version into `hosted/` (single `font.html#slug` shell plus `pages/pN.json` packs, one face per font).
-- Fonts load via `fetch` + `FontFace` (works where CSS font URLs are blocked).
+- **`tools/merge.py`:** extraction slices (`data/parts/*.jsonl`, not committed) plus photo research → `data/catalog.json`. Order, section and prev/next come from Wiegel's own index pages.
+- **`tools/build.py`:** Python, stdlib plus fontTools; ~15 s on the Mac.
+  1. Extracts `raw/archives` into `fonts/`.
+  2. Analyses every font file.
+  3. Places photos from `raw/photos/*.zip`.
+  4. Writes `site/`.
+  5. **Rewrites `data/build-report.json`**.
+- **Fallbacks** (for copies without the raw files):
+  - Without `raw/archives`, file lists come from `build-report.json`.
+  - When a font file is absent, `inventory()` uses the metadata recorded there (cmap, metrics, names).
+  - This is what lets the cloud session build the hosted copy without the 158 MB font folder. In the cloud copy `build.py main()` itself still crashes, because it copies every face; use `hosted.py` there.
+- **`tools/hosted.py`:** builds `hosted/`: one face per font, the `font.html#slug` shell, `pages/pN.json` packs of 20, photos at 1600 px.
+- **`tools/static/app.css`, `app.js`:** all styling and behaviour, vanilla. Fonts load through `fetch` + `FontFace`.
 
-### Publishing a change (the loop used all night)
+## Publishing a change
 
-1. Edit `tools/…`, run `python3 tools/build.py`, check with Playwright against a local server on `site/` (port 8810).
-2. `python3 tools/hosted.py`, then copy every changed file from `hosted/` to `/home/claude/wiegel-hosted/` (compare with `cmp`; skip `hosted/index.html`, the artifact's page is `main.html`).
-3. Publish with the Artifact tool: `file_path` `/home/claude/wiegel-hosted/main.html` plus a `files` map of the changed files. If it refuses a file you have not read this session, read it from the artifact first.
-4. `git commit` and `git push` in `/home/claude/wiegel-archive`.
-5. Copy the changed `tools/` files to the Mac with `device_commit_files` (force) and run `python3 tools/build.py` there via `device_bash`.
+1. **Edit `tools/…` in the repo clone.** Check with Playwright against a local server on `hosted/`, e.g. `python3 -m http.server 8765`. Set `localStorage` `wa-mode=mono`, or a pair, for repeatable colours.
+2. **Build the hosted copy in the cloud** (no Mac needed):
+   1. Restore the publish folder: `Artifact read` the artifact into `/home/claude/wiegel-hosted/`.
+   2. Seed the fonts: copy `wiegel-hosted/assets/fonts/*` into `wiegel-archive/fonts/`.
+   3. Seed the photos: copy `wiegel-hosted/assets/photos/*.jpg` into `wiegel-archive/site/assets/photos/`.
+   4. Run `python3 tools/hosted.py`.
+3. **Copy what changed** from `hosted/` to `/home/claude/wiegel-hosted/` (compare with `cmp`). Skip `index.html` (the artifact's page is `main.html`).
+   - **Never copy photos from a cloud build.** It re-encodes the already-resized JPEGs, so they differ by bytes but are not real changes.
+4. **Publish:** Artifact `url` = the artifact, `file_path` = `/home/claude/wiegel-hosted/main.html`, `files` = map of the changed files. Read the artifact (no `path`) once per session first.
+5. **Commit and push** in `/home/claude/wiegel-archive`, using a branch, then fast-forward `main`.
+6. **Update the Mac.** The Mac's shell reaches GitHub raw but not the cloud container, and this session had no file-commit tool.
+   1. Back up the old files first: `cp` them into `_to_delete/tools-before-<date>/`.
+   2. Pull each changed file: `curl -sSf -o tools/<file> https://raw.githubusercontent.com/duztman/wiegel-archive/main/tools/<file>`.
+   3. Run `python3 tools/build.py && python3 tools/hosted.py` there.
+7. **Verify the copies agree:** `shasum -a 256` of `hosted/*.html` and `hosted/assets/app.css` on the Mac must equal the cloud build.
 
-**Deleting files on the Mac is not permitted.** Move leftovers into a `_to_delete/` folder and tell Okay.
+**Deleting files on the Mac is not permitted.** Move leftovers into `_to_delete/` and tell Okay.
 
-## The design system (rules Okay set; keep them)
+## Process: Elephant–Goldfish
 
-- **One interface size:** `--ui: 24px` (18 on phone), set in Wiegel's Preussische IV 44. Running text in his Proletarsk (`--read`). DIN is no longer used anywhere in the interface.
-- **One line thickness:** `--line = var(--ui) * .105`, the stem of the UI face. Lighter lines are made with opacity or colour, never with thinner strokes. Exceptions, each deliberate: link arrows are 1px lighter; feature chips use a proportional outline; small tags use `var(--info) * .105`.
-- **Smallest text** (`--info`, 14px): always caps, letter-spaced `.05em`, one tone (`--ink-3`). Vertical labels use exactly this style, rotated.
-- **Spacing rhythm:** rows in the top bar are 12px above the pill, 14px below to the next line. Paragraphs/list items: top padding half the bottom (`--pt 8 / --pb 16`). Gap above the first font preview is `2 × --st`.
-- **Colour:** navigation and content always share one colour pair. Pairs are light paper / dark ink, ordered by the light's hue from yellow to pinks, one light each (`PALETTE` in `build.py`). **I** inverts all of them. Grounds that clash with Wiegel's download green `#05872C` (green, olive, magenta, crimson) are banned because the feature chips keep that green.
-- **Top bar:** Wiegel Archive · Index · Timeline · Images · Catalogue · About · search field (fills the gap; Enter searches the index) · **C** (colour picker that grows left out of the circle, eased, with a faint glow; remembers the pick on every page; tapping the picked pair again forgets it) · **M** (mono: black/white plus one accent) · **Random** (opens a random font). Pills in the bar never fill on touch; hover styles only apply on hover devices.
-- **Pill labels are centred by script** (`inkCenter` in `app.js`): words sit on their cap band (baseline to cap height); single letters in circles sit on their ink box; then every label is nudged 2px right (`NUDGE`, tuned by eye on Okay's iPad); a measured 0.029em raster correction lifts glyphs. Small pills (`.tg`, `.pill.small`) are not scripted: CSS padding puts their label 1px down and 2px right.
-- **Arrows:** inside pills, a long arrow without a circle (`.arw`). Everywhere else one circled arrow (`.ca`, direction by class `ne r l u d`). The ring is 7/6 of the x-height (cap height in caps lines), centred on that band; the shaft starts on the ring. Links out get `ne`, downloads `d`, added automatically by `deco()` in `build.py`; the last word of a link always stays with its arrow.
-- **No underlines anywhere.**
-- **Vertical labels** start at the cap height of the first line beside them (`capAlign`, measured from the laid-out first letter after the real font loads). Glyph-block labels start and stick at the same height as their section heading.
-- **Index:** two independent full-height scrolling columns under the bar; the top fade only appears once the list scrolls. The right column has a pinned head: write box, then selected tags (filled in the outline colour, letters in the full accent, short-armed X), then search. Filter pills show live counts; pills that would give zero results are dimmed and disabled. Filtering always returns the list to the top.
-- **Font page:** row 1 the bar; row 2 the font name, its family pill and section pills; row 3 prev/next flush right (scrolls away). Previews fit one line where possible (floor 2 × `--ui`, then wrap). Controls (size, leading, tracking) are below the previews; the kern/swatch/invert/reset line was removed.
-- **Feature chips** (icons for character set and features): Wiegel's green, outline proportional to the chip, marks cut from the archive's own type, sized to one optical size and centred on their ink.
-- **Licence (font file)** shows only the licence's name (`lic_name()`); the 16 "Have fun and enjoy" entries show no row.
+Design work follows the [Elephant–Goldfish Model](https://github.com/google/elephant-goldfish-model):
+- One context-rich session (the Elephant) designs and writes the document.
+- Zero-context reviewers (Goldfish) attack it before any code.
 
-## How Okay works (read before changing anything)
-
-- Short bullet answers; state the values you used. Vague quantifiers follow his scale (a bit ≈ 15%, noticeably ≈ 35%, double = 2×); when unsure pick the smaller.
-- Measure, don't guess: check with Playwright, zoomed pixel crops, real numbers. He uses Safari on an iPad; things that measure right in Chrome can be off there (that is why `NUDGE` exists).
-- No `!important`, magic numbers or patches over an unknown cause. Find the upstream reason. If a fix fails twice, stop and ask.
-- He annotates screenshots by hand; read the arrows literally ("touch here", "1/5 shorter", "3px down").
+The 28 Oct audit used three Goldfish subagents (CSS, JS, build and drift) plus direct measurement. See [../REUSE.md](../REUSE.md) for install commands and a ready brief.
 
 ## Open work
 
-1. **Families inside one download** (agreed): 114 entries hold several fonts (Baltic Fonts holds 12). Replace the Style menu, which labels every member "Regular", with a Family block listing each member in its own face; show "12 fonts" on index rows; include all members in the hosted copy (about +46 MB).
-2. **Families across posts** (agreed, waiting on Okay's check of the example): a hand-checked list of real families spread over separate Wiegel posts, e.g. Rastenburg / Rastenburg Band (peter-wiegel.de/Rastenburg.html and /RastenburgBand.html), Typographer Fraktur / Gotisch / Rotunda / Textur, Fibel Nord / Süd / Vienna, Bernardo Moda / Contrast. Do not group by first word (CAT, Fette, Neue and Peter are not families). Mark these as "from separate posts" and link siblings on each page.
-3. **Code audit:** Okay asked for a big one next.
-4. **Small open questions:** whether "Licence (page)" notes should also be cut to a name; Safari check of the cap-band pill centring; the 3% gap between the font's x-height metric and its drawn x-height in the arrow sizing.
+1. **Audit fixes waiting for Okay's go.** See [../audits/2026-10-28.md](../audits/2026-10-28.md); the specimen clipping is the important one.
+2. **Families inside one download** (agreed): 114 entries hold several fonts.
+   - Replace the Style menu with a Family block.
+   - Show "12 fonts" on index rows.
+   - Include all members in the hosted copy (about +46 MB).
+3. **Families across posts** (agreed; waiting on Okay's check): a hand-checked sibling list.
+   - Examples: Rastenburg / Rastenburg Band; Typographer Fraktur / Gotisch / Rotunda / Textur; Fibel Nord / Süd / Vienna; Bernardo Moda / Contrast.
+   - Do not group by first word.
+4. **Small open questions:**
+   - "Licence (page)" notes cut to a name?
+   - The Safari check of cap-band pill centring.
+   - The 3% x-height gap in arrow sizing.
+5. **Peter Wiegel page:** no obituary found (searched 28 Oct, German and English). The Wayback Machine was unreachable from the cloud, so a forum check (Typophile/Typography.Guru era) is still open.
+6. **Another archive in the same shell:** brief in [../REUSE.md](../REUSE.md).

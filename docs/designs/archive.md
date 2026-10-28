@@ -2,6 +2,8 @@
 
 Status: draft v1 · 2026-10-27 · owner: Okay
 
+> **Superseded (28 Oct 2026).** Kept as history of the v1 design and its review. The current state is in `docs/handoff/HANDOFF.md`, the rules in `docs/RULES.md`; many names, sizes and files below no longer match the code (see `docs/audits/2026-10-28.md`, drift table).
+
 ## 1. Problem
 
 Peter Wiegel's CAT Fonts site (peter-wiegel.de) hosts ~350 freeware typefaces (fraktur, kurrent, school scripts, DIN/norm lettering, signage revivals, display faces). The site is a 2009-era table layout with ad-blocker nags, PNG specimens and no way to sort, compare or type-test. The goal is a private, local, archival copy that presents the whole body of work as a contemporary specimen site (reference register: Klim, Lineto, Swiss Typefaces) while staying faithful to the source.
