@@ -653,7 +653,10 @@ PANGRAM_DE = "Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich
 def CA(d="r"):
     return (f'<svg class="ca {d}" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" vector-effect="non-scaling-stroke"/>'
             '<path d="M5.6 10H14M10.6 6.6L14 10L10.6 13.4" vector-effect="non-scaling-stroke"/></svg>')
-ARROW_L, ARROW_R = CA("l"), CA("r")
+# inside pills: the long arrow without a circle, same stroke
+_ARW = '<svg class="arw" viewBox="0 0 18 12" aria-hidden="true"><path d="{}" vector-effect="non-scaling-stroke"/></svg>'
+ARROW_L = _ARW.format("M17 6H1M6 1L1 6L6 11")
+ARROW_R = _ARW.format("M1 6H17M12 1L17 6L12 11")
 _LINK = re.compile(r'<a\b([^>]*)>(.*?)</a>', re.S)
 def deco(html):
     """links out end in the up-right arrow, downloads in the down arrow"""
@@ -801,7 +804,7 @@ def font_html(f, by, sprite, up="../", fragment=False):
 {sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}
 {sec('Characters <span class="tnum" id="gcount"></span>', '<div id="gl" class="gl"></div>', "characters")}
 {sec("Files", f'<ul class="dl">{dl}</ul>' + (f'<h3>Bundled documents</h3><ul class="dl">{docs}</ul>' if docs else '') + f'<p class="sub">{ESC(f.get("copyright") or "")}</p>', "files")}
-<nav class="pn"><a href="{plink(prev_) if prev_ else '#'}" class="{'' if prev_ else 'off'}">{ARROW_L}{ESC(prev_['name'] if prev_ else '')}</a><a href="{plink(next_) if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')}{ARROW_R}</a></nav>
+<nav class="pn"><a href="{plink(prev_) if prev_ else '#'}" class="{'' if prev_ else 'off'}">{CA("l")}{ESC(prev_['name'] if prev_ else '')}</a><a href="{plink(next_) if next_ else '#'}" class="{'' if next_ else 'off'}">{ESC(next_['name'] if next_ else '')}{CA("r")}</a></nav>
 </article>"""
     if fragment:
         return deco(body)

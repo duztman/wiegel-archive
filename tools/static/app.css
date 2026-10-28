@@ -473,3 +473,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .sortb .ca { width: .7em; height: .7em; }
 .fsum .ca.pm { margin-left: .3em; } details[open] > .fsum .pm .v { display: none; }
 .pn a { display: inline-flex; align-items: center; gap: 8px; }
+/* inside pills the arrow is long and has no circle */
+.arw { width: .75em; height: .5em; flex: none; fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; overflow: visible; }
+.arw.u { transform: rotate(-90deg); } .arw.d { transform: rotate(90deg); }
+.sortb .arw { margin-left: .3em; vertical-align: 0.1em; }
