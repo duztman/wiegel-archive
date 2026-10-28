@@ -161,7 +161,7 @@ symbol .mark-t { fill: currentColor; font: 600 11px/1 var(--uiface); }
 .sic svg { fill: none; stroke: currentColor; stroke-width: var(--line); stroke-linecap: butt; }
 .sic:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--line) var(--ink-3); }
 .fg { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 14px; gap: 0 12px; align-items: start; border-top: var(--line) solid var(--rule); padding: var(--pt) 0 var(--pb); }
-.vlab { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font: var(--info)/1 var(--uiface); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); justify-self: end; padding-top: 4px; }
+.vlab { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font: calc(var(--ui) * .5)/1 var(--din); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); justify-self: end; padding-top: 4px; }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .pill { display: inline-flex; align-items: baseline; gap: 8px; padding: 3px 14px 2px; border: 0; border-radius: 999px; background: none; color: var(--ink); cursor: pointer;
   box-shadow: inset 0 0 0 var(--line) var(--rule); font: var(--ui)/1.2 var(--uiface); white-space: normal; max-width: 100%; text-align: left; }
@@ -256,10 +256,10 @@ symbol .mark-t { fill: currentColor; font: 600 11px/1 var(--uiface); }
 .blocks { --ff: inherit; }
 .blk:first-child { border-top: 0; }
 .blk { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 16px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid color-mix(in oklab, var(--fg) 30%, transparent); cursor: text; }
-.vl { font: 12px/1 var(--din); letter-spacing: .02em; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; opacity: .45; transition: opacity .2s; cursor: pointer; }
+.vl { font: calc(var(--ui) * .5)/1 var(--din); letter-spacing: .02em; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; align-self: start; opacity: .45; transition: opacity .2s; cursor: pointer; }
 .vl b { font-weight: inherit; }
 .blk.on .vl { opacity: 1; }
-.blk.on .vl::before { content: "● "; }
+.blk.on .vl::before { content: "●\00a0"; }   /* a fixed word space between dot and name */
 .ed { font-family: var(--ff); line-height: var(--blh, 1.1); letter-spacing: var(--btr, 0); font-feature-settings: var(--fea, normal); outline: none; overflow-wrap: anywhere; min-width: 0; }
 .blk.fit .ed { white-space: nowrap; overflow: hidden; overflow-wrap: normal; }
 .blk.fit.wrapped .ed { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
@@ -460,7 +460,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lane::before, .lrow .meta, .card .meta, .kicker, .fcount .info, .pic figcaption {
   text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); opacity: 1;
 }
-.vl { font-family: var(--din); }
+.vl, .vlab { font-family: var(--din); }   /* every vertical label: DIN at half the UI size */
 .blk.on .vl { color: var(--ink-3); }
 .foot a { color: inherit; }
 
