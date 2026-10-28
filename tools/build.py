@@ -21,6 +21,7 @@ STATIC = os.path.join(ROOT, "tools", "static")
 UI_TEXT = "proletarsk"       # Wiegel's Proletarsk: large x-height, Latin + Cyrillic, ~860 glyphs
 UI_DISPLAY = "preussische"   # Prussian railway lettering IV 44 (1880s), DIN 1451's ancestor: the interface face
 UI_DIN = "altedin1451"       # no longer used in the interface (labels use the UI face)
+UI_MONO = "erikatype"        # Wiegel's Erika Type, the bold face: the one monospaced text (glyph codes)
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 DOC_EXT = (".pdf", ".txt", ".rtf", ".doc", ".docx", ".odt", ".htm", ".html")
 PUA = range(0xE000, 0xF900)
@@ -554,6 +555,7 @@ def page(title, body, depth=0, sprite="", cls="", cur="", fontpal="", sub=""):
 <header class="top" id="top">
 <nav class="nav1" aria-label="Site"><a class="home" href="{up}index.html">Wiegel Archive</a>{links}<form class="nsearch" role="search" action="{up}index.html"><input class="fin" id="nq" type="search" name="q" autocomplete="off" enterkeyhint="search" placeholder="Search" aria-label="Search the archive"></form><span class="modes"><span class="cpick"><span class="cpanel" id="cpanel" hidden role="group" aria-label="Wiegel's colours"><span class="cin">{SWATCHES}</span></span><button class="mode cbtn" id="cbtn" type="button" data-m="random" title="Colours: pick one of Wiegel's pairs" aria-expanded="false" aria-controls="cpanel" aria-label="Colours">C</button></span><button class="mode" type="button" data-m="mono" title="Colours: black and white with one bright accent" aria-label="Mono colours">M</button><a class="rndfont" href="{up}index.html" id="rndfont" title="Open a random font">Random</a></span></nav>
 <nav class="nav2" id="subnav" aria-label="{"About" if sub else "This font"}">{row2}</nav>
+<nav class="nav3" id="stylenav" aria-label="Styles and neighbours"></nav>
 </header>
 <main>{body}
 <footer class="foot"><p class="info">A private archive of the free fonts of Peter Wiegel / CAT Fonts. Fonts © their authors, under the licences bundled in each archive. Texts are new English write-ups; the originals are at <a href="http://www.peter-wiegel.de/">peter-wiegel.de</a>.</p></footer>
@@ -583,9 +585,14 @@ def is_dot(f):
     return f["genre"] == "dot-matrix/led" or f["slug"] in DOT_EXTRA
 
 
+def is_typewriter(f):
+    """In the Typewriter pill as well: faces of typewriters, tagged so by hand (Erika, Tippa, Schiet Schriefmaschin …)."""
+    return "typewriter" in [t.lower() for t in f.get("tags", [])]
+
+
 def extra_families(f):
     """Family pills a font shows under besides its own (checked by eye on 28 Oct 2026)."""
-    return [x for x, test in (("DIN", is_din), ("Dot matrix", is_dot)) if test(f)]
+    return [x for x, test in (("DIN", is_din), ("Dot matrix", is_dot), ("Typewriter", is_typewriter)) if test(f)]
 
 
 MEMBERS = {}
@@ -851,7 +858,7 @@ def strip_html(f):
     span = max(1, hi - lo)
     dots = "".join(f'<i class="l-{e["lane"]}" style="--x:{(e["y"] - lo) / span * 100:.2f}%" title="{e["y"]}"></i>' for e in evs)
     ticks = "".join(f'<span class="tk tnum" style="--x:{(t - lo) / span * 100:.2f}%">{t}</span>' for t in range(lo, hi + 1, 50 if span > 200 else 25))
-    items = "".join(f'<li class="l-{e["lane"]}"><span class="y tnum">{e["y"]}</span><span class="w">{ESC(e["what"])}</span><span class="ln">{dict(LANES)[e["lane"]]}</span></li>' for e in evs)
+    items = "".join(f'<li class="l-{e["lane"]}"><span class="y tnum">{e["y"]}</span><span class="w">{ESC(e["what"])}</span></li>' for e in evs)
     gap = ""
     oy = f.get("oy")
     if oy and f.get("dy") and f["dy"] > oy:
@@ -868,15 +875,14 @@ def font_html(f, by, sprite, up="../", fragment=False):
     canon = f["faces"][0] if f.get("faces") else None
     a = f.get("account") or {}
     bg, fg, _ = PALETTE[f["pal"]]
-    icons = "".join(f'<li>{icon(c, 24)}<span>{ESC(ICONS[c][1])}</span></li>' for c in f["icons"] if c in ICONS)
+    chips = "".join(f'<li>{icon(c, 48)}<span>{ESC(ICONS[c][1])}</span></li>' for c in f["icons"] if c in ICONS)
     ms = members_of(f)
     set_html, set_n, now = "", 0, ""
     if ms:
         kind = MEMBERS[f["slug"]]["kind"]
         def li(i, x):
             k = x["short"] if kind == "styles" else ""
-            return (f'<li data-i="{i}" data-k="{ESC(k)}" data-short="{ESC(x["short"])}" tabindex="0" role="button"{" class=on" if i == 0 else ""}>'
-                    f'<span class="fn">{ESC(x["name"])}</span><span class="k">{"Shown above" if i == 0 else ESC(k)}</span></li>')
+            return f'<li data-i="{i}"><span class="fn">{ESC(x["name"])}</span><span class="k">{ESC(k)}</span></li>'   # shown, not a switch: the style pills in the bar switch
         main = [li(i, x) for i, x in ms if not x.get("other")]
         extra = [li(i, x) for i, x in ms if x.get("other")]
         set_n = len(main)
@@ -900,33 +906,38 @@ def font_html(f, by, sprite, up="../", fragment=False):
     maps = f'<p><a class="t" href="{URL(f["maps"])}">Open in Google Maps</a></p>' if f.get("maps") else ""
     prev_, next_ = by.get(f.get("prev")), by.get(f.get("next"))
     plink = lambda g: flink(g["slug"], up) if HOSTED else g["slug"] + ".html"
-    meta_rows = [("Number", nofmt(f["no"])), ("Family", f["family"]), ("Genre", f["genre"]), ("Original", str(f["oy"]) if f.get("oy") else None),
-                 ("Digitised", f'{f["dy"]} by {f["dwho"]}' if f.get("dy") else None), ("Source", f.get("origin")), ("Place / object", f.get("place")),
-                 ("Designer field", f.get("designer")), ("Styles", str(len(faces))), ("Characters", f'{f.get("glyphs",0):,}'),
-                 ("Licence (page)", f.get("license")), ("Licence (font file)", lic_name(f.get("font_license"))),
-                 ("Wiegel's index", f'{f["section"]}, {f["pos"]} of {f["of"]}')]
-    meta = "".join(f'<div{" class=wide" if len(v) > 34 else ""}><dt>{ESC(k)}</dt><dd>{xlink(v, f, up) if k == "Source" else ESC(v)}</dd></div>' for k, v in meta_rows if v)
     glyphs = json.dumps(canon["cmap"][:4000] if canon else [])
     acc = "".join(f'<div class="acc"><h3>{h}</h3><p>{xlink(a[k], f, up, k == "use")}</p></div>' for k, h in (("what", "The typeface"), ("history", "History"), ("use", "In use"), ("notes", "Notes")) if a.get(k))
     if not acc:
         acc = f'<div class="acc"><p>{ESC(f.get("summary",""))}</p></div>'
-    tags = "".join(f'<span class="tg">{ESC(t)}</span>' for t in f.get("tags", []))
+    n_st, n_gl = (set_count(f) or [len(faces)])[0], f.get("glyphs", 0)
+    fpills = [("fa", f["family"]), ("g", f["genre"]), ("st", f'{n_st} style{"s" if n_st != 1 else ""}'), ("gl", f"{n_gl} characters")] + [("tg", t) for t in f.get("tags", [])]
+    seen = set()   # one pill per value: a genre equal to the family, or a tag repeating a fact, is shown once
+    fpills = [(k, v) for k, v in fpills if v and not (v.lower() in seen or seen.add(v.lower()))]
+    pills = "".join(f'<a class="tg" href="{up}index.html#{k}={urllib.parse.quote(v)}">{ESC(v)}</a>' for k, v in fpills if v)
+    lic = lic_name(f.get("font_license"))
+    facts = (f'<div class="lic">{f"<p>{ESC(lic)}</p>" if lic else ""}<p class="tags">{pills}</p></div>'
+             + (f'<ul class="chips">{chips}</ul>' if chips else ""))   # licence → linked small pills → feature chips
     secs = [("specimen", "Specimen")] + ([("set", f"Set {set_n}")] if ms else []) + [("timeline", "Timeline"), ("account", "Account"), ("place", "Place"), ("characters", "Characters"), ("files", "Files")]
     has_place = bool(photo or found or related or maps)
-    subnav = (f'<span class="pname" data-name="{ESC(f["name"])}">{ESC(f["name"]) + (" · " + ESC(now) if now else "")}</span><span class="crumb">{ESC(f["family"])}</span>'
+    subnav = (f'<span class="pname">{ESC(f["name"])}</span><span class="crumb">{ESC(f["family"])}</span>'
               + "".join(f'<a href="#{k}">{l}</a>' for k, l in secs if (k != "place" or has_place) and (k != "timeline" or f["events"]))
     )
-    pnav = ('<nav class="pnav" aria-label="Previous and next font">'
-            + (f'<a href="{plink(prev_)}">{ARROW_L}{ESC(prev_["name"])}</a>' if prev_ else "")
-            + (f'<a href="{plink(next_)}">{ESC(next_["name"])}{ARROW_R}</a>' if next_ else "") + '</nav>')
-    years_lbl = f" {CA()} ".join(str(x) for x in (f.get("oy"), f.get("dy")) if x)
+    def style_label(x):
+        sh = x["short"]
+        return f["name"] if sh in ("Regular", "Normal") else sh   # a face with no style of its own keeps its full name
+    styles = [(i, style_label(x)) for i, x in ms] if ms else [(0, f["name"])]
+    stylenav = ('<span class="styles">' + "".join(f'<button type="button" data-i="{i}"{" class=on aria-pressed=true" if i == 0 else " aria-pressed=false"}>{ESC(l)}</button>' for i, l in styles) + '</span>'
+                + '<span class="pnav">'
+                + (f'<a href="{plink(prev_)}">{ARROW_L}{ESC(prev_["name"])}</a>' if prev_ else "")
+                + (f'<a href="{plink(next_)}">{ESC(next_["name"])}{ARROW_R}</a>' if next_ else "") + '</span>')
     body = f"""
 <article class="font" data-slug="{f['slug']}" data-pal="{f['pal']}">
 <template id="subnavtpl">{subnav}</template>
+<template id="stylenavtpl">{stylenav}</template>
 <script type="application/json" id="faces">{JSON(faces)}</script>
 <script type="application/json" id="glyphs">{glyphs}</script>
 <div class="sheet" id="specimen">
-  {pnav}
   <div class="blocks{' text' if f['text'] else ' display'}" id="blocks">{specimen_blocks(f, faces)}</div>
   <div class="tools" role="toolbar" aria-label="Specimen controls">
     <div class="sliders">
@@ -935,15 +946,11 @@ def font_html(f, by, sprite, up="../", fragment=False):
       <label class="sl"><span class="k">Tracking</span><output id="tro" class="tnum">0</output><input type="range" id="tr" min="-0.1" max="0.4" step="0.005" value="0"></label>
     </div>
   </div>
-  <header class="fhead">
-    <p class="kicker info tnum"><span>{nofmt(f['no'])}</span><span>{ESC(f['family'])}</span><span>{years_lbl}</span></p>
-    <ul class="icons-row">{icons}</ul>
-  </header>
 </div>
 {sec(set_label, set_html, "set") if ms else ""}
 {sec("Timeline", strip_html(f), "timeline") if f["events"] else ""}
 {sec("Account", f'<div class="acc-wrap">{acc}</div><p class="orig"><a class="t" href="{URL(f["translate"])}">Read Wiegel’s original in English</a> <a class="t" href="{URL(f["url"])}">Original German page</a></p>', "account")}
-{sec("Facts", f'<dl class="facts">{meta}</dl>' + (f'<div class="tags">{tags}</div>' if tags else ''))}
+{sec("Facts", facts, "facts")}
 {sec("Place", photo + f'<div class="placecol">{maps}{f"<h3>Seen elsewhere</h3><ul class=links>{found}</ul>" if found else ""}{f"<h3>Related</h3><ul class=links>{related}</ul>" if related else ""}</div>', "place") if has_place else ""}
 {sec("Waterfall", '<div class="waterfall" id="wf"></div>') if f["text"] else ""}
 {sec('Characters <span class="tnum" id="gcount"></span>', '<div id="gl" class="gl"></div>', "characters")}
@@ -1069,8 +1076,18 @@ def site_html(cat, sprite):
 UIFONTS = []
 
 
+def mono_face(by):
+    """Erika Type's bold face, the one monospaced text of the site."""
+    return next((x for x in (by.get(UI_MONO) or {}).get("faces", []) if x["weight"] >= 700 and not x["italic"]), None)
+
+
 def ui_font_css(by):
     css = []
+    x = mono_face(by)
+    if x:
+        src = "fonts/" + UI_MONO + "/" + os.path.basename(x["path"])
+        UIFONTS.append({"family": "WA Mono", "src": "assets/" + src, "weight": 400, "italic": False})
+        css.append(f'@font-face{{font-family:"WA Mono";src:url("{src}");font-display:swap}}')
     for slug, fam in ((UI_TEXT, "WA Text"), (UI_DISPLAY, "WA UI")):
         f = by.get(slug)
         for x in (f or {}).get("faces", []):

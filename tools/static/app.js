@@ -168,6 +168,11 @@
       ["cv", "Script", (f) => (f.cv || []).map((k) => SCRIPTS[k]).filter(Boolean)],
       ["ic", "Features", (f) => (f.ic || []).map((k) => (C.icons || {})[k]).filter(Boolean)],
       ["pl", "Place", (f) => [f.ph ? "Photographed" : null, f.pl ? "Has a place" : "No place"].filter(Boolean)],
+      // reached only from the small pills in a font's Facts (index.html#g=…); no pills of their own here
+      ["g", "Genre", (f) => [f.g], true],
+      ["tg", "Tag", (f) => f.tg || [], true],
+      ["st", "Styles", (f) => { const n = f.set ? f.set[0] : f.st; return [n + (n === 1 ? " style" : " styles")]; }, true],
+      ["gl", "Characters", (f) => [f.gl + " characters"], true],
     ];
     const ORDERS = [["index", "Wiegel’s order"], ["name", "A to Z"], ["oy", "Original date"], ["dy", "Digitised"], ["glyphs", "Most glyphs"]];
     const vals = {};
@@ -177,7 +182,7 @@
       const e = [...m.entries()];
       if (k === "fa") {   // the extra pills follow the family most of their fonts belong to
         const fam = [...C.families];
-        fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); fam.splice(fam.indexOf("Technical") + 1, 0, "Dot matrix"); fam.push("Sets");
+        fam.splice(fam.indexOf("Norm & Sans") + 1, 0, "DIN"); fam.splice(fam.indexOf("Technical") + 1, 0, "Dot matrix", "Typewriter"); fam.push("Sets");
         return e.sort((a, b) => fam.indexOf(a[0]) - fam.indexOf(b[0]));
       }
       if (k === "oy" || k === "dy") return e.sort((a, b) => num(a[0]) - num(b[0]));
@@ -230,7 +235,7 @@
       const pk = $("#picked"), toggle = (k, v) => { const s = (state.sel[k] = state.sel[k] || new Set()); s.has(v) ? s.delete(v) : s.add(v); if (!s.size) delete state.sel[k]; apply(); };
       pk.replaceChildren(...CATS.flatMap(([k]) => [...(state.sel[k] || [])].map((v) => { const b = pill(v, null, true, () => toggle(k, v)); b.insertAdjacentHTML("beforeend", '<svg class="x" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.4 3.4L14.6 14.6M14.6 3.4L3.4 14.6" vector-effect="non-scaling-stroke"/></svg>'); b.setAttribute("aria-label", "Remove " + v); return b; })));
       group("Order", ORDERS.map(([k, l]) => pill(l, null, state.order === k, () => { state.order = k; apply(); })));
-      CATS.forEach(([k, label, fn]) => {
+      CATS.forEach(([k, label, fn, hidden]) => { if (hidden) return;
         const sel = state.sel[k] || new Set(), live = liveCounts(k, fn);
         group(label, sortVals(k, vals[k]).map(([v]) => [v, live.get(v) || 0]).map(([v, n]) => pill(v, n, sel.has(v), () => toggle(k, v))));
       });
@@ -337,7 +342,10 @@
     fontAC?.abort(); fontAC = new AbortController();
     const signal = fontAC.signal;
     const sub = $("#subnav"), tpl = $("#subnavtpl");
-    if (sub && tpl) { sub.innerHTML = tpl.innerHTML; setNavH(); }
+    if (sub && tpl) { sub.innerHTML = tpl.innerHTML; }
+    const sn = $("#stylenav"), stpl = $("#stylenavtpl");
+    if (sn) sn.innerHTML = stpl ? stpl.innerHTML : "";
+    setNavH();
     $$("[href^='#']", sub || document).forEach((a) => a.addEventListener("click", (e) => { const t = document.getElementById(a.getAttribute("href").slice(1)); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth" }); } }));
 
     const F = JSON.parse($("#faces").textContent || "[]");
@@ -423,21 +431,20 @@
     function fitBlocks() { if (F[cur]) $$(".blk", blocks).forEach(fit); }   // every block repaints with the real face's metrics
     blks.forEach((b) => { if (b.classList.contains("fit")) { let q; $(".ed", b).addEventListener("input", () => { cancelAnimationFrame(q); q = requestAnimationFrame(() => fit(b)); }); } });
     $$(".feat input", art).forEach((i) => (i.onchange = () => { applyFace(); fitBlocks(); }));
-    /* set: each member is listed in its own font; choosing one sets the specimen in it (a face that fails keeps the previous one) */
-    const setLis = $$(".fl li[data-i]", art), pname = $(".pname", sub || document);
+    /* set: each member is listed in its own font, loaded as it nears the screen; the style pills in the bar switch the specimen */
+    const setLis = $$(".fl li[data-i]", art);
     if (setLis.length) {
       const sio = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; sio.unobserve(e.target);
         const i = +e.target.dataset.i; load(F[i]).then((id) => ($(".fn", e.target).style.fontFamily = `"${id}"`)).catch(() => {}); }), { rootMargin: "400px" });
       signal.addEventListener("abort", () => sio.disconnect());
-      const choose = (li) => { const n = +li.dataset.i; if (n === cur) return;
-        load(F[n]).then(() => {
-          cur = n; applyFace(); fitBlocks(); drawGlyphs();
-          setLis.forEach((x) => { x.classList.toggle("on", x === li); $(".k", x).textContent = x === li ? "Shown above" : x.dataset.k; });
-          if (pname) pname.textContent = pname.dataset.name + " · " + li.dataset.short;
-          $("#specimen").scrollIntoView({ behavior: "smooth" });
-        }).catch(() => {}); };
-      setLis.forEach((li) => { sio.observe(li); li.addEventListener("click", () => choose(li)); li.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(li); } }); });
+      setLis.forEach((li) => sio.observe(li));
     }
+    const sbs = $$("#stylenav .styles button");
+    sbs.forEach((b) => b.addEventListener("click", () => { const n = +b.dataset.i; if (n === cur) return;
+      load(F[n]).then(() => {   // a face that fails keeps the previous one
+        cur = n; applyFace(); fitBlocks(); drawGlyphs();
+        sbs.forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
+      }).catch(() => {}); }));
 
     /* colour */
     function setPal(k) {

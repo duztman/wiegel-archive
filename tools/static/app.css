@@ -27,7 +27,7 @@
 
   --uiface: "WA UI", "DIN Alternate", "Helvetica Neue", Arial, sans-serif;
   --text: "WA Text", Georgia, serif;
-  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --mono: "WA Mono", ui-monospace, "SF Mono", Menlo, monospace;   /* Wiegel's Erika Type Bold */
   --navbg: var(--paper); --navfg: var(--ink);   /* navigation and content always share one colour */
   --dark: var(--ink);        /* the dark of the current pair, inverted or not; app.js sets it from the pair */
   color-scheme: light;
@@ -62,6 +62,10 @@ em { font-style: normal; color: var(--hot); }
 .nav1 { padding: 12px 0 14px; flex-wrap: wrap; overflow: visible; }
 .nav2 { padding: 12px 0 14px; border-top: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); border-bottom: var(--line) solid color-mix(in oklab, var(--navfg) 35%, transparent); }
 .nav2:empty { display: none; }
+.nav3 { display: flex; align-items: flex-start; gap: 8px 24px; padding: 12px 0 14px; }   /* font pages: styles left, prev/next right; no rule under it */
+.nav3:empty { display: none; }
+.nav3 .styles { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.nav3 .pnav { flex: none; white-space: nowrap; gap: 8px; padding: 0; }
 .top a, .top button, .top .crumb { display: inline-block; padding: 2px 14px 1px; border-radius: 999px; border: 0; cursor: pointer;
   background: var(--navfg); color: var(--navbg); transition: background .2s, color .2s; }
 @media (hover: hover) { .top a:hover, .top button:hover { text-decoration: none; background: var(--navbg); color: var(--navfg); box-shadow: inset 0 0 0 var(--line) var(--navfg); } }
@@ -84,8 +88,9 @@ em { font-style: normal; color: var(--hot); }
 
 .top .crumb { opacity: .7; cursor: default; }
 .top .crumb:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; }
-.nav2 a { background: none; color: color-mix(in oklab, var(--navfg) 40%, transparent); box-shadow: inset 0 0 0 var(--line) currentColor; }
-@media (hover: hover) { .nav2 a:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; } }
+.nav2 a, .nav3 button, .nav3 .pnav a { background: none; color: color-mix(in oklab, var(--navfg) 40%, transparent); box-shadow: inset 0 0 0 var(--line) currentColor; }
+.nav3 button.on { background: var(--navfg); color: var(--navbg); box-shadow: none; }   /* the current style: filled */
+@media (hover: hover) { .nav2 a:hover, .nav3 button:hover, .nav3 .pnav a:hover { background: var(--navfg); color: var(--navbg); box-shadow: none; } }
 
 main { padding: 0 max(var(--gut), env(safe-area-inset-right, 0px)) 0 max(var(--gut), env(safe-area-inset-left, 0px)); min-width: 0; }
 .foot { padding: var(--sbt) 0 var(--gut); color: var(--ink-3); max-width: 46em; font: var(--info)/1.4 var(--uiface); }
@@ -226,10 +231,7 @@ symbol .mark-t { fill: var(--dl); font: 600 11px/1 var(--uiface); }
 .top { --navbg: var(--paper); --navfg: var(--ink); }
 .sheet { background: var(--bg); color: var(--fg); margin: 0 calc(-1 * max(var(--gut), env(safe-area-inset-left, 0px))); padding: 0 var(--gut); transition: background .25s, color .25s; }
 .sheet ::selection { background: var(--fg); color: var(--bg); }
-.fhead { display: grid; gap: 12px; padding: var(--st) 0 var(--sbt); }
-.kicker { display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 0; }
-.icons-row { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0; margin: 0; }
-.icons-row li { display: flex; gap: 8px; align-items: center; }
+.sheet { padding-bottom: var(--sbt); }   /* the tools end the sheet; the info line under them moved to Facts */
 
 .blocks { --ff: inherit; }
 .blk:first-child { border-top: 0; padding-top: calc(var(--st) * 2); }   /* twice the usual gap under the prev/next row */
@@ -291,7 +293,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 
 /* ── sections: label column + body ────────────────────────────────────── */
 .sec { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; padding: var(--st) 0 var(--sbt); border-top: var(--line) solid var(--rule); }
-.sheet + .sec { border-top: 0; }
 .lab { position: sticky; top: calc(var(--navh) + 16px); align-self: start; }
 .lab span { color: var(--ink-3); display: block; }
 .sb h3 { font: var(--info)/1.2 var(--uiface); color: var(--ink-3); margin: 24px 0 8px; }
@@ -299,19 +300,17 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 /* one rule is enough (docs/RULES.md): a list that opens a section, or a heading that opens a page under the nav, sits on the rule
    already above it, so its first rule keeps its space but not its line. Facts is a grid whose first row is any number of cards: clip its top line. */
 .sb > :is(.dl, .links, .fl):first-child > li:first-child, .sb > .waterfall:first-child > .wf:first-child, .prose > h2:first-child { border-top-color: transparent; }
-.sb > .facts:first-child { clip-path: inset(var(--pt) 0 0); }   /* the first row's rule and the padding under it hold no ink; clipping just the line's width left a device-pixel sliver */
 
-.axis { position: relative; height: 56px; margin: 0 12px; border-bottom: var(--line) solid var(--rule); }
+.axis { --solid: color-mix(in oklab, var(--ink) 22%, var(--paper)); position: relative; height: 56px; margin: 0 12px; border-bottom: var(--line) solid var(--solid); }   /* opaque, so crossing rules don't darken */
 .axis i { position: absolute; left: var(--x); bottom: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--paper); }
 .axis .tk { position: absolute; left: var(--x); top: 0; transform: translateX(-50%); font: var(--info)/1 var(--uiface); color: var(--ink-3); }
-.axis .tk::after { content: ""; position: absolute; left: 50%; top: 22px; height: 34px; border-left: var(--line) solid var(--rule); }
+.axis .tk::after { content: ""; position: absolute; left: 50%; top: 22px; height: 34px; border-left: var(--line) solid var(--solid); }
 .l-type { --c: var(--hot); } .l-digital { --c: var(--dl); } .l-world { --c: var(--sky); }
-.gap { margin: 32px 0 0; font: var(--read)/1.3 var(--text); text-wrap: pretty; }   /* no orphaned last word */
+.gap { margin: 32px 0 0; font: var(--info)/1.2 var(--uiface); text-wrap: pretty; }   /* smallest text; no orphaned last word */
 .evs { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15em, 1fr)); gap: 0 32px; }
-.evs li { display: grid; gap: 4px; align-content: start; border-top: var(--line) solid var(--c); padding: var(--pt) 0 var(--pb); }
-.evs .y { font: var(--info)/1.2 var(--uiface); }
+.evs li { display: grid; gap: 4px; align-content: start; padding: var(--pt) 0 var(--pb); }
+.evs .y { font: var(--ui)/1.25 var(--uiface); color: var(--c); }   /* the lane is the colour */
 .evs .w { font: var(--list)/1.3 var(--text); }
-.evs .ln { font: var(--info)/1.2 var(--uiface); color: var(--ink-3); }
 
 .acc-wrap { font: 400 var(--read)/1.42 var(--text); max-width: 34em; }
 .acc-wrap .acc + .acc h3 { margin-top: 24px; }
@@ -319,13 +318,16 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 .orig .t, .sb p > .t { color: var(--ink); text-decoration: none; }
 
 /* facts as compact cards; other lined lists keep a small label on the rule and the value below */
-.facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 24px; }
-.facts div { border-top: var(--line) solid var(--rule); padding: var(--pt) 0 var(--pb); display: grid; gap: 4px; align-content: start; }
-.facts div.wide { grid-column: span 2; }
-.facts dt { font: var(--info)/1.2 var(--uiface); color: var(--ink-3); }
-.facts dd { margin: 0; font: var(--list)/1.25 var(--text); overflow-wrap: anywhere; }
+#facts .sb { display: grid; gap: 32px; }
+.lic { display: grid; gap: 4px; }
+.lic > p:first-child:not(.tags) { margin: 0; font: 400 var(--read)/1.3 var(--text); }
+.chips { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(max(64px, calc((100% - 9 * 16px) / 10)), 1fr)); gap: 24px 16px; }   /* 10 across at full width */
+.chips li { display: grid; gap: 8px; justify-items: start; }
+.chips span { font: var(--info)/1.2 var(--uiface); }
 .links li, .dl li { border-top: var(--line) solid var(--rule); padding: var(--pt) 0 var(--pb); display: grid; gap: 4px; }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 24px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+a.tg { text-decoration: none; }
+@media (hover: hover) { a.tg:hover { background: var(--ink); color: var(--paper); box-shadow: none; } }
 .tg { font: var(--info)/1.2 var(--uiface); border-radius: 999px; }
 /* small tags and small buttons: outline in the text colour at the small text's own stem; label 1px down, 2px right of the line box */
 .tg, .pill.small { padding: 5px 10px 2px 14px; box-shadow: inset 0 0 0 calc(var(--info) * .105) currentColor; }
@@ -431,6 +433,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   :root { --ui: 18px; --info: 12px; --list: 19px; --read: 21px; --gut: 24px; --st: 16px; --sbt: 32px; }
   .nav1 { padding: 10px 0 12px; gap: 8px 8px; flex-wrap: nowrap; overflow-x: auto; }
   .nav2 { gap: 8px 22px; }
+  .nav3 { flex-wrap: wrap; gap: 8px; }   /* phone: prev/next on their own line, the styles one swiping row under them, so the sticky bar stays short */
+  .nav3 .pnav { order: -1; flex: 1 0 100%; justify-content: flex-end; }
+  .nav3 .styles { flex: 1 0 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .nav3 .styles button { flex: none; }
   .lrow .ln { font-size: 40px; }
   .lrow .meta .fa, .lrow .meta span:nth-child(3) { min-width: 0; }
   /* phone: decades in one swiping row; the stem runs down the left edge, the year above its cards */
@@ -452,8 +458,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
   .c-gl { padding-left: 0; }
   .crow .c-fa { font: var(--info)/1.2 var(--uiface); }
   .crow { grid-template-areas: "no name oy dy" ". fa fa fa" ". src src src" ". gl gl ic"; }
-  .facts div.wide { grid-column: auto; }
-  .facts { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .pics { columns: 1; }
   .blk { grid-template-columns: 14px minmax(0, 1fr); gap: 10px; }
   .legend { grid-template-columns: minmax(0, 1fr); }
@@ -461,7 +465,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px va
 
 /* ── the smallest text: always caps, always one tone ─────────────────── */
 .info, .sheet .info, .foot, .pill.small, .vlab, .vl, .sl .k, .sl output, .sb h3, .axis .tk,
-.evs .y, .evs .ln, .facts dt, .tg, .photo figcaption .sub, .links .sub, .dl .sub, .wf .px, .gl .g span,
+.gap, .chips span, .tg, .photo figcaption .sub, .links .sub, .dl .sub, .wf .px, .gl .g span,
 .crow .c-src, .crow .c-no, .crow .c-gl, .pal .sub, .lrow .meta, .kicker, .fcount .info, .pic figcaption, .now, .fc .nm, .dgn {
   text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); opacity: 1;
 }

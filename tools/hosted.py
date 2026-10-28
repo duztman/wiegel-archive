@@ -122,6 +122,15 @@ def main():
                               "weight": 700 if re.search(r"(bold|fett|_g\b|-b\b)", name, re.I) else 400,
                               "italic": bool(re.search(r"(italic|kursiv)", name, re.I))})
 
+    mono = B.mono_face(real_by)   # Erika Type Bold for the glyph codes, as woff2
+    if mono:
+        mx = dict(mono, web=os.path.splitext(os.path.basename(mono["path"]))[0] + ".woff2")
+        b = web_woff2(B.UI_MONO, mx)
+        if b:
+            os.makedirs(os.path.join(OUT, "assets/fonts", B.UI_MONO), exist_ok=True)
+            open(os.path.join(OUT, "assets/fonts", B.UI_MONO, mx["web"]), "wb").write(b)
+            B.UIFONTS.append({"family": "WA Mono", "src": f"assets/fonts/{B.UI_MONO}/{mx['web']}", "weight": 400, "italic": False})
+
     sprite = B.icon_svgs(cat)
     css = open(os.path.join(B.STATIC, "app.css"), encoding="utf-8").read().replace("/*UI_FONTS*/", "")
     open(os.path.join(OUT, "assets/app.css"), "w", encoding="utf-8").write(css)

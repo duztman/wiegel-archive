@@ -14,7 +14,7 @@ The design system Okay signed off, and the working rules for changing it. The si
 - **One line thickness:** `--line = var(--ui) * .105`, the stem of the UI face. Lighter lines come from opacity or colour, never thinner strokes. Deliberate exceptions: link arrows (1px lighter), feature chips (outline proportional to the chip), small tags (`var(--info) * .105`).
 - **Rhythm:** rows in the top bar sit 12px above the pill and 14px below to the next line. Paragraphs and list rows have top padding half the bottom (`--pt 8 / --pb 16`); sections the same ratio (`--st 24 / --sbt 48`). The gap above the first font preview is `2 × --st`.
 - On the About pages the first heading (or the portrait) sits 48px under the bar: `.prose` padding 16 plus the `h2`/`.portrait` margin 32.
-- **One rule is enough.** Never two horizontal rules with nothing between them. A list that opens a section, or a heading that opens a page under the nav, sits on the rule already above it: its own first rule keeps its space (so nothing moves) but not its line (`border-top-color: transparent`; Facts, a grid, clips its first row's rule and top padding). A list that ends a section draws no closing rule; the next section's rule closes it. Not rules, so exempt: the glyph table's cell outlines and the font-page timeline axis. `tools/double_rules.py` finds offenders.
+- **One rule is enough.** Never two horizontal rules with nothing between them. A list that opens a section, or a heading that opens a page under the nav, sits on the rule already above it: its own first rule keeps its space (so nothing moves) but not its line (`border-top-color: transparent`). A list that ends a section draws no closing rule; the next section's rule closes it. Not rules, so exempt: the glyph table's cell outlines and the font-page timeline axis. `tools/double_rules.py` finds offenders.
 
 ## Colour
 
@@ -28,6 +28,8 @@ The design system Okay signed off, and the working rules for changing it. The si
 - **Top bar:** Wiegel Archive · **Fonts** · Timeline · Images · About · search field (fills the gap; Enter searches the font list) · **C** (colour picker that grows left out of the circle) · **M** · **Random**.
 - **Second row, same pill style:**
   - On font pages: the font name, its family pill, then section pills.
+- **Third row, font pages only** (designed with Okay, 28 Oct 2026): styles left, prev/next flush right; no rule under it. One pill per style in the download, labelled by its style name (a face with no style of its own keeps its full name); the current style is a filled pill. Style pills wrap to more lines on desktop with prev/next on the first; on phone prev/next take their own line and the styles are one swiping row, so the sticky bar stays short.
+- **Style switching** is done only by the row-3 pills. There is no Style menu in the tools, and the Set list does not switch.
   - On the About pages: **Peter Wiegel** (`about.html`) · **This site** (`site.html`) · **Legend** (`legend.html`) · **Catalogue** (`catalogue.html`). The About pill stays lit on all four.
 - Pills never fill on touch. Hover styles go inside `@media (hover: hover)`; the audit lists rules that still break this.
 - **Pill labels are centred by script** (`inkCenter` in `app.js`):
@@ -54,9 +56,9 @@ The design system Okay signed off, and the working rules for changing it. The si
   - Filter pills show live counts. Pills that would give zero results are dimmed and disabled.
   - Filtering returns the list to the top.
 - **Font page:**
-  - Row 1 is the bar, row 2 the name, family and sections, row 3 prev/next flush right.
+  - Row 1 is the bar, row 2 the name, family and sections, row 3 styles and prev/next. The sheet ends with the tools; no info line under them.
   - Previews fit one line where possible. Controls (size, leading, tracking) sit below the previews.
-  - **Set** (115 downloads hold several fonts): the members by the names the site gives them (`data/members.json`, drafted by `tools/members.py`, edited by hand; the font files keep their own names). Each is listed in its own face; choosing one sets the specimen in it. "Also in the download" lists other designs from the same zip. Row 2 has a "Set N" pill; the list shows "N fonts"/"N styles" and a **Sets** pill under Family.
+  - **Set** (115 downloads hold several fonts): the members by the names the site gives them (`data/members.json`, drafted by `tools/members.py`, edited by hand; the font files keep their own names). Each is listed in its own face; the list shows, the style pills switch. "Also in the download" lists other designs from the same zip. Row 2 has a "Set N" pill; the list shows "N fonts"/"N styles" and a **Sets** pill under Family.
   - **Figures-only fonts** (no Latin letters, or Wiegel's "Figures only" button): figures and a sample of times, prices and dates, never the name; the list preview is figures too.
 - **Fonts list rows:** one small-caps line, `NAME · OG year · DG year · family · N fonts`, catalogue number flush right; the name is there because the preview above can be retyped.
 - **Timeline:** no intro, the decade strip comes first: small faint pills like Clear, only decades with something in them, no gap before 1800, never filled; they only scroll. One stem, today at the top. A year (24px, the UI size; no new sizes) appears only where something happened. Each note (what happened, in the text face) heads the cards of the fonts it is about; fonts with the same note share it. Plain digitisations follow as a bulk of cards, headed "Wiegel digitised N fonts" only in a year with no notes.
@@ -68,6 +70,12 @@ The design system Okay signed off, and the working rules for changing it. The si
 - **This site:** one paragraph of intention and a little of how. Then Colour, with the pairs, and Colophon. No process history; that lives in `docs/`.
 - **Feature chips:** see [ICONS.md](ICONS.md).
 - **Licence (font file)** shows only the licence's name (`lic_name()`).
+- **Font-page Timeline:** cards have no top rule; the year is in the interface size and in its lane colour (Type `--hot`, Digitised `--dl`, Elsewhere `--sky`), with no lane label. The "years between" line is smallest text.
+- **Facts:** licence name (reading size) → small pills (family, genre, N styles, N characters, then tags; each value once) → feature chips (48px, 10 across, smallest-text labels). Number, dates, source, place, designer field and Wiegel's index are shown elsewhere or dropped.
+- **Small pills are links** wherever they show a filterable value: `index.html#fa=`, `#g=`, `#st=`, `#gl=`, `#tg=` (genre, styles, characters and tags filter the list without pills of their own).
+- **Lines that cross or meet** use an opaque ink/paper mix (`color-mix(in oklab, var(--ink) 22%, var(--paper))`), never alpha, so crossings don't darken.
+- **Mono face:** Erika Type Bold, Wiegel's typewriter face (`WA Mono`, the glyph codes). No system monospace.
+- **Typewriter** is a pill under Family, for fonts tagged typewriter (6), after Dot matrix.
 
 ## How to work with Okay
 
